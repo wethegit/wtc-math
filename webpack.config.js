@@ -2,11 +2,11 @@ const path = require('path');
 
 module.exports = {
   target: 'web',
-  entry: "./src/all.js",
+  entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: 'es5-bundle.js',
-    library: 'WTC_UTILS'
+    filename: 'wtc-math.es5.js',
+    library: 'WTCMath'
   },
   module: {
     rules: [
@@ -17,7 +17,7 @@ module.exports = {
         options: {
           presets: [["@babel/env", {
             "targets": {
-              "browsers": ["last 2 versions", "ie >= 11"]
+              "browsers": ["last 2 versions", "ie > 11"]
             },
             useBuiltIns: "usage",
             corejs: 3,

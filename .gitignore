@@ -18,4 +18,5 @@ dev
 pub
 deploy
 lib/
+dist/
 package-lock.json
