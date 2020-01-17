@@ -1048,9 +1048,8 @@ class Mat3 {
    * @returns {mat4} out
    */
   static perspective(fovy, aspect, near, far) {
-    const f = 1.0 / Math.tan(fovy / 2), nf;
-    
-    let a33, a43;
+    const f = 1.0 / Math.tan(fovy / 2)
+    let nf, a33, a43;
     
     if (far != null && far !== Infinity) {
       nf = 1 / (near - far);
