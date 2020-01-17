@@ -717,8 +717,7 @@ class Mat3 {
   }
   
   static fromRotation(r, axis) {
-    const r = new Mat4().rotate(r, axis);
-    return r;
+    return new Mat4().rotate(r, axis);
   }
   
   static fromXRotation(r) {
