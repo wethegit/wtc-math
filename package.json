@@ -1,8 +1,8 @@
 {
   "name": "wtc-math",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
-  "main": "src/all.js",
+  "main": "dist/all.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src/ --presets @babel/preset-env --out-dir dist",
