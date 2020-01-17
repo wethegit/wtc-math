@@ -1,0 +1,27 @@
+{
+  "name": "wtc-math",
+  "version": "0.0.1",
+  "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wethegit/wtc-math.git"
+  },
+  "keywords": [
+    "math",
+    "vector",
+    "matrix",
+    "quaternion",
+    "2d",
+    "3d"
+  ],
+  "author": "Liam Egan <liam@wethecollective.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wethegit/wtc-math/issues"
+  },
+  "homepage": "https://github.com/wethegit/wtc-math#readme"
+}
