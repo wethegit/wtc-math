@@ -519,7 +519,7 @@ class Vec2 {
 
 
 	/**
-	 * Calculates the dot product between this and a supplied vector
+	 * Calculates the dot product between this and a supplied vectorT
 	 *
 	 * @example
 	 * // returns -14
@@ -533,6 +533,14 @@ class Vec2 {
 	dot(vector) {
 		return (this.x * vector.x) + (this.y * vector.y);
 	}
+  
+	det(vector) {
+		return (this.x * vector.y) + (this.y * vector.x);
+	}
+  
+  slopeBetween(vector) {
+    return (vector.y - this.y) / (vector.x - this.x);
+  }
 
 	/**
 	 * Calculates the cross product between this and the supplied vector.
@@ -579,6 +587,16 @@ class Vec2 {
   
   roundNew() {
     return this.clone().round();
+  }
+  
+  mod(vector) {
+    this.x = this.x % vector.x;
+    this.y = this.y % vector.y;
+    return this;
+  }
+  
+  modNew(vector) {
+    return this.clone().mod(vector);
   }
   
   fract() {
@@ -910,5 +928,4 @@ class Vec2 {
   }
 
 }
-
 export default Vec2;

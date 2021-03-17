@@ -31,7 +31,6 @@ class Vec3 {
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
 	 */
-
   constructor(x, y, z){
     if(x instanceof Array && x.length >= 3) {
       this.x = x[0];
@@ -419,6 +418,7 @@ class Vec3 {
   transformByQuat(q) {
     if(q.array) q = q.array; // This just transforms the quaternion to an array.
     if(q instanceof Array && q.length >= 4) {
+      const o = this.clone();
       const uv = new Vec3(
         q[1] * o.z - q[2] * o.y,
         q[2] * o.x - q[0] * o.z,

@@ -448,6 +448,21 @@ class Mat3 {
       this.a21, this.a22, this.a23,
       this.a31, this.a32, this.a33 ];
   }
+    
+  /**
+   * (getter) Returns the basic array representation of this matrix.
+   * this returns the array in column-major form.
+   * @readonly
+   *
+   * @type {array}
+   */
+  get columnArray() {
+    return [
+      this.a11, this.a21, this.a31,
+      this.a12, this.a22, this.a32,
+      this.a13, this.a23, this.a33
+    ];
+  }
   
   /**
    * Calculates the determinant of a mat3
