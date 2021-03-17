@@ -311,62 +311,104 @@ class Mat4 {
   scaleByVec3New(v) {
     this.clone().scaleByVec3(v);
   }
+    
+  /**
+   * Transforms the mat4 by a given amount
+   * 
+   * @param {Vec3} v The amount to add to the matrixes transformation properties
+   * @returns {mat4} output
+   */
+  transform(v) {
+    if(v.array) v = v.array;
+    if(!v.length || v.length &lt; 3) return this;
+    
+    this.a14 += v[0];
+    this.a24 += v[1];
+    this.a34 += v[2];
+    
+    return this;
+  }
+  
+  transformNew(v) {
+    return this.clone().transform(v);
+  }
+  
+  /**
+   * Transforms the mat4 to a given position
+   * 
+   * @param {Vec3} v The amount to add to the matrixes transformation properties
+   * @returns {mat4} output
+   */
+  transformTo(v) {
+    if(v.array) v = v.array;
+    if(!v.length || v.length &lt; 3) return this;
+    
+    this.a14 = v[0];
+    this.a24 = v[1];
+    this.a34 = v[2];
+    
+    return this;
+  }
+  
+  transformToew(v) {
+    return this.clone().transform(v);
+  }
   
   /**
    * Rotates a mat4 by the given angle around the given axis
    *
    * @param {Number} r the angle to rotate the matrix by
    * @param {vec3} axis the axis to rotate around
-   * @returns {mat4} ou
+   * @returns {mat4} output
    */
-  rotate(r, axis) {
-    if(axis.array) axis = axis.array;
-    if(!axis.length || axis.length &lt; 3) return this;
-    let l = Math.hypot(axis[0], axis[1], axis[2]);
-    if(l &lt; EPSILON) return this;
-    
-    l = 1./l;
-    const x = axis[0] / l,
-          y = axis[1] / l,
-          z = axis[2] / l,
-          s = Math.sin(r),
-          c = Math.cos(r),
-          t = 1. - c,
-          o = this.clone(),
-          b = new Mat4();
-    
-    
-    // Construct the rotation matrix 3x3 matrix, but we can use a mat4 to store (w/e)
-    b.a11 = x * x * t + c;
-    b.a12 = y * x * t + z * s;
-    b.a13 = z * x * t - y * s;
-    
-    b.a21 = x * y * t - z * s; 
-    b.a22 = y * y * t + c;
-    b.a23 = z * y * t + x * s;
-    
-    b.a31 = x * z * t + y * s; 
-    b.a32 = y * z * t - x * s;
-    b.a33 = z * z * t + c;
-    
-    // Perform rotation-specific matrix multiplication
-    this.a11 = this.a11 * b.a11 + this.a21 * b.a12 + this.a31 * b.a13;
-    this.a12 = this.a12 * b.a11 + this.a22 * b.a12 + this.a32 * b.a13;
-    this.a13 = this.a13 * b.a11 + this.a23 * b.a12 + this.a33 * b.a13;
-    this.a14 = this.a14 * b.a11 + this.a24 * b.a12 + this.a34 * b.a13;
+    rotate(r, axis) {
+      if(axis.array) axis = axis.array;
+      if(!axis.length || axis.length &lt; 3) return this;
+      let l = Math.hypot(axis[0], axis[1], axis[2]);
+      if(l &lt; EPSILON) return this;
 
-    this.a21 = this.a11 * b.a21 + this.a21 * b.a22 + this.a31 * b.a23;
-    this.a22 = this.a12 * b.a21 + this.a22 * b.a22 + this.a32 * b.a23;
-    this.a23 = this.a13 * b.a21 + this.a23 * b.a22 + this.a33 * b.a23;
-    this.a24 = this.a14 * b.a21 + this.a24 * b.a22 + this.a34 * b.a23;
+      l = 1./l;
+      const x = axis[0] / l,
+            y = axis[1] / l,
+            z = axis[2] / l,
+            s = Math.sin(r),
+            c = Math.cos(r),
+            t = 1. - c,
+            o = this.clone(),
+            b = new Mat4();
 
-    this.a31 = this.a11 * b.a31 + this.a21 * b.a32 + this.a31 * b.a33;
-    this.a32 = this.a12 * b.a31 + this.a22 * b.a32 + this.a32 * b.a33;
-    this.a33 = this.a13 * b.a31 + this.a23 * b.a32 + this.a33 * b.a33;
-    this.a34 = this.a14 * b.a31 + this.a24 * b.a32 + this.a34 * b.a33;
-    
-    return this;
-  }
+
+      // Construct the rotation matrix 3x3 matrix, but we can use a mat4 to store (w/e)
+      b.a11 = x * x * t + c;
+      b.a12 = y * x * t + z * s;
+      b.a13 = z * x * t - y * s;
+
+      b.a21 = x * y * t - z * s; 
+      b.a22 = y * y * t + c;
+      b.a23 = z * y * t + x * s;
+
+      b.a31 = x * z * t + y * s; 
+      b.a32 = y * z * t - x * s;
+      b.a33 = z * z * t + c;
+
+      // Perform rotation-specific matrix multiplication
+      this.a11 = o.a11 * b.a11 + o.a21 * b.a12 + o.a31 * b.a13;
+      this.a12 = o.a12 * b.a11 + o.a22 * b.a12 + o.a32 * b.a13;
+      this.a13 = o.a13 * b.a11 + o.a23 * b.a12 + o.a33 * b.a13;
+      this.a14 = o.a14 * b.a11 + o.a24 * b.a12 + o.a34 * b.a13;
+
+      this.a21 = o.a11 * b.a21 + o.a21 * b.a22 + o.a31 * b.a23;
+      this.a22 = o.a12 * b.a21 + o.a22 * b.a22 + o.a32 * b.a23;
+      this.a23 = o.a13 * b.a21 + o.a23 * b.a22 + o.a33 * b.a23;
+      this.a24 = o.a14 * b.a21 + o.a24 * b.a22 + o.a34 * b.a23;
+
+      this.a31 = o.a11 * b.a31 + o.a21 * b.a32 + o.a31 * b.a33;
+      this.a32 = o.a12 * b.a31 + o.a22 * b.a32 + o.a32 * b.a33;
+      this.a33 = o.a13 * b.a31 + o.a23 * b.a32 + o.a33 * b.a33;
+      this.a34 = o.a14 * b.a31 + o.a24 * b.a32 + o.a34 * b.a33;
+
+      return this;
+    }
   
   rotateNew(r, axis) {
     return this.clone().rotate(r, axis);
@@ -1082,7 +1124,8 @@ class Mat4 {
     if (far != null &amp;&amp; far !== Infinity) {
       nf = 1 / (near - far);
       a33 = (far + near) * nf;
-      a43 = (2 * far * near) * nf;
+      // a43 = (2 * far * near) * nf;
+      a43 = 2 * far * near * nf;
     } else {
       a33 = -1;
       a43 = -2 * near;
@@ -1320,7 +1363,7 @@ export default Mat4;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Mar 02 2020 11:20:57 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Mar 17 2021 11:18:53 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

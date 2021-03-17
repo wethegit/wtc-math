@@ -1,4 +1,4 @@
-# [wtc-math](https://github.com/wethegit/wtc-math#readme) *0.0.4*
+# [wtc-math](https://github.com/wethegit/wtc-math#readme) *0.1.4*
 
 > A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.
 
@@ -110,8 +110,322 @@ Calculates the adjugate of a mat2
 
 
 
+#### columnArray() 
+
+(getter) Returns the basic array representation of this matrix.
+this returns the array in column-major form.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+
+### src/Mat3.js
+
+
+#### a11() 
+
+(getter/setter) The a11 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a12() 
+
+(getter/setter) The a12 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a13() 
+
+(getter/setter) The a13 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a21() 
+
+(getter/setter) The a21 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a22() 
+
+(getter/setter) The a22 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a23() 
+
+(getter/setter) The a23 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a31() 
+
+(getter/setter) The a31 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a32() 
+
+(getter/setter) The a32 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### a33() 
+
+(getter/setter) The a33 value of the matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### array() 
+
+(getter) Returns the basic array representation of this matrix.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### columnArray() 
+
+(getter) Returns the basic array representation of this matrix.
+this returns the array in column-major form.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### determinant(a) 
+
+Calculates the determinant of a mat3
+
+
+
+
+##### Parameters
+
+| Name | Type | Description |  |
+| ---- | ---- | ----------- | -------- |
+| a | `mat3`  | the source matrix | &nbsp; |
+
+
+
+
+##### Returns
+
+
+- `Number`  determinant of a
+
+
+
+#### fromMat4(a) 
+
+Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
+
+
+
+
+##### Parameters
+
+| Name | Type | Description |  |
+| ---- | ---- | ----------- | -------- |
+| a | `mat4`  | Mat4 to derive the normal matrix from | &nbsp; |
+
+
+
+
+##### Returns
+
+
+- `mat3`  
+
+
+
+#### fromProjection(width, height) 
+
+Generates a 2D projection matrix with the given bounds
+
+
+
+
+##### Parameters
+
+| Name | Type | Description |  |
+| ---- | ---- | ----------- | -------- |
+| width | `number`  | Width of your gl context | &nbsp; |
+| height | `number`  | Height of gl context | &nbsp; |
+
+
+
+
+##### Returns
+
+
+- `mat3`  out
+
+
+
 
 ### src/Mat4.js
+
+
+#### transform(v) 
+
+Transforms the mat4 by a given amount
+
+
+
+
+##### Parameters
+
+| Name | Type | Description |  |
+| ---- | ---- | ----------- | -------- |
+| v | `Vec3`  | The amount to add to the matrixes transformation properties | &nbsp; |
+
+
+
+
+##### Returns
+
+
+- `mat4`  output
+
+
+
+#### transformTo(v) 
+
+Transforms the mat4 to a given position
+
+
+
+
+##### Parameters
+
+| Name | Type | Description |  |
+| ---- | ---- | ----------- | -------- |
+| v | `Vec3`  | The amount to add to the matrixes transformation properties | &nbsp; |
+
+
+
+
+##### Returns
+
+
+- `mat4`  output
+
 
 
 #### rotate(r, axis) 
@@ -134,7 +448,7 @@ Rotates a mat4 by the given angle around the given axis
 ##### Returns
 
 
-- `mat4`  ou
+- `mat4`  output
 
 
 
@@ -638,156 +952,12 @@ Generates a matrix that makes something look at something else.
 
 
 
-### src/Mat3.js
-
-
-#### a11() 
-
-(getter/setter) The a11 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a12() 
-
-(getter/setter) The a12 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a13() 
-
-(getter/setter) The a13 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a21() 
-
-(getter/setter) The a21 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a22() 
-
-(getter/setter) The a22 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a23() 
-
-(getter/setter) The a23 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a31() 
-
-(getter/setter) The a31 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a32() 
-
-(getter/setter) The a32 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### a33() 
-
-(getter/setter) The a33 value of the matrix.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
+### src/Quat.js
 
 
 #### array() 
 
-(getter) Returns the basic array representation of this matrix.
+(getter) Returns the basic array representation of this quaternion.
 
 
 
@@ -801,32 +971,9 @@ Generates a matrix that makes something look at something else.
 
 
 
-#### determinant(a) 
+#### fromAxisAngle(axis, rad) 
 
-Calculates the determinant of a mat3
-
-
-
-
-##### Parameters
-
-| Name | Type | Description |  |
-| ---- | ---- | ----------- | -------- |
-| a | `mat3`  | the source matrix | &nbsp; |
-
-
-
-
-##### Returns
-
-
-- `Number`  determinant of a
-
-
-
-#### fromMat4(a) 
-
-Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
+Creates a quaternion from a given axis and rotation
 
 
 
@@ -835,7 +982,8 @@ Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
 
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
-| a | `mat4`  | Mat4 to derive the normal matrix from | &nbsp; |
+| axis | `Vec3` `Array`  | the axis around which to rotate | &nbsp; |
+| rad | `Number`  | the angle in radians | &nbsp; |
 
 
 
@@ -843,31 +991,7 @@ Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
 ##### Returns
 
 
-- `mat3`  
-
-
-
-#### fromProjection(width, height) 
-
-Generates a 2D projection matrix with the given bounds
-
-
-
-
-##### Parameters
-
-| Name | Type | Description |  |
-| ---- | ---- | ----------- | -------- |
-| width | `number`  | Width of your gl context | &nbsp; |
-| height | `number`  | Height of gl context | &nbsp; |
-
-
-
-
-##### Returns
-
-
-- `mat3`  out
+- `Quat`  
 
 
 
@@ -1799,7 +1923,7 @@ Calculated the distance on the Y axis between this and the supplied vector
 
 #### Vec2.dot(vector) 
 
-Calculates the dot product between this and a supplied vector
+Calculates the dot product between this and a supplied vectorT
 
 
 
@@ -4691,50 +4815,6 @@ Performs a linear interpolation between two Vec4's
 
 
 - `Vec4`  
-
-
-
-
-### src/Quat.js
-
-
-#### array() 
-
-(getter) Returns the basic array representation of this quaternion.
-
-
-
-
-
-
-##### Returns
-
-
-- `Void`
-
-
-
-#### fromAxisAngle(axis, rad) 
-
-Creates a quaternion from a given axis and rotation
-
-
-
-
-##### Parameters
-
-| Name | Type | Description |  |
-| ---- | ---- | ----------- | -------- |
-| axis | `Vec3` `Array`  | the axis around which to rotate | &nbsp; |
-| rad | `Number`  | the angle in radians | &nbsp; |
-
-
-
-
-##### Returns
-
-
-- `Quat`  
 
 
 
