@@ -30,7 +30,7 @@
     "build": "rm -rf dist; npm run document; microbundle",
     "dev": "microbundle watch",
     "prepare": "npm run build",
-    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/index.js  --layout markdown --output README.md"
+    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/*.js  --layout markdown --output README.md"
   },
   "devDependencies": {
     "doxdox": "^3.0.0",
