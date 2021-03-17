@@ -1,13 +1,7 @@
 {
   "name": "wtc-math",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "npx babel src/ --presets @babel/preset-env --out-dir build",
-    "prepare": "npm run build && npx webpack --config webpack.config.js && npm run document",
-    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/ --layout markdown --output README.md"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wethegit/wtc-math.git"
@@ -26,18 +20,21 @@
     "url": "https://github.com/wethegit/wtc-math/issues"
   },
   "homepage": "https://github.com/wethegit/wtc-math#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.6",
-    "@babel/preset-env": "^7.8.6",
-    "babel-loader": "^8.0.6",
-    "doxdox": "^3.0.0",
-    "jsdoc": "^3.6.3",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+  "source": "src/index.js",
+  "style": "dist/index.css",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "umd:main": "dist/index.umd.js",
+  "unpkg": "dist/index.umd.js",
+  "scripts": {
+    "build": "rm -rf dist; npm run document; microbundle",
+    "dev": "microbundle watch",
+    "prepare": "npm run build",
+    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/index.js  --layout markdown --output README.md"
   },
-  "dependencies": {
-    "@babel/polyfill": "^7.8.3",
-    "core-js": "^3.6.4"
+  "devDependencies": {
+    "doxdox": "^3.0.0",
+    "jsdoc": "^3.6.4",
+    "microbundle": "^0.12.0"
   }
 }
