@@ -1,3 +1,6 @@
 src/
-build/
+docs/
 .vscode
+.husky
+.github
+jsdoc.json
