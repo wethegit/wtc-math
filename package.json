@@ -21,19 +21,22 @@
   },
   "homepage": "https://github.com/wethegit/wtc-math#readme",
   "source": "src/index.js",
-  "style": "dist/index.css",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "umd:main": "dist/index.umd.js",
   "unpkg": "dist/index.umd.js",
+  "exports": {
+    ".": "./dist/index.modern.js"
+  },
   "scripts": {
-    "build": "rm -rf dist; npm run document; microbundle",
+    "build": "rm -rf dist; microbundle",
     "dev": "microbundle watch",
-    "prepare": "npm run build",
+    "prepare": "husky install; npm run build",
     "document": "npx jsdoc -c jsdoc.json && npx doxdox src/*.js  --layout markdown --output README.md"
   },
   "devDependencies": {
     "doxdox": "^3.0.0",
+    "husky": "^5.1.3",
     "jsdoc": "^3.6.4",
     "microbundle": "^0.12.0"
   }
