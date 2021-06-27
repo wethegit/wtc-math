@@ -839,10 +839,11 @@ class Mat4 {
             wy = w * y2,
             wz = w * z2;
       
-      return new Mat3(
-        1 - yy -zz, yx -wz, zx + wy,
-        yx + wz, 1 - xx - zz, zy - wx,
-        zx - wy, zy + wx, 1 - xx - yy
+      return new Mat4(
+        1 - yy -zz,   yx - wz,      zx + wy,      0,
+        yx + wz,      1 - xx - zz,  zy - wx,      0,
+        zx - wy,      zy + wx,      1 - xx - yy,  0,
+        0,            0,            0,            1
       );
     }
   }
