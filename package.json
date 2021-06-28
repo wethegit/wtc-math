@@ -20,7 +20,7 @@
     "url": "https://github.com/wethegit/wtc-math/issues"
   },
   "homepage": "https://github.com/wethegit/wtc-math#readme",
-  "source": "src/index.js",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "umd:main": "dist/index.umd.js",

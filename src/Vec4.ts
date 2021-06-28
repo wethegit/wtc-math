@@ -1,15 +1,6 @@
 import Vec2 from './Vec2';
 import Vec3 from './Vec3';
-
-const conversionFactor = 180 / Math.PI;
-
-var radianToDegrees = function(radian) {
-	return radian * conversionFactor;
-}
-
-var degreesToRadian = function(degrees) {
-	return degrees / conversionFactor;
-}
+import V4Q from './V4Q';
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -23,7 +14,7 @@ var degreesToRadian = function(degrees) {
  * @version 1.0.0
  * @created Jan 07, 2020
  */
-class Vec4 {
+class Vec4 implements V4Q {
 
 	/**
 	 * The Vector Class constructor
@@ -32,7 +23,7 @@ class Vec4 {
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
 	 */
-  constructor(x, y, z, w){
+  constructor(x:number, y:number, z:number, w:number){
     if(isNaN(x)) x = 0;
     if(isNaN(y)) y = 0;
     if(isNaN(z)) z = 0;
@@ -44,36 +35,35 @@ class Vec4 {
    * Resets the vector coordinates
    *
    * @public
-	 * @param {number|Array} x 	The x coord, OR the array to reset to
-	 * @param {number} y 				The y coord
+   * @chainable
+	 * @param {number} x 	The x coord
+	 * @param {number} y 	The y coord
+	 * @param {number} z 	The z coord
+	 * @param {number} w 	The w coord
    */
-	reset(x, y, z, w) {
-    if(x instanceof Array && x.length >= 4) {
-      this.x = x[0];
-      this.y = x[1];
-      this.z = x[2];
-      this.w = x[3];
-    } else {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-      this.w = w;
-    }
+	reset(x:number, y:number, z:number, w:number):V4Q {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.w = w;
+    return this;
   }
   
   /**
    * Resets the vector coordinates to another vector object
    *
    * @public
-	 * @param {Vector} v 				The vector object to use to reset the coordinates
+   * @chainable
+	 * @param {Vec4} v 				The vector object to use to reset the coordinates
    */
-  resetToVector(v) {
+  resetToVector(v:V4Q):V4Q {
     if(v instanceof Vec4) {
       this.x = v.x;
       this.y = v.y;
       this.z = v.z;
       this.w = v.w;
     }
+    return this;
   }
 
 	/**
@@ -82,7 +72,7 @@ class Vec4 {
 	 * @public
 	 * @return {Vec4}					The cloned vector
 	 */
-  clone() {
+  clone():V4Q {
     return new Vec4(this.x, this.y, this.z, this.w);
   }
 
@@ -94,7 +84,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to add to this one
    * @return {Vec4}					Returns itself, modified
    */
-  add(vector) {
+  add(vector:V4Q):V4Q {
     this.x += vector.x;
     this.y += vector.y;
     this.z += vector.z;
@@ -109,7 +99,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to add to this one
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  addNew(vector) {
+  addNew(vector:V4Q):V4Q {
     return this.clone().add(vector);
   }
 
@@ -121,7 +111,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec4}					Returns itself, modified
    */
-  addScalar(scalar) {
+  addScalar(scalar:number):V4Q {
     return this.add(new Vec4(scalar, scalar, scalar, scalar));
   }
   /**
@@ -132,7 +122,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  addScalarNew(scalar) {
+  addScalarNew(scalar:number):V4Q {
     return this.clone().addScalar(scalar);
   }
 
@@ -144,7 +134,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to subtract from this one
    * @return {Vec4}					Returns itself, modified
    */
-  subtract(vector) {
+  subtract(vector:V4Q):V4Q {
     this.x -= vector.x;
     this.y -= vector.y;
     this.z -= vector.z;
@@ -159,7 +149,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to subtract from this one
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  subtractNew(vector) {
+  subtractNew(vector:V4Q):V4Q {
     return this.clone().subtract(vector);
   }
 
@@ -171,7 +161,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to subtract from the vector
    * @return {Vec4}					Returns itself, modified
    */
-  subtractScalar(scalar) {
+  subtractScalar(scalar:number):V4Q {
     return this.subtract(new Vec4(scalar, scalar, scalar, scalar));
   }
   /**
@@ -182,7 +172,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  subtractScalarNew(scalar) {
+  subtractScalarNew(scalar:number):V4Q {
     return this.clone().subtractScalar(scalar);
   }
 
@@ -194,7 +184,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to divide this by
    * @return {Vec4}					Returns itself, modified
    */
-  divide(vector) {
+  divide(vector:V4Q):V4Q {
     if(vector.x !== 0) {
       this.x /= vector.x
     } else {
@@ -225,7 +215,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to divide the clone by
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  divideNew(vector) {
+  divideNew(vector:V4Q):V4Q {
     return this.clone().divide(vector);
   }
 
@@ -237,7 +227,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec4}					Returns itself, modified
    */
-  divideScalar(scalar) {
+  divideScalar(scalar:number):V4Q {
     var v = new Vec4(scalar, scalar, scalar, scalar);
     return this.divide(v);
   }
@@ -249,7 +239,7 @@ class Vec4 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  divideScalarNew(scalar) {
+  divideScalarNew(scalar:number):V4Q {
     return this.clone().divideScalar(scalar);
   }
 
@@ -261,7 +251,7 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to multiply this by
    * @return {Vec4}					Returns itself, modified
    */
-  multiply(vector) {
+  multiply(vector:V4Q):V4Q {
     this.x *= vector.x;
     this.y *= vector.y;
     this.z *= vector.z;
@@ -276,8 +266,8 @@ class Vec4 {
    * @param  {Vec4}  vector The vector to multiply the clone by
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  multiplyNew(vector) {
-    return this.clone().multiply(vector);
+  multiplyNew(q:V4Q):V4Q {
+    return this.clone().multiply(q);
   }
 
   /**
@@ -288,8 +278,8 @@ class Vec4 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec4}					Returns itself, modified
    */
-  multiplyScalar(scalar) {
-    var v = new Vec4(scalar, scalar, scalar, scalar);
+  multiplyScalar(scalar:number):V4Q {
+    var v:Vec4 = new Vec4(scalar, scalar, scalar, scalar);
     return this.multiply(v);
   }
   /**
@@ -300,24 +290,24 @@ class Vec4 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec4}					Returns the clone of itself, modified
    */
-  multiplyScalarNew(scalar) {
+  multiplyScalarNew(scalar:number):V4Q {
     return this.clone().multiplyScalar(scalar);
   }
 
   /**
    * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
    */
-  scale(scalar) {
+  scale(scalar:number):V4Q {
     return this.multiplyScalar(scalar);
   }
   /**
    * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
    */
-  scaleNew(scalar) {
+  scaleNew(scalar:number):V4Q {
     return this.multiplyScalarNew(scalar);
   }
 
-  rotateX(origin, radian) {
+  rotateX(origin:V4Q, radian:number):V4Q {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -337,11 +327,11 @@ class Vec4 {
   	return this;
   }
   
-  rotateXNew(radian) {
-    return this.clone().rotateX(radian);
+  rotateXNew(origin:V4Q, radian:number):V4Q {
+    return this.clone().rotateX(origin, radian);
   }
 
-  rotateY(origin, radian) {
+  rotateY(origin:V4Q, radian:number):V4Q {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -361,11 +351,11 @@ class Vec4 {
   	return this;
   }
   
-  rotateyNew(radian) {
-    return this.clone().rotateY(radian);
+  rotateYNew(origin:V4Q, radian:number):V4Q {
+    return this.clone().rotateY(origin, radian);
   }
 
-  rotateZ(origin, radian) {
+  rotateZ(origin:V4Q, radian:number):V4Q {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -385,11 +375,11 @@ class Vec4 {
   	return this;
   }
   
-  rotateZNew(radian) {
-    return this.clone().rotateZ(radian);
+  rotateZNew(origin:V4Q, radian:number):V4Q {
+    return this.clone().rotateZ(origin, radian);
   }
   
-  transformByMat4(m) {
+  transformByMat4(m:any):V4Q {
     if(m.array) m = m.array; // This just transforms the matrix to an array.
     if(m instanceof Array && m.length >= 16) {
       const o = this.clone();
@@ -401,28 +391,28 @@ class Vec4 {
     return this;
   }
   
-  transformByMat4New(m) {
+  transformByMat4New(m:any):V4Q {
     return this.clone().transformByMat4(m);
   }
   
-  transformByQuat(q) {
+  transformByQuat(q:any):V4Q {
     if(q.array) q = q.array; // This just transforms the quaternion to an array.
     if(q instanceof Array && q.length >= 4) {
       const uv = new Vec4(
-        q.w * this.x + q.y * this.z - q.z * this.y,
-        q.w * this.y + q.z * this.x - q.x * this.z,
-        q.w * this.z + q.x * this.y - q.y * this.x,
-        -q.x * this.x - q.y * this.y - q.z * this.z
+        q[3] * this.x + q[1] * this.z - q[2] * this.y,
+        q[3] * this.y + q[2] * this.x - q[0] * this.z,
+        q[3] * this.z + q[0] * this.y - q[1] * this.x,
+        -q[0] * this.x - q[1] * this.y - q[2] * this.z
       );
       
-      this.x = uv.x * q.w + uv.w * -q.x + uv.y * -q.z - uv.z * -q.y;
-      this.y = uv.y * q.w + uv.w * -q.y + uv.z * -q.x - uv.x * -q.z;
-      this.z = uv.z * q.w + uv.w * -q.z + uv.x * -q.y - uv.y * -q.x;
+      this.x = uv.x * q[3] + uv.w * -q[0] + uv.y * -q[2] - uv.z * -q[1];
+      this.y = uv.y * q[3] + uv.w * -q[1] + uv.z * -q[0] - uv.x * -q[2];
+      this.z = uv.z * q[3] + uv.w * -q[2] + uv.x * -q[1] - uv.y * -q[0];
     }
     return this;
   }
   
-  transformByQuatNew(q) {
+  transformByQuatNew(q:any):V4Q {
     return this.clone().transformByQuat(q);
   }
   
@@ -433,7 +423,7 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns itself, modified
 	 */
-  negate() {
+  negate():V4Q {
     return this.multiplyScalar(-1.);
   }
   
@@ -444,7 +434,7 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns itself, modified
 	 */
-  negateNew() {
+  negateNew():V4Q {
     return this.multiplyScalarNew(-1.);
   }
   
@@ -455,7 +445,7 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns itself, modified
 	 */
-  inverse() {
+  inverse():V4Q {
     this.x = 1./this.x;
     this.y = 1./this.y;
     this.z = 1./this.z;
@@ -470,12 +460,12 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns itself, modified
 	 */
-  inverseNew() {
-    const c = new Vector();
-    c.x = 1./this.x;
-    c.y = 1./this.y;
-    c.z = 1./this.z;
-    c.w = 1./this.w;
+  inverseNew():V4Q {
+    const c:V4Q = this.clone();
+    c.x = 1./c.x;
+    c.y = 1./c.y;
+    c.z = 1./c.z;
+    c.w = 1./c.w;
     return c;
   }
 
@@ -486,8 +476,8 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns itself, modified
 	 */
-	normalise() {
-    const l = this.length;
+	normalise():V4Q {
+    const l:number = this.length;
     if(l === 0) {
       this.x = 0;
       this.y = 0;
@@ -505,7 +495,7 @@ class Vec4 {
 	 * @chainable
 	 * @return {Vec4}					Returns a clone of itself, modified
 	 */
-	normaliseNew() {
+	normaliseNew():V4Q {
 		return this.clone().normalise();
 	}
 
@@ -515,7 +505,7 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector to calculate the distance from
 	 * @return {number}        The distance between this and the supplied vector
 	 */
-	distance(vector) {
+	distance(vector:V4Q):number {
 		return this.subtractNew(vector).length;
 	}
 
@@ -525,7 +515,7 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the x axis, between this and the supplied vector
 	 */
-	distanceX(vector) {
+	distanceX(vector:V4Q):number {
 		return this.x - vector.x;
 	}
 
@@ -535,7 +525,7 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the y axis, between this and the supplied vector
 	 */
-	distanceY(vector) {
+	distanceY(vector:V4Q):number {
 		return this.y - vector.y;
 	}
 
@@ -545,8 +535,18 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the y axis, between this and the supplied vector
 	 */
-	distanceZ(vector) {
+	distanceZ(vector:V4Q):number {
 		return this.z - vector.z;
+	}
+
+	/**
+	 * Calculated the distance on the W axis between this and the supplied vector
+	 *
+	 * @param  {Vec4} vector The vector to calculate the distance from
+	 * @return {number}        The distance, along the y axis, between this and the supplied vector
+	 */
+	distanceW(vector:V4Q):number {
+		return this.w - vector.w;
 	}
 
 
@@ -562,7 +562,7 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector object against which to calculate the dot product
 	 * @return {number}        The dot product of the two vectors
 	 */
-	dot(vector) {
+	dot(vector:V4Q):number {
 		return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z) + (this.w * vector.w);
 	}
 
@@ -579,7 +579,7 @@ class Vec4 {
 	 * @param  {Vec4} vector The vector object against which to calculate the cross product
 	 * @return {Vec4}        The cross product of the two vectors
 	 */
-	cross(v, w) {
+	cross(v:V4Q, w:V4Q):V4Q {
     const u = this.clone();
     
     const A = (v[0] * w[1]) - (v[1] * w[0]),
@@ -601,11 +601,11 @@ class Vec4 {
     );
 	}
   
-  crossNew() {
-    this.clone().cross();
+  crossNew(v:V4Q, w:V4Q):V4Q {
+    return this.clone().cross(v,w);
   }
   
-  ceil() {
+  ceil():V4Q {
     this.x = Math.ceil(this.x);
     this.y = Math.ceil(this.y);
     this.z = Math.ceil(this.z);
@@ -613,11 +613,11 @@ class Vec4 {
     return this;
   }
   
-  ceilNew() {
+  ceilNew():V4Q {
     return this.clone().ceil();
   }
   
-  floor() {
+  floor():V4Q {
     this.x = Math.floor(this.x);
     this.y = Math.floor(this.y);
     this.z = Math.floor(this.z);
@@ -625,11 +625,11 @@ class Vec4 {
     return this;
   }
   
-  floorNew() {
+  floorNew():V4Q {
     return this.clone().floor();
   }
   
-  round() {
+  round():V4Q {
     this.x = Math.round(this.x);
     this.y = Math.round(this.y);
     this.z = Math.round(this.z);
@@ -637,11 +637,11 @@ class Vec4 {
     return this;
   }
   
-  roundNew() {
+  roundNew():V4Q {
     return this.clone().round();
   }
   
-  fract() {
+  fract():V4Q {
     this.x -= Math.floor(this.x);
     this.y -= Math.floor(this.y);
     this.z -= Math.floor(this.z);
@@ -649,7 +649,7 @@ class Vec4 {
     return this;
   }
   
-  fractNew() {
+  fractNew():V4Q {
     return this.clone().fract();
   }
 
@@ -664,6 +664,7 @@ class Vec4 {
    * @type {number}
    * @default 0
    */
+  private _x:number = 0;
   set x(x) {
     if(typeof x == 'number') {
       this._x = x;
@@ -681,6 +682,7 @@ class Vec4 {
 	* @type {number}
 	* @default 0
 	*/
+  private _y:number = 0
   set y(y) {
     if(typeof y == 'number') {
       this._y = y;
@@ -698,6 +700,7 @@ class Vec4 {
 	* @type {number}
 	* @default 0
 	*/
+  private _z:number = 0;
   set z(z) {
     if(typeof z == 'number') {
       this._z = z;
@@ -715,6 +718,7 @@ class Vec4 {
 	* @type {number}
 	* @default 0
 	*/
+  private _w:number = 0;
   set w(w) {
     if(typeof w == 'number') {
       this._w = w;
@@ -733,7 +737,7 @@ class Vec4 {
 	* @type {number}
 	* @default 0
 	*/
-  set lengthSquared(length) {
+  set lengthSquared(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.lengthSquared;
@@ -742,7 +746,7 @@ class Vec4 {
       throw new TypeError('length should be a number');
     }
   }
-  get lengthSquared() {
+  get lengthSquared():number {
     return (this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w);
   }
 
@@ -752,7 +756,7 @@ class Vec4 {
 	* @type {number}
 	* @default 0
 	*/
-  set length(length) {
+  set length(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.length;
@@ -761,7 +765,7 @@ class Vec4 {
       throw new TypeError('length should be a number');
     }
   }
-  get length() {
+  get length():number {
     return Math.sqrt(this.lengthSquared);
   }
 
@@ -771,10 +775,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-	set width(w) {
+	set width(w:number) {
 		this.x = w;
 	}
-	get width() {
+	get width():number {
 		return this.x;
 	}
 
@@ -784,10 +788,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-	set height(h) {
+	set height(h:number) {
 		this.y = h;
 	}
-	get height() {
+	get height():number {
 		return this.y;
 	}
 
@@ -797,10 +801,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-	set depth(h) {
+	set depth(h:number) {
 		this.z = h;
 	}
-	get depth() {
+	get depth():number {
 		return this.z;
 	}
 
@@ -810,7 +814,7 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-	get area() {
+	get area():number {
 		return this.x * this.y * this.z * this.w;
 	}
 
@@ -820,7 +824,7 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get array() {
+  get array():number[] {
     return [this.x, this.y, this.z, this.w];
   }
   
@@ -829,14 +833,14 @@ class Vec4 {
 	 *
 	 * @type {Vec4}
 	 */
-  get xyzw() {
+  get xyzw():any {
     return new Vec4(this.x, this.y, this.z, this.w);
   }
-  set xyzw(v) {
+  set xyzw(v:any) {
     if(v instanceof Vec4) {
       this.resetToVector(v);
     } else if(v instanceof Array && v.length >= 4) {
-      this.reset(v);
+      this.reset(v[0], v[1], v[2], v[3]);
     } else {
       throw new Error('input should be of type Vector');
     }
@@ -847,10 +851,10 @@ class Vec4 {
 	 *
 	 * @type {Vec4}
 	 */
-  get yzwx() {
+  get yzwx():any {
     return new Vec4(this.y, this.z, this.w, this.x);
   }
-  set yzwx(v) {
+  set yzwx(v:any) {
     this.xyzw = Vec4.interpolate(v).yzwx;
   }
   
@@ -859,10 +863,10 @@ class Vec4 {
 	 *
 	 * @type {Vec4}
 	 */
-  get zwxy() {
+  get zwxy():any {
     return new Vec4(this.z, this.w, this.x, this.y);
   }
-  set zwxy(v) {
+  set zwxy(v:any) {
     this.xyzw = Vec4.interpolate(v).zwxy;
   }
   
@@ -871,10 +875,10 @@ class Vec4 {
 	 *
 	 * @type {Vec4}
 	 */
-  get wxyz() {
+  get wxyz():any {
     return new Vec4(this.w, this.x, this.y, this.z);
   }
-  set wxyz(v) {
+  set wxyz(v:any) {
     this.xyzw = Vec4.interpolate(v).wxyz;
   }
   
@@ -885,10 +889,10 @@ class Vec4 {
 	 *
 	 * @type {Vec3}
 	 */
-  get xyz() {
+  get xyz():any {
     return new Vec3(this.x, this.y, this.z);
   }
-  set xyz(v) {
+  set xyz(v:any) {
     v = Vec3.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -900,10 +904,10 @@ class Vec4 {
 	 *
 	 * @type {Vec3}
 	 */
-  get yzx() {
+  get yzx():any {
     return new Vec3(this.y, this.z, this.x);
   }
-  set yzx(v) {
+  set yzx(v:any) {
     v = Vec3.interpolate(v);
     this.x = v.y;
     this.y = v.z;
@@ -915,10 +919,10 @@ class Vec4 {
 	 *
 	 * @type {Vec3}
 	 */
-  get zxy() {
+  get zxy():any {
     return new Vec3(this.z, this.x, this.y);
   }
-  set zxy(v) {
+  set zxy(v:any) {
     v = Vec3.interpolate(v);
     this.x = v.z;
     this.y = v.x;
@@ -930,10 +934,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get xx() {
+  get xx():any {
     return new Vec2(this.x, this.x);
   }
-  set xx(v) {
+  set xx(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -943,10 +947,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get xy() {
+  get xy():any {
     return new Vec2(this.x, this.y);
   }
-  set xy(v) {
+  set xy(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -957,10 +961,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get xz() {
+  get xz():any {
     return new Vec2(this.x, this.z);
   }
-  set xz(v) {
+  set xz(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.z = v.y;
@@ -971,10 +975,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get xw() {
+  get xw():any {
     return new Vec2(this.x, this.w);
   }
-  set xw(v) {
+  set xw(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.z = v.y;
@@ -985,10 +989,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get yx() {
+  get yx():any {
     return new Vec2(this.y, this.x);
   }
-  set yx(v) {
+  set yx(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
@@ -999,10 +1003,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get yy() {
+  get yy():any {
     return new Vec2(this.y, this.y);
   }
-  set yy(v) {
+  set yy(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -1012,10 +1016,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get yz() {
+  get yz():any {
     return new Vec2(this.y, this.z);
   }
-  set yz(v) {
+  set yz(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
@@ -1026,10 +1030,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get yw() {
+  get yw():any {
     return new Vec2(this.y, this.w);
   }
-  set yw(v) {
+  set yw(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.w = v.y;
@@ -1040,10 +1044,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get zx() {
+  get zx():any {
     return new Vec2(this.z, this.x);
   }
-  set zx(v) {
+  set zx(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
@@ -1054,10 +1058,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get zy() {
+  get zy():any {
     return new Vec2(this.z, this.y);
   }
-  set zy(v) {
+  set zy(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
@@ -1068,10 +1072,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get zz() {
+  get zz():any {
     return new Vec2(this.z, this.z);
   }
-  set zz(v) {
+  set zz(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }
@@ -1081,10 +1085,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get zw() {
+  get zw():any {
     return new Vec2(this.z, this.w);
   }
-  set zw(v) {
+  set zw(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.w = v.y;
@@ -1095,10 +1099,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get wx() {
+  get wx():any {
     return new Vec2(this.w, this.x);
   }
-  set wx(v) {
+  set wx(v:any) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.x = v.y;
@@ -1109,10 +1113,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get wy() {
+  get wy():any {
     return new Vec2(this.w, this.y);
   }
-  set wy(v) {
+  set wy(v:any) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.y = v.y;
@@ -1123,10 +1127,10 @@ class Vec4 {
 	 *
 	 * @type {number}
 	 */
-  get wz() {
+  get wz():any {
     return new Vec2(this.w, this.z);
   }
-  set wz(v) {
+  set wz(v:any) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.z = v.y;
@@ -1137,10 +1141,10 @@ class Vec4 {
 	 *
 	 * @type {Vec2}
 	 */
-  get ww() {
+  get ww():any {
     return new Vec2(this.w, this.w);
   }
-  set ww(v) {
+  set ww(v:any) {
     v = Vec2.interpolate(v);
     this.w = v.y;
   }
@@ -1165,8 +1169,12 @@ class Vec4 {
       return new Vec4(v, v, v, v);
     } else if(typeof v === 'string') {
       const nv = v.split(',');
-      if(nv.length >= 3 && !isNaN(nv[0]) && !isNaN(nv[1]) && !isNaN(nv[2]) && !isNaN(nv[3])) {
-        return new Vec4(Number(nv[0], nv[1], nv[2], nv[3]));
+      const x:number = Number(nv[0]);
+      const y:number = Number(nv[1]);
+      const z:number = Number(nv[2]);
+      const w:number = Number(nv[3]);
+      if(nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z) && !isNaN(w)) {
+        return new Vec4(x,y,z,w);
       }
     } else {
       throw new Error('The passed interpolant could not be parsed into a Vec4');
