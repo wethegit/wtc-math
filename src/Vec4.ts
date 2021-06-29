@@ -23,12 +23,8 @@ class Vec4 implements V4Q {
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
 	 */
-  constructor(x:number, y:number, z:number, w:number){
-    if(isNaN(x)) x = 0;
-    if(isNaN(y)) y = 0;
-    if(isNaN(z)) z = 0;
-    if(isNaN(w)) w = 0;
-    this.reset(x, y, z, w);
+  constructor(...args:number[]){
+    this.reset(...args);
   }
 
   /**
@@ -41,7 +37,12 @@ class Vec4 implements V4Q {
 	 * @param {number} z 	The z coord
 	 * @param {number} w 	The w coord
    */
-	reset(x:number, y:number, z:number, w:number):V4Q {
+	reset(...args:number[]):V4Q {
+    let [x,y,z,w] = args;
+    if(isNaN(x)) x = 0;
+    if(isNaN(y)) y = 0;
+    if(isNaN(z)) z = 0;
+    if(isNaN(w)) w = 0;
     this.x = x;
     this.y = y;
     this.z = z;

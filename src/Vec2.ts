@@ -22,11 +22,8 @@ class Vec2 {
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
 	 */
-  constructor(x:number, y:number){
-    if(isNaN(x)) x = 0;
-    if(isNaN(y)) y = 0;
-    this.x = x;
-    this.y = y;
+  constructor(...args:number[]){
+    this.reset(...args);
   }
 
   /**
@@ -37,7 +34,10 @@ class Vec2 {
 	 * @param {number|Array} x 	The x coord, OR the array to reset to
 	 * @param {number} y 				The y coord
    */
-	reset(x:number, y:number):Vec2 {
+	reset(...args:number[]):Vec2 {
+    let [x,y] = args;
+    if(isNaN(x)) x = 0;
+    if(isNaN(y)) y = 0;
     this.x = x;
     this.y = y;
     return this;

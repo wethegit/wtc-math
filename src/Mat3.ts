@@ -4,51 +4,61 @@ const identity = [
   0, 0, 1
 ];
 
-const identToIndex = function(v) {
+interface Mat4 {
+  a11:number, 
+  a12:number, 
+  a13:number, 
+  a14:number,
+
+  a21:number, 
+  a22:number, 
+  a23:number, 
+  a24:number,
+
+  a31:number, 
+  a32:number, 
+  a33:number, 
+  a34:number,
+
+  a41:number, 
+  a42:number, 
+  a43:number, 
+  a44:number,
+}
+
+const identToIndex = function(v:string):number {
   return [
     'a11', 'a12', 'a13', 
     'a21', 'a22', 'a23',
     'a31', 'a32', 'a33' ].indexOf(v);
 }
 
-const orDefault = function(v, ident) {
+const orDefault = function(v:any, ident:string):number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 }
 
 class Mat3 {
-  constructor(a11, a12, a13, a21, a22, a23, a31, a32, a33) {
-    this.reset(a11, a12, a13, a21, a22, a23, a31, a32, a33);
+  constructor(...args:number[]) {
+    this.reset(...args);
   }
   
-  reset(a11, a12, a13, a21, a22, a23, a31, a32, a33) {
-    if(a11 instanceof Array && a11.length >= 9) {
-      this.a11 = orDefault(a11[0], 'a11');
-      this.a12 = orDefault(a11[1], 'a12');
-      this.a13 = orDefault(a11[2], 'a13');
-      
-      this.a21 = orDefault(a11[3], 'a21');
-      this.a22 = orDefault(a11[4], 'a22');
-      this.a23 = orDefault(a11[5], 'a23');
-      
-      this.a31 = orDefault(a11[6], 'a31');
-      this.a32 = orDefault(a11[7], 'a32');
-      this.a33 = orDefault(a11[8], 'a33');
-    } else {
-      this.a11 = orDefault(a11, 'a11');
-      this.a12 = orDefault(a12, 'a12');
-      this.a13 = orDefault(a13, 'a13');
-      
-      this.a21 = orDefault(a21, 'a21');
-      this.a22 = orDefault(a22, 'a22');
-      this.a23 = orDefault(a23, 'a23');
-      
-      this.a31 = orDefault(a31, 'a31');
-      this.a32 = orDefault(a32, 'a32');
-      this.a33 = orDefault(a33, 'a33');
-    }
+  reset(...args:number[]):Mat3 {
+    const [a11, a12, a13, a21, a22, a23, a31, a32, a33] = args;
+    this.a11 = orDefault(a11, 'a11');
+    this.a12 = orDefault(a12, 'a12');
+    this.a13 = orDefault(a13, 'a13');
+    
+    this.a21 = orDefault(a21, 'a21');
+    this.a22 = orDefault(a22, 'a22');
+    this.a23 = orDefault(a23, 'a23');
+    
+    this.a31 = orDefault(a31, 'a31');
+    this.a32 = orDefault(a32, 'a32');
+    this.a33 = orDefault(a33, 'a33');
+    return this;
   }
   
-  resetToMat3(m) {
+  resetToMat3(m:Mat3):Mat3 {
     this.a11 = m.a11;
     this.a12 = m.a12;
     this.a13 = m.a13;
@@ -58,16 +68,17 @@ class Mat3 {
     this.a31 = m.a31;
     this.a32 = m.a32;
     this.a33 = m.a33;
+    return this;
   }
   
-  clone() {
+  clone():Mat3 {
     return new Mat3(
       this.a11, this.a12, this.a13,
       this.a21, this.a22, this.a23,
       this.a31, this.a32, this.a33);
   }
   
-  transpose() {
+  transpose():Mat3 {
     const a12 = this.a12, 
           a13 = this.a13, 
           a23 = this.a23;
@@ -82,11 +93,11 @@ class Mat3 {
     return this;
   }
   
-  transposeNew() {
+  transposeNew():Mat3 {
     return this.clone().transpose();
   }
   
-  invert() {
+  invert():Mat3 {
     const o = this.clone();
     
     const b01 = this.a33 * this.a22 - this.a23 * this.a32,
@@ -116,11 +127,11 @@ class Mat3 {
     return this;
   }
   
-  invertNew() {
+  invertNew():Mat3 {
     return this.clone().invert();
   }
   
-  adjoint() {
+  adjoint():Mat3 {
     const o = this.clone();
     
     this.a11 = o.a22 * o.a33 - o.a23 * o.a32;
@@ -138,73 +149,67 @@ class Mat3 {
     return this;
   }
   
-  adjointNew() {
+  adjointNew():Mat3 {
     return this.clone().adjoint()
   }
   
-  add(m) {
-    if(m instanceof Mat3) {
-      this.a11 += m.a11;
-      this.a12 += m.a12;
-      this.a13 += m.a13;
-      this.a21 += m.a21;
-      this.a22 += m.a22;
-      this.a23 += m.a23;
-      this.a31 += m.a31;
-      this.a32 += m.a32;
-      this.a33 += m.a33;
-    }
+  add(m:Mat3):Mat3 {
+    this.a11 += m.a11;
+    this.a12 += m.a12;
+    this.a13 += m.a13;
+    this.a21 += m.a21;
+    this.a22 += m.a22;
+    this.a23 += m.a23;
+    this.a31 += m.a31;
+    this.a32 += m.a32;
+    this.a33 += m.a33;
     return this;
   }
   
-  addNew(m) {
+  addNew(m:Mat3):Mat3 {
     return this.clone().add(m);
   }
   
   // @TODO: We might want to generalise this and allow any sort of matrix on these operations
   
-  subtract(m) {
-    if(m instanceof Mat3) {
-      this.a11 -= m.a11;
-      this.a12 -= m.a12;
-      this.a13 -= m.a13;
-      this.a21 -= m.a21;
-      this.a22 -= m.a22;
-      this.a23 -= m.a23;
-      this.a31 -= m.a31;
-      this.a32 -= m.a32;
-      this.a33 -= m.a33;
-    }
+  subtract(m:Mat3):Mat3 {
+    this.a11 -= m.a11;
+    this.a12 -= m.a12;
+    this.a13 -= m.a13;
+    this.a21 -= m.a21;
+    this.a22 -= m.a22;
+    this.a23 -= m.a23;
+    this.a31 -= m.a31;
+    this.a32 -= m.a32;
+    this.a33 -= m.a33;
     return this;
   }
   
-  subtractNew(m) {
+  subtractNew(m:Mat3):Mat3 {
     return this.clone().subtract(m);
   }
   
-  multiply(m) {
-    if(m instanceof Mat3) {
+  multiply(m:Mat3):Mat3 {
       const o = this.clone();
-      this.a11 = m.a11 * o.a11 + m.a12 * o.a21 + m.a13 * o.a31;
-      this.a12 = m.a11 * o.a12 + m.a12 * o.a22 + m.a13 * o.a32;
-      this.a13 = m.a11 * o.a13 + m.a12 * o.a23 + m.a13 * o.a33;
+    this.a11 = m.a11 * o.a11 + m.a12 * o.a21 + m.a13 * o.a31;
+    this.a12 = m.a11 * o.a12 + m.a12 * o.a22 + m.a13 * o.a32;
+    this.a13 = m.a11 * o.a13 + m.a12 * o.a23 + m.a13 * o.a33;
 
-      this.a21 = m.a21 * o.a11 + m.a22 * o.a21 + m.a23 * o.a31;
-      this.a22 = m.a21 * o.a12 + m.a22 * o.a22 + m.a23 * o.a32;
-      this.a23 = m.a21 * o.a13 + m.a22 * o.a23 + m.a23 * o.a33;
+    this.a21 = m.a21 * o.a11 + m.a22 * o.a21 + m.a23 * o.a31;
+    this.a22 = m.a21 * o.a12 + m.a22 * o.a22 + m.a23 * o.a32;
+    this.a23 = m.a21 * o.a13 + m.a22 * o.a23 + m.a23 * o.a33;
 
-      this.a31 = m.a31 * o.a11 + m.a32 * o.a21 + m.a33 * o.a31;
-      this.a32 = m.a31 * o.a12 + m.a32 * o.a22 + m.a33 * o.a32;
-      this.a33 = m.a31 * o.a13 + m.a32 * o.a23 + m.a33 * o.a33;
-    }
+    this.a31 = m.a31 * o.a11 + m.a32 * o.a21 + m.a33 * o.a31;
+    this.a32 = m.a31 * o.a12 + m.a32 * o.a22 + m.a33 * o.a32;
+    this.a33 = m.a31 * o.a13 + m.a32 * o.a23 + m.a33 * o.a33;
     return this;
   }
   
-  multiplyNew(m) {
+  multiplyNew(m:Mat3):Mat3 {
     return this.clone().multiply(m);
   }
   
-  multiplyScalar(s) {
+  multiplyScalar(s:number):Mat3 {
     this.a11 *= s;
     this.a12 *= s;
     this.a13 *= s;
@@ -217,19 +222,19 @@ class Mat3 {
     return this;
   }
   
-  multiplyScalarNew(s) {
+  multiplyScalarNew(s:number):Mat3 {
     return this.clone().multiplyScalar(s);
   }
   
-  scale(s) {
+  scale(s:number):Mat3 {
     return this.multiplyScalar(s);
   }
   
-  scaleNew(s) {
+  scaleNew(s:number):Mat3 {
     return this.multiplyScalarNew(s);
   }
   
-  scaleByVec2(v) {
+  scaleByVec2(v:any):Mat3 {
     if(v.array) v = v.array;
     
     this.a11 *= v[0];
@@ -243,11 +248,11 @@ class Mat3 {
     return this;
   }
   
-  scaleByVec2New(v) {
-    this.clone().scaleByVec2(v);
+  scaleByVec2New(v:any):Mat3 {
+    return this.clone().scaleByVec2(v);
   }
   
-  rotate(r) {
+  rotate(r:number):Mat3 {
     const o = this.clone();
     const s = Math.sin(r);
     const c = Math.cos(r);
@@ -263,11 +268,11 @@ class Mat3 {
     return this;
   }
   
-  rotateNew(r) {
+  rotateNew(r:number):Mat3 {
     return this.clone().rotate(r);
   }
   
-  toString() {
+  toString():string {
     return `
       ${this.a11}, ${this.a12}, ${this.a13},
       ${this.a21}, ${this.a22}, ${this.a23},
@@ -285,15 +290,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a11:number=0;
   set a11(v) {
     if(typeof v == 'number') {
-      this._a11 = v;
+      this.#a11 = v;
     } else {
       throw new TypeError('a11 should be a number');
     }
   }
   get a11() {
-    return this._a11 || 0;
+    return this.#a11 || 0;
   }
   
   /**
@@ -302,15 +308,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a12:number=0;
   set a12(v) {
     if(typeof v == 'number') {
-      this._a12 = v;
+      this.#a12 = v;
     } else {
       throw new TypeError('a12 should be a number');
     }
   }
   get a12() {
-    return this._a12 || 0;
+    return this.#a12 || 0;
   }
   
   /**
@@ -319,15 +326,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a13:number=0;
   set a13(v) {
     if(typeof v == 'number') {
-      this._a13 = v;
+      this.#a13 = v;
     } else {
       throw new TypeError('a13 should be a number');
     }
   }
   get a13() {
-    return this._a13 || 0;
+    return this.#a13 || 0;
   }
   
   /**
@@ -336,15 +344,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a21:number=0;
   set a21(v) {
     if(typeof v == 'number') {
-      this._a21 = v;
+      this.#a21 = v;
     } else {
       throw new TypeError('a21 should be a number');
     }
   }
   get a21() {
-    return this._a21 || 0;
+    return this.#a21 || 0;
   }
   
   /**
@@ -353,15 +362,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a22:number=0;
   set a22(v) {
     if(typeof v == 'number') {
-      this._a22 = v;
+      this.#a22 = v;
     } else {
       throw new TypeError('a22 should be a number');
     }
   }
   get a22() {
-    return this._a22 || 0;
+    return this.#a22 || 0;
   }
   
   /**
@@ -370,15 +380,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a23:number=0;
   set a23(v) {
     if(typeof v == 'number') {
-      this._a23 = v;
+      this.#a23 = v;
     } else {
       throw new TypeError('a23 should be a number');
     }
   }
   get a23() {
-    return this._a23 || 0;
+    return this.#a23 || 0;
   }
 
   /**
@@ -387,15 +398,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a31:number=0;
   set a31(v) {
     if(typeof v == 'number') {
-      this._a31 = v;
+      this.#a31 = v;
     } else {
       throw new TypeError('a31 should be a number');
     }
   }
   get a31() {
-    return this._a31 || 0;
+    return this.#a31 || 0;
   }
   
   /**
@@ -404,15 +416,16 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a32:number=0;
   set a32(v) {
     if(typeof v == 'number') {
-      this._a32 = v;
+      this.#a32 = v;
     } else {
       throw new TypeError('a32 should be a number');
     }
   }
   get a32() {
-    return this._a32 || 0;
+    return this.#a32 || 0;
   }
   
   /**
@@ -421,18 +434,19 @@ class Mat3 {
    * @type {number}
    * @default 0
    */
+  #a33:number=0;
   set a33(v) {
     if(typeof v == 'number') {
-      this._a33 = v;
+      this.#a33 = v;
     } else {
       throw new TypeError('a33 should be a number');
     }
   }
   get a33() {
-    return this._a33 || 0;
+    return this.#a33 || 0;
   }
   
-  get frobeniusnorm() {
+  get frobeniusnorm():number {
     return(Math.hypot(...this.array));
   }
 
@@ -442,7 +456,7 @@ class Mat3 {
 	 *
 	 * @type {array}
 	 */
-  get array() {
+  get array():number[] {
     return [
       this.a11, this.a12, this.a13,
       this.a21, this.a22, this.a23,
@@ -456,7 +470,7 @@ class Mat3 {
    *
    * @type {array}
    */
-  get columnArray() {
+  get columnArray():number[] {
     return [
       this.a11, this.a21, this.a31,
       this.a12, this.a22, this.a32,
@@ -470,7 +484,7 @@ class Mat3 {
    * @param {mat3} a the source matrix
    * @returns {Number} determinant of a
    */
-  get determinant() {
+  get determinant():number {
     let b01 = this.a33 * this.a22 - this.a23 * this.a32;
     let b11 = -this.a33 * this.a21 + this.a23 * this.a31;
     let b21 = this.a32 * this.a21 - this.a22 * this.a31;
@@ -478,9 +492,9 @@ class Mat3 {
     return this.a11 * b01 + this.a12 * b11 + this.a13 * b21;
   }
   
-  static fromAngle(r) {
-    let s = Math.sin(rad);
-    let c = Math.cos(rad);
+  static fromAngle(r:number):Mat3 {
+    let s = Math.sin(r);
+    let c = Math.cos(r);
     
     return new Mat3(
       c, -s, 0,
@@ -488,7 +502,7 @@ class Mat3 {
       0, 0, 0);
   }
   
-  static fromScalingVec2(v) {
+  static fromScalingVec2(v:any):Mat3 {
     if(v.array) v = v.array; // This just transforms a provided vector into to an array.
     
     if(v instanceof Array) {
@@ -497,9 +511,10 @@ class Mat3 {
         0, v[1], 0,
         0, 0, 1);
     }
+    return Mat3.identity();
   }
   
-  static fromQuat(q) {
+  static fromQuat(q:any):Mat3 {
     if(q.array) q = q.array; // This just transforms a provided vector into to an array.
     
     if(q instanceof Array && q.length >= 4) {
@@ -531,7 +546,7 @@ class Mat3 {
   *
   * @returns {mat3}
   */
-  static fromMat4(a) {
+  static fromMat4(a:Mat4):Mat3 {
     const t = [
       a.a11 * a.a22 - a.a12 * a.a21,
       a.a11 * a.a23 - a.a13 * a.a21,
@@ -575,12 +590,16 @@ class Mat3 {
    * @param {number} height Height of gl context
    * @returns {mat3} out
    */
-  static fromProjection(width, height) {
+  static fromProjection(width:number, height:number):Mat3 {
     return new Mat3(
       2. / width,     0,            0,
       0,              -2 / height,  0,
       -1,             1,            1
     );
+  }
+
+  static identity():Mat3 {
+    return new Mat3(...identity);
   }
 }
 

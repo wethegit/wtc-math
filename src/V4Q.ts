@@ -33,7 +33,7 @@ interface V4Q {
   wy:any
   wz:any
   ww:any
-  reset(x:number, y:number, z:number, w:number):V4Q
+  reset(...args:number[]):V4Q
   resetToVector(v:V4Q):V4Q
   clone():V4Q
   rotateX(origin:V4Q, rad:number):V4Q

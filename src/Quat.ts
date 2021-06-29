@@ -16,12 +16,14 @@ const orDefault = function(v:any, ident:string):number {
 }
 
 class Quat extends Vec4 implements V4Q {
-  constructor(x:number, y:number, z:number, w:number) {
-    super(x, y, z, w);
-    this.reset(x, y, z, w);
+  
+  constructor(...args:number[]){
+    super(...args);
+    this.reset(...args);
   }
   
-  reset(x:number, y:number, z:number, w:number):V4Q {
+	reset(...args:number[]):V4Q {
+    let [x,y,z,w] = args;
     this.x = orDefault(x, 'x');
     this.y = orDefault(y, 'y');
     this.z = orDefault(z, 'z');

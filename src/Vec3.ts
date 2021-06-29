@@ -22,13 +22,8 @@ class Vec3 {
 	 * @param {number} y 				The y coord
 	 * @param {number} z 				The z coord
 	 */
-  constructor(x:number, y:number, z:number){
-    if(isNaN(x)) x = 0;
-    if(isNaN(y)) y = 0;
-    if(isNaN(z)) z = 0;
-    this.x = x;
-    this.y = y;
-    this.z = z;
+  constructor(...args:number[]){
+    this.reset(...args);
   }
 
   /**
@@ -40,7 +35,11 @@ class Vec3 {
 	 * @param {number} y 				The y coord
 	 * @param {number} z 				The z coord
    */
-	reset(x:number, y:number, z:number):Vec3 {
+	reset(...args:number[]):Vec3 {
+    let [x,y,z,w] = args;
+    if(isNaN(x)) x = 0;
+    if(isNaN(y)) y = 0;
+    if(isNaN(z)) z = 0;
     this.x = x;
     this.y = y;
     this.z = z;
