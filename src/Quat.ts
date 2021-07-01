@@ -1,44 +1,38 @@
 import Mat3 from "./Mat3";
 import Vec3 from "./Vec3";
 import Vec4 from "./Vec4";
+import V4Q from './V4Q';
 
-const EPSILON = 0.0001;
-
-const identity = [
+const identity:number[] = [
   0, 0, 0, 1
 ];
 
-const identToIndex = function(v) {
+const identToIndex = function(v:string):number {
   return ['x', 'y', 'z', 'w'].indexOf(v);
 }
 
-const orDefault = function(v, ident) {
+const orDefault = function(v:any, ident:string):number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 }
 
-class Quat extends Vec4 {
-  constructor(x, y, z, w) {
-    super();
-    this.reset(x, y, z, w);
+class Quat extends Vec4 implements V4Q {
+  
+  constructor(...args:number[]){
+    super(...args);
+    this.reset(...args);
   }
   
-  reset(x, y, z, w) {
-    if(x instanceof Array && x.length >= 4) {
-      this.x = orDefault(x[0], 'x');
-      this.y = orDefault(x[1], 'y');
-      this.z = orDefault(x[2], 'z');
-      this.w = orDefault(x[3], 'w');
-    } else {
-      this.x = orDefault(x, 'x');
-      this.y = orDefault(y, 'y');
-      this.z = orDefault(z, 'z');
-      this.w = orDefault(w, 'w');
-    }
+	reset(...args:number[]):V4Q {
+    let [x,y,z,w] = args;
+    this.x = orDefault(x, 'x');
+    this.y = orDefault(y, 'y');
+    this.z = orDefault(z, 'z');
+    this.w = orDefault(w, 'w');
     
     return this;
   }
   
-  resetToQuat(q) {
+  resetToQuat(q):Quat {
     this.x = q.x;
     this.y = q.y;
     this.z = q.z;
@@ -47,15 +41,15 @@ class Quat extends Vec4 {
     return this;
   }
   
-  clone() {
+  clone():V4Q {
     return new Quat(this.x, this.y, this.z, this.w);
   }
   
   toString() {
-    return ` ${this.x}, ${this.y}, ${this.z}, ${this.w}`;
+    return `${this.x}, ${this.y}, ${this.z}, ${this.w}`;
   }
   
-  multiply(q) {
+  multiply(q:V4Q):V4Q {
     const a = this.clone();
 
     this.x = a.x * q.w + a.w * q.x + a.y * q.z - a.z * q.y;
@@ -66,11 +60,11 @@ class Quat extends Vec4 {
     return this;
   }
   
-  multiplyNew(q) {
+  multiplyNew(q:V4Q):V4Q {
     return this.clone().multiply(q);
   }
   
-  rotateX(rad) {
+  rotateX(origin:V4Q, rad:number):V4Q {
     rad *= 0.5;
 
     const a = this.clone();
@@ -84,7 +78,7 @@ class Quat extends Vec4 {
     return this;
   }
   
-  rotateY(rad) {
+  rotateY(origin:V4Q, rad:number):V4Q {
     rad *= 0.5;
 
     const a = this.clone();
@@ -98,7 +92,7 @@ class Quat extends Vec4 {
     return this
   }
   
-  rotateZ(rad) {
+  rotateZ(origin:V4Q, rad:number):V4Q {
     rad *= 0.5;
 
     const a = this.clone();
@@ -116,21 +110,9 @@ class Quat extends Vec4 {
    * Getters and setters
    */
   
-	/**
-	 * (getter) Returns the basic array representation of this quaternion.
-	 * @readonly
-	 *
-	 * @type {array}
-	 */
-  get array() {
-    return [this.x, this.y, this.z, this.w];
-  }
-  
   // Gets the calculated W component of this quaternion.
-  get normalW() {
-    let a = this.clone().normalise();
-    
-    return Math.sqrt(Math.abs(1.0 - x * x - y * y - z * z));
+  get normalW():number {
+    return Math.sqrt(Math.abs(1.0 - this.x * this.x - this.y * this.y - this.z * this.z));
   }
   
   /**
@@ -140,11 +122,12 @@ class Quat extends Vec4 {
   /**
    * Creates a quaternion from a given axis and rotation
    *
+   * @static
    * @param {Vec3|Array} axis the axis around which to rotate
    * @param {Number} rad the angle in radians
    * @returns {Quat}
    **/
-  static fromAxisAngle(axis, rad) {
+  static fromAxisAngle(axis:Vec3, rad:number):Quat {
     axis = Vec3.interpolate(axis);
     rad *= .5;
     const s = Math.sin(rad);

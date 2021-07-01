@@ -1,12 +1,4 @@
-const conversionFactor = 180 / Math.PI;
-
-var radianToDegrees = function(radian) {
-	return radian * conversionFactor;
-}
-
-var degreesToRadian = function(degrees) {
-	return degrees / conversionFactor;
-}
+import { radianToDegrees, degreesToRadian } from './common';
 
 /**
  * A basic 2D Vector class that provides simple algebraic functionality in the form
@@ -26,53 +18,52 @@ class Vec2 {
 	 * The Vector Class constructor
 	 *
 	 * @constructor
+   * @chainable
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
 	 */
-  constructor(x, y){
-    if(isNaN(x)) x = 0;
-    if(isNaN(y)) y = 0;
-    this.x = x;
-    this.y = y;
+  constructor(...args:number[]){
+    this.reset(...args);
   }
 
   /**
    * Resets the vector coordinates
    *
    * @public
+   * @chainable
 	 * @param {number|Array} x 	The x coord, OR the array to reset to
 	 * @param {number} y 				The y coord
    */
-	reset(x, y) {
-    if(x instanceof Array && x.length >= 2) {
-      this.x = x[0];
-      this.y = x[1];
-    } else {
-      this.x = x;
-      this.y = y;
-    }
+	reset(...args:number[]):Vec2 {
+    let [x,y] = args;
+    if(isNaN(x)) x = 0;
+    if(isNaN(y)) y = 0;
+    this.x = x;
+    this.y = y;
+    return this;
   }
   
   /**
    * Resets the vector coordinates to another vector object
    *
    * @public
+   * @chainable
 	 * @param {Vector} v 				The vector object to use to reset the coordinates
    */
-  resetToVector(v) {
-    if(v instanceof Vec2) {
-      this.x = v.x;
-      this.y = v.y;
-    }
+  resetToVector(v:Vec2):Vec2 {
+    this.x = v.x;
+    this.y = v.y;
+    return this;
   }
 
 	/**
 	 * Clones the vector
 	 *
 	 * @public
+   * @chainable
 	 * @return {Vector}					The cloned vector
 	 */
-  clone() {
+  clone():Vec2 {
     return new Vec2(this.x, this.y);
   }
 
@@ -84,7 +75,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to add to this one
    * @return {Vec2}					Returns itself, modified
    */
-  add(vector) {
+  add(vector:Vec2):Vec2 {
     this.x += vector.x;
     this.y += vector.y;
     return this;
@@ -97,7 +88,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to add to this one
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  addNew(vector) {
+  addNew(vector:Vec2):Vec2 {
     return this.clone().add(vector);
   }
 
@@ -109,7 +100,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec2}					Returns itself, modified
    */
-  addScalar(scalar) {
+  addScalar(scalar:number):Vec2 {
     return this.add(new Vec2(scalar, scalar));
   }
   /**
@@ -120,7 +111,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  addScalarNew(scalar) {
+  addScalarNew(scalar:number):Vec2 {
     return this.clone().addScalar(scalar);
   }
 
@@ -132,7 +123,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to subtract from this one
    * @return {Vec2}					Returns itself, modified
    */
-  subtract(vector) {
+  subtract(vector:Vec2):Vec2 {
     this.x -= vector.x;
     this.y -= vector.y;
     return this;
@@ -145,7 +136,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to subtract from this one
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  subtractNew(vector) {
+  subtractNew(vector:Vec2):Vec2 {
     return this.clone().subtract(vector);
   }
 
@@ -157,7 +148,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to subtract from the vector
    * @return {Vec2}					Returns itself, modified
    */
-  subtractScalar(scalar) {
+  subtractScalar(scalar:number):Vec2 {
     return this.subtract(new Vec2(scalar, scalar));
   }
   /**
@@ -168,7 +159,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  subtractScalarNew(scalar) {
+  subtractScalarNew(scalar:number):Vec2 {
     return this.clone().subtractScalar(scalar);
   }
 
@@ -180,7 +171,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to divide this by
    * @return {Vec2}					Returns itself, modified
    */
-  divide(vector) {
+  divide(vector:Vec2):Vec2 {
     if(vector.x !== 0) {
       this.x /= vector.x
     } else {
@@ -201,7 +192,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to divide the clone by
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  divideNew(vector) {
+  divideNew(vector:Vec2):Vec2 {
     return this.clone().divide(vector);
   }
 
@@ -213,7 +204,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec2}					Returns itself, modified
    */
-  divideScalar(scalar) {
+  divideScalar(scalar:number):Vec2 {
     var v = new Vec2(scalar, scalar);
     return this.divide(v);
   }
@@ -225,7 +216,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  divideScalarNew(scalar) {
+  divideScalarNew(scalar:number):Vec2 {
     return this.clone().divideScalar(scalar);
   }
 
@@ -237,7 +228,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to multiply this by
    * @return {Vec2}					Returns itself, modified
    */
-  multiply(vector) {
+  multiply(vector:Vec2):Vec2 {
     this.x *= vector.x;
     this.y *= vector.y;
     return this;
@@ -250,7 +241,7 @@ class Vec2 {
    * @param  {Vec2}  vector The vector to multiply the clone by
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  multiplyNew(vector) {
+  multiplyNew(vector:Vec2):Vec2 {
     return this.clone().multiply(vector);
   }
 
@@ -262,7 +253,7 @@ class Vec2 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec2}					Returns itself, modified
    */
-  multiplyScalar(scalar) {
+  multiplyScalar(scalar:number):Vec2 {
     var v = new Vec2(scalar, scalar);
     return this.multiply(v);
   }
@@ -274,20 +265,20 @@ class Vec2 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  multiplyScalarNew(scalar) {
+  multiplyScalarNew(scalar:number):Vec2 {
     return this.clone().multiplyScalar(scalar);
   }
 
   /**
    * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
    */
-  scale(scalar) {
+  scale(scalar:number):Vec2 {
     return this.multiplyScalar(scalar);
   }
   /**
    * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
    */
-  scaleNew(scalar) {
+  scaleNew(scalar:number):Vec2 {
     return this.multiplyScalarNew(scalar);
   }
 
@@ -299,7 +290,7 @@ class Vec2 {
    * @param  {number}  radian The angle, in radians, to rotate the vector by
    * @return {Vec2}					Returns itself, modified
    */
-  rotate(radian) {
+  rotate(radian:number):Vec2 {
   	var x = (this.x * Math.cos(radian)) - (this.y * Math.sin(radian));
   	var y = (this.x * Math.sin(radian)) + (this.y * Math.cos(radian));
 
@@ -316,7 +307,7 @@ class Vec2 {
    * @param  {number}  radian The angle, in radians, to rotate the vector by
    * @return {Vec2}					Returns the clone of itself, modified
    */
-  rotateNew(radian) {
+  rotateNew(radian:number):Vec2 {
     return this.clone().rotate(radian);
   }
 
@@ -329,7 +320,7 @@ class Vec2 {
 	 * @param  {number}  degrees The angle, in degrees, to rotate the vector by
 	 * @return {Vec2}						Returns itself, modified
 	 */
-  rotateDeg(degrees) {
+  rotateDeg(degrees:number):Vec2 {
     return this.rotate(degreesToRadian(degrees));
   }
   /**
@@ -340,33 +331,33 @@ class Vec2 {
 	 * @param  {number}  degrees The angle, in degrees, to rotate the vector by
    * @return {Vec2}					 Returns the clone of itself, modified
    */
-  rotateDegNew(degrees) {
+  rotateDegNew(degrees:number):Vec2 {
     return this.rotateNew(degreesToRadian(degrees));
   }
 
   /**
    * Alias of {@link Vector#rotate__anchor rotate}
    */
-  rotateBy(radian) {
+  rotateBy(radian:number):Vec2 {
 		return this.rotate(radian);
   }
   /**
    * Alias of {@link Vector#rotateNew__anchor rotateNew}
    */
-  rotateByNew(radian) {
+  rotateByNew(radian:number):Vec2 {
     return this.rotateNew(radian);
   }
 
   /**
    * Alias of {@link Vector#rotateDeg__anchor rotateDeg}
    */
-  rotateDegBy(degrees) {
+  rotateDegBy(degrees:number):Vec2 {
 		return this.rotateDeg(degrees);
   }
   /**
    * Alias of {@link Vector#rotateDegNew__anchor rotateDegNew}
    */
-  rotateDegByNew(radian) {
+  rotateDegByNew(radian:number):Vec2 {
     return this.rotateDegNew(radian);
   }
 
@@ -378,7 +369,7 @@ class Vec2 {
    * @param  {number}  radian The angle, in radians, to rotate the vector to
    * @return {Vec2}					Returns itself, modified
    */
-	rotateTo(radian) {
+	rotateTo(radian:number):Vec2 {
 		return this.rotate(radian-this.angle);
 	};
   /**
@@ -389,7 +380,7 @@ class Vec2 {
    * @param  {number}  radian The angle, in radians, to rotate the vector to
    * @return {Vec2}					Returns the clone of itself, modified
    */
-	rotateToNew(radian) {
+	rotateToNew(radian:number):Vec2 {
     return this.clone().rotateTo(radian);
 	};
 
@@ -402,7 +393,7 @@ class Vec2 {
 	 * @param  {number}  degrees The angle, in degrees, to rotate the vector to
 	 * @return {Vec2}						Returns itself, modified
 	 */
-  rotateToDeg(degrees) {
+  rotateToDeg(degrees:number):Vec2 {
     return this.rotateTo(degreesToRadian(degrees));
   }
   /**
@@ -413,7 +404,7 @@ class Vec2 {
 	 * @param  {number}  degrees The angle, in degrees, to rotate the vector to
    * @return {Vec2}					 Returns the clone of itself, modified
    */
-  rotateToDegNew(degrees) {
+  rotateToDegNew(degrees:number):Vec2 {
     return this.rotateToNew(degreesToRadian(degrees));
   }
   
@@ -424,7 +415,7 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns itself, modified
 	 */
-  negate() {
+  negate():Vec2 {
     return this.multiplyScalar(-1.);
   }
   
@@ -435,7 +426,7 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns itself, modified
 	 */
-  negateNew() {
+  negateNew():Vec2 {
     return this.multiplyScalarNew(-1.);
   }
   
@@ -446,7 +437,7 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns itself, modified
 	 */
-  inverse() {
+  inverse():Vec2 {
     this.x = 1./this.x;
     this.y = 1./this.y;
     return this;
@@ -459,10 +450,10 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns itself, modified
 	 */
-  inverseNew() {
-    const c = new Vector();
-    c.x = 1./this.x;
-    c.y = 1./this.y;
+  inverseNew():Vec2 {
+    const c = this.clone();
+    c.x = 1./c.x;
+    c.y = 1./c.y;
     return c;
   }
 
@@ -473,7 +464,7 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns itself, modified
 	 */
-	normalise() {
+	normalise():Vec2 {
 		return this.divideScalar(this.length);
 	}
 	/**
@@ -483,7 +474,7 @@ class Vec2 {
 	 * @chainable
 	 * @return {Vec2}					Returns a clone of itself, modified
 	 */
-	normaliseNew() {
+	normaliseNew():Vec2 {
 		return this.divideScalarNew(this.length);
 	}
 
@@ -493,7 +484,7 @@ class Vec2 {
 	 * @param  {Vec2} vector The vector to calculate the distance from
 	 * @return {number}        The distance between this and the supplied vector
 	 */
-	distance(vector) {
+	distance(vector:Vec2):number {
 		return this.subtractNew(vector).length;
 	}
 
@@ -503,17 +494,17 @@ class Vec2 {
 	 * @param  {Vec2} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the x axis, between this and the supplied vector
 	 */
-	distanceX(vector) {
+	distanceX(vector:Vec2):number {
 		return this.x - vector.x;
 	}
-
+  
 	/**
 	 * Calculated the distance on the Y axis between this and the supplied vector
 	 *
 	 * @param  {Vec2} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the y axis, between this and the supplied vector
 	 */
-	distanceY(vector) {
+	distanceY(vector:Vec2):number {
 		return this.y - vector.y;
 	}
 
@@ -530,15 +521,15 @@ class Vec2 {
 	 * @param  {Vec2} vector The vector object against which to calculate the dot product
 	 * @return {number}        The dot product of the two vectors
 	 */
-	dot(vector) {
+	dot(vector:Vec2):number {
 		return (this.x * vector.x) + (this.y * vector.y);
 	}
   
-	det(vector) {
+	det(vector:Vec2):number {
 		return (this.x * vector.y) + (this.y * vector.x);
 	}
   
-  slopeBetween(vector) {
+  slopeBetween(vector:Vec2):number {
     return (vector.y - this.y) / (vector.x - this.x);
   }
 
@@ -555,61 +546,61 @@ class Vec2 {
 	 * @param  {Vec2} vector The vector object against which to calculate the cross product
 	 * @return {number}        The cross product of the two vectors
 	 */
-	cross(vector) {
+	cross(vector:Vec2):number {
 		return (this.x * vector.x) - (this.y * vector.y);
 	}
   
-  ceil() {
+  ceil():Vec2 {
     this.x = Math.ceil(this.x);
     this.y = Math.ceil(this.y);
     return this;
   }
   
-  ceilNew() {
+  ceilNew():Vec2 {
     return this.clone().ceil();
   }
   
-  floor() {
+  floor():Vec2 {
     this.x = Math.floor(this.x);
     this.y = Math.floor(this.y);
     return this;
   }
   
-  floorNew() {
+  floorNew():Vec2 {
     return this.clone().floor();
   }
   
-  round() {
+  round():Vec2 {
     this.x = Math.round(this.x);
     this.y = Math.round(this.y);
     return this;
   }
   
-  roundNew() {
+  roundNew():Vec2 {
     return this.clone().round();
   }
   
-  mod(vector) {
+  mod(vector:Vec2):Vec2 {
     this.x = this.x % vector.x;
     this.y = this.y % vector.y;
     return this;
   }
   
-  modNew(vector) {
+  modNew(vector:Vec2):Vec2 {
     return this.clone().mod(vector);
   }
   
-  fract() {
+  fract():Vec2 {
     this.x -= Math.floor(this.x);
     this.y -= Math.floor(this.y);
     return this;
   }
   
-  fractNew() {
+  fractNew():Vec2 {
     return this.clone().fract();
   }
   
-  transformByMat2(m) {
+  transformByMat2(m):Vec2 {
     if(m.array) m = m.array; // This just transforms the matrix to an array.
     if(m instanceof Array && m.length >= 4) {
       const c = this.clone();
@@ -619,11 +610,11 @@ class Vec2 {
     return this;
   }
   
-  transformByMat2New(m) {
+  transformByMat2New(m):Vec2 {
     return this.clone().transformByMat2(m);
   }
   
-  transformByMat3(m) {
+  transformByMat3(m):Vec2 {
     if(m.array) m = m.array; // This just transforms the matrix to an array.
     if(m instanceof Array && m.length >= 9) {
       const c = this.clone();
@@ -633,7 +624,7 @@ class Vec2 {
     return this;
   }
   
-  transformByMat3New(m) {
+  transformByMat3New(m):Vec2 {
     return this.clone().transformByMat3(m);
   }
 
@@ -648,15 +639,16 @@ class Vec2 {
    * @type {number}
    * @default 0
    */
-  set x(x) {
+  #x: number = 0;
+  set x(x:number) {
     if(typeof x == 'number') {
-      this._x = x;
+      this.#x = x;
     } else {
       throw new TypeError('X should be a number');
     }
   }
-  get x() {
-    return this._x || 0;
+  get x():number {
+    return this.#x || 0;
   }
 
  /**
@@ -665,15 +657,16 @@ class Vec2 {
 	* @type {number}
 	* @default 0
 	*/
-  set y(y) {
+  #y: number = 0;
+  set y(y:number) {
     if(typeof y == 'number') {
-      this._y = y;
+      this.#y = y;
     } else {
       throw new TypeError('Y should be a number');
     }
   }
-  get y() {
-    return this._y || 0;
+  get y():number {
+    return this.#y || 0;
   }
 
 	/**
@@ -683,7 +676,7 @@ class Vec2 {
 	* @type {number}
 	* @default 0
 	*/
-  set lengthSquared(length) {
+  set lengthSquared(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.lengthSquared;
@@ -692,7 +685,7 @@ class Vec2 {
       throw new TypeError('length should be a number');
     }
   }
-  get lengthSquared() {
+  get lengthSquared():number {
     return (this.x * this.x) + (this.y * this.y);
   }
 
@@ -702,7 +695,7 @@ class Vec2 {
 	* @type {number}
 	* @default 0
 	*/
-  set length(length) {
+  set length(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.length;
@@ -711,7 +704,7 @@ class Vec2 {
       throw new TypeError('length should be a number');
     }
   }
-  get length() {
+  get length():number {
     return Math.sqrt(this.lengthSquared);
   }
 
@@ -721,14 +714,14 @@ class Vec2 {
 	* @type {number}
 	* @default 0
 	*/
-  set angle(radian) {
+  set angle(radian:number) {
     if(typeof radian == 'number') {
       this.rotateTo(radian);
     } else {
       throw new TypeError('angle should be a number');
     }
   }
-  get angle() {
+  get angle():number {
     return Math.atan2(this.y, this.x);
   }
 
@@ -738,14 +731,14 @@ class Vec2 {
 	* @type {number}
 	* @default 0
 	*/
-  set angleInDegrees(degrees) {
+  set angleInDegrees(degrees:number) {
     if(typeof degrees == 'number') {
       this.rotateToDeg(degrees);
     } else {
       throw new TypeError('angle should be a number');
     }
   }
-  get angleInDegrees() {
+  get angleInDegrees():number {
     return radianToDegrees(Math.atan2(this.y, this.x));
   }
 
@@ -755,10 +748,10 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-	set width(w) {
+	set width(w:number) {
 		this.x = w;
 	}
-	get width() {
+	get width():number {
 		return this.x;
 	}
 
@@ -768,10 +761,10 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-	set height(h) {
+	set height(h:number) {
 		this.y = h;
 	}
-	get height() {
+	get height():number {
 		return this.y;
 	}
 
@@ -781,7 +774,7 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-	get area() {
+	get area():number {
 		return this.x * this.y;
 	}
 
@@ -790,13 +783,13 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  set slope(value) {
+  set slope(value:number) {
     if(!isNaN(value)) {
       let angle = Math.atan(value);
       this.angle = angle;
     }
   }
-  get slope() {
+  get slope():number {
     return this.y / this.x;
   }
 
@@ -806,7 +799,7 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  get array() {
+  get array():number[] {
     return [this.x, this.y];
   }
   
@@ -815,14 +808,14 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  get xy() {
+  get xy():Vec2|number[] {
     return new Vec2(this.x, this.y);
   }
-  set xy(v) {
+  set xy(v:Vec2|number[]) {
     if(v instanceof Vec2) {
       this.resetToVector(v);
     } else if(v instanceof Array && v.length >= 2) {
-      this.reset(v);
+      this.reset(v[0], v[1]);
     } else {
       throw new Error('input should be of type Vector');
     }
@@ -833,10 +826,10 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  get yx() {
+  get yx():any {
     return new Vec2(this.y, this.x);
   }
-  set yx(v) {
+  set yx(v:any) {
     this.xy = Vec2.interpolate(v).yx;
   }
   
@@ -845,10 +838,10 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  get xx() {
+  get xx():any {
     return new Vec2(this.x, this.x);
   }
-  set xx(v) {
+  set xx(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -858,10 +851,10 @@ class Vec2 {
 	 *
 	 * @type {number}
 	 */
-  get yy() {
+  get yy():any {
     return new Vec2(this.y, this.y);
   }
-  set yy(v) {
+  set yy(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -876,7 +869,7 @@ class Vec2 {
    * @param {Vec2|array|string|number} v The value to interpolate
    * @returns {Vec2} out
    */
-  static interpolate(v) {
+  static interpolate(v:any) {
     if(v instanceof Vec2) {
       return new Vec2(v.x, v.y);
     } else if(v instanceof Array && v.length >= 2) {
@@ -885,8 +878,10 @@ class Vec2 {
       return new Vec2(v, v);
     } else if(typeof v === 'string') {
       const nv = v.split(',');
-      if(nv.length >= 2 && !isNaN(nv[0]) && !isNaN(nv[1])) {
-        return new Vec2(Number(nv[0], nv[1]));
+      const x:number = Number(nv[0]);
+      const y:number = Number(nv[1]);
+      if(nv.length >= 2 && !isNaN(x) && !isNaN(y)) {
+        return new Vec2(x, y);
       }
     } else {
       throw new Error('The passed interpolant could not be parsed into a vec2');
@@ -901,14 +896,21 @@ class Vec2 {
    * @param {Number} d interpolation amount in the range of 0 - 1
    * @returns {Vec2}
    */
-  static lerp(v1, v2, d) {
+  static lerp(v1:Vec2, v2:Vec2, d:number):Vec2 {
     return new Vec2(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y)
     );
   }
   
-  static getAngle(a, b) {
+  /**
+   * Finds the angle between 2 vectors.
+   *
+   * @param {vec2} a the first operand
+   * @param {vec2} b the second operand
+   * @returns {number}
+   */
+  static getAngle(a:Vec2, b:Vec2):number {
     a = a.clone();
     b = b.clone();
     

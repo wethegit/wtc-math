@@ -1,103 +1,94 @@
+
 const identity = [
   1, 0,
   0, 1
 ];
 
-const identToIndex = function(v) {
+const identToIndex = function(v:string):number {
   return ['a11', 'a12', 'a21', 'a22'].indexOf(v);
 }
 
-const orDefault = function(v, ident) {
+const orDefault = function(v:any, ident:string):number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 }
 
 class Mat2 {
-  constructor(a11, a12, a21, a22) {
+  constructor(...args:number[]) {
+    const [a11, a12, a21, a22] = args;
     this.reset(a11, a12, a21, a22);
   }
   
-  reset(a11, a12, a21, a22) {
-    if(a11 instanceof Array && a11.length >= 4) {
-      this.a11 = orDefault(a11[0], 'a11');
-      this.a12 = orDefault(a11[1], 'a12');
-      this.a21 = orDefault(a11[2], 'a21');
-      this.a22 = orDefault(a11[3], 'a22');
-    } else {
-      this.a11 = orDefault(a11, 'a11');
-      this.a12 = orDefault(a12, 'a12');
-      this.a21 = orDefault(a21, 'a21');
-      this.a22 = orDefault(a22, 'a22');
-    }
+  reset(a11:number, a12:number, a21:number, a22:number):Mat2 {
+    this.a11 = orDefault(a11, 'a11');
+    this.a12 = orDefault(a12, 'a12');
+    this.a21 = orDefault(a21, 'a21');
+    this.a22 = orDefault(a22, 'a22');
+    return this;
   }
   
-  resetToMat2(m) {
+  resetToMat2(m:Mat2):Mat2 {
     this.a11 = m.a11;
     this.a12 = m.a12;
     this.a21 = m.a21;
     this.a22 = m.a22;
+    return this;
   }
   
-  clone() {
+  clone():Mat2 {
     return new Mat2(this.a11, this.a12, this.a21, this.a22);
   }
   
-  transpose() {
+  transpose():Mat2 {
     const a12 = this.a12;
     this.a12 = this.a21;
     this.a21 = a12;
     return this;
   }
   
-  transposeNew() {
-    return this.clone().transpose(m);
+  transposeNew():Mat2 {
+    return this.clone().transpose();
   }
   
-  add(m) {
-    if(m instanceof Mat2) {
-      this.a11 += m.a11;
-      this.a12 += m.a12;
-      this.a21 += m.a21;
-      this.a22 += m.a22;
-    }
+  add(m:Mat2):Mat2 {
+    this.a11 += m.a11;
+    this.a12 += m.a12;
+    this.a21 += m.a21;
+    this.a22 += m.a22;
     return this;
   }
   
-  addNew(m) {
+  addNew(m:Mat2):Mat2 {
     return this.clone().add(m);
   }
   
   // @TODO: We might want to generalise this and allow any sort of matrix on these operations
   
-  subtract(m) {
-    if(m instanceof Mat2) {
-      this.a11 -= m.a11;
-      this.a12 -= m.a12;
-      this.a21 -= m.a21;
-      this.a22 -= m.a22;
-    }
+  subtract(m:Mat2):Mat2 {
+    this.a11 -= m.a11;
+    this.a12 -= m.a12;
+    this.a21 -= m.a21;
+    this.a22 -= m.a22;
     return this;
   }
   
-  subtractNew(m) {
+  subtractNew(m:Mat2):Mat2 {
     return this.clone().subtract(m);
   }
   
-  multiply(m) {
-    if(m instanceof Mat2) {
-      const o = this.clone();
-      this.a11 = o.a11 * m.a11 + o.a21 * m.a12;
-      this.a12 = o.a12 * m.a11 + o.a22 * m.a12;
-      this.a21 = o.a11 * m.a21 + o.a21 * m.a22;
-      this.a22 = o.a12 * m.a21 + o.a22 * m.a22;
-    }
+  multiply(m:Mat2):Mat2 {
+    const o = this.clone();
+    this.a11 = o.a11 * m.a11 + o.a21 * m.a12;
+    this.a12 = o.a12 * m.a11 + o.a22 * m.a12;
+    this.a21 = o.a11 * m.a21 + o.a21 * m.a22;
+    this.a22 = o.a12 * m.a21 + o.a22 * m.a22;
     return this;
   }
   
-  multiplyNew(m) {
+  multiplyNew(m:Mat2):Mat2 {
     return this.clone().multiply(m);
   }
   
-  multiplyScalar(s) {
+  multiplyScalar(s:number):Mat2 {
     this.a11 *= s;
     this.a12 *= s;
     this.a21 *= s;
@@ -105,19 +96,19 @@ class Mat2 {
     return this;
   }
   
-  multiplyScalarNew(s) {
+  multiplyScalarNew(s:number):Mat2 {
     return this.clone().multiplyScalar(s);
   }
   
-  scale(s) {
+  scale(s:number):Mat2 {
     return this.multiplyScalar(s);
   }
   
-  scaleNew(s) {
+  scaleNew(s:number):Mat2 {
     return this.multiplyScalarNew(s);
   }
   
-  scaleByVec2(v) {
+  scaleByVec2(v:any):Mat2 {
     if(v.array) v = v.array; // This just transforms a provided vector into to an array.
     
     if(v instanceof Array) {
@@ -130,11 +121,11 @@ class Mat2 {
     return this;
   }
   
-  scaleByVec2New(v) {
+  scaleByVec2New(v:any):Mat2 {
     return this.clone().scaleByVec2(v);
   }
   
-  rotate(r) {
+  rotate(r:number):Mat2 {
     const o = this.clone();
     const s = Math.sin(r);
     const c = Math.cos(r);
@@ -145,11 +136,11 @@ class Mat2 {
     return this;
   }
   
-  rotateNew(r) {
+  rotateNew(r:number):Mat2 {
     return this.clone().rotate(r);
   }
   
-  invert() {
+  invert():Mat2 {
     const c = this.clone();
     
     let det = this.determinant;
@@ -167,18 +158,16 @@ class Mat2 {
     return this;
   }
   
-  invertNew() {
+  invertNew():Mat2 {
     return this.clone().invert();
   }
   
   /**
    * Calculates the adjugate of a mat2
    *
-   * @param {mat2} out the receiving matrix
-   * @param {mat2} a the source matrix
    * @returns {mat2} out
    */
-  adjoint() {
+  adjoint():Mat2 {
     const a11 = this.a11;
     this.a11 =  this.a22;
     this.a12 = -this.a12;
@@ -188,11 +177,11 @@ class Mat2 {
     return this;
   }
   
-  adjointNew() {
-    this.clone().adjoint();
+  adjointNew():Mat2 {
+    return this.clone().adjoint();
   }
   
-  toString() {
+  toString():string {
     return `
       ${this.a11}, ${this.a12},
       ${this.a21}, ${this.a22}
@@ -209,15 +198,16 @@ class Mat2 {
    * @type {number}
    * @default 0
    */
+  #a11:number=0;
   set a11(v) {
     if(typeof v == 'number') {
-      this._a11 = v;
+      this.#a11 = v;
     } else {
       throw new TypeError('a11 should be a number');
     }
   }
   get a11() {
-    return this._a11 || 0;
+    return this.#a11 || 0;
   }
   
   /**
@@ -226,15 +216,16 @@ class Mat2 {
    * @type {number}
    * @default 0
    */
+  #a12:number=0;
   set a12(v) {
     if(typeof v == 'number') {
-      this._a12 = v;
+      this.#a12 = v;
     } else {
       throw new TypeError('a12 should be a number');
     }
   }
   get a12() {
-    return this._a12 || 0;
+    return this.#a12 || 0;
   }
   
   /**
@@ -243,15 +234,16 @@ class Mat2 {
    * @type {number}
    * @default 0
    */
+  #a21:number=0;
   set a21(v) {
     if(typeof v == 'number') {
-      this._a21 = v;
+      this.#a21 = v;
     } else {
       throw new TypeError('a21 should be a number');
     }
   }
   get a21() {
-    return this._a21 || 0;
+    return this.#a21 || 0;
   }
   
   /**
@@ -260,18 +252,19 @@ class Mat2 {
    * @type {number}
    * @default 0
    */
+  #a22:number=0;
   set a22(v) {
     if(typeof v == 'number') {
-      this._a22 = v;
+      this.#a22 = v;
     } else {
       throw new TypeError('a22 should be a number');
     }
   }
   get a22() {
-    return this._a22 || 0;
+    return this.#a22 || 0;
   }
   
-  get determinant() {
+  get determinant():number {
     return this.a11 * this.a21 - this.a21 * this.a12;
   }
 
@@ -281,7 +274,7 @@ class Mat2 {
 	 *
 	 * @type {array}
 	 */
-  get array() {
+  get array():number[] {
     return [
       this.a11, this.a12,
       this.a21, this.a22];
@@ -294,26 +287,31 @@ class Mat2 {
    *
    * @type {array}
    */
-  get columnArray() {
+  get columnArray():number[] {
     return [
       this.a11, this.a21,
       this.a12, this.a22
     ];
   }
   
-  static fromAngle(r) {
-    let s = Math.sin(rad);
-    let c = Math.cos(rad);
+  static fromAngle(r:number):Mat2 {
+    let s = Math.sin(r);
+    let c = Math.cos(r);
     
     return new Mat2(c, -s, s, c);
   }
   
-  static fromScalingVec2(v) {
+  static fromScalingVec2(v:any):Mat2 {
     if(v.array) v = v.array; // This just transforms a provided vector into to an array.
     
     if(v instanceof Array) {
       return new Mat2(v[0], 0, 0, v[1]);
     }
+    return Mat2.identity();
+  }
+
+  static identity():Mat2 {
+    return new Mat2(...identity);
   }
 }
 

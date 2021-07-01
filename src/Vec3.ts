@@ -1,15 +1,5 @@
 import Vec2 from './Vec2';
 
-const conversionFactor = 180 / Math.PI;
-
-var radianToDegrees = function(radian) {
-	return radian * conversionFactor;
-}
-
-var degreesToRadian = function(degrees) {
-	return degrees / conversionFactor;
-}
-
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
  * of 3D Vectors.
@@ -30,53 +20,46 @@ class Vec3 {
 	 * @constructor
 	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
+	 * @param {number} z 				The z coord
 	 */
-  constructor(x, y, z){
-    if(x instanceof Array && x.length >= 3) {
-      this.x = x[0];
-      this.y = x[1];
-      this.z = x[2];
-    } else {
-      if(isNaN(x)) x = 0;
-      if(isNaN(y)) y = 0;
-      if(isNaN(z)) z = 0;
-      this.x = x;
-      this.y = y;
-      this.z = z;
-    }
+  constructor(...args:number[]){
+    this.reset(...args);
   }
 
   /**
    * Resets the vector coordinates
    *
    * @public
-	 * @param {number|Array} x 	The x coord, OR the array to reset to
+   * @chainable
+	 * @param {number} x 				The x coord
 	 * @param {number} y 				The y coord
+	 * @param {number} z 				The z coord
    */
-	reset(x, y, z) {
-    if(x instanceof Array && x.length >= 3) {
-      this.x = x[0];
-      this.y = x[1];
-      this.z = x[2];
-    } else {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-    }
+	reset(...args:number[]):Vec3 {
+    let [x,y,z,w] = args;
+    if(isNaN(x)) x = 0;
+    if(isNaN(y)) y = 0;
+    if(isNaN(z)) z = 0;
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    return this;
   }
   
   /**
    * Resets the vector coordinates to another vector object
    *
    * @public
-	 * @param {Vector} v 				The vector object to use to reset the coordinates
+   * @chainable
+	 * @param {Vec3} v 				The vector object to use to reset the coordinates
    */
-  resetToVector(v) {
+  resetToVector(v:Vec3):Vec3 {
     if(v instanceof Vec3) {
       this.x = v.x;
       this.y = v.y;
       this.z = v.z;
     }
+    return this;
   }
 
 	/**
@@ -85,7 +68,7 @@ class Vec3 {
 	 * @public
 	 * @return {Vec3}					The cloned vector
 	 */
-  clone() {
+  clone():Vec3 {
     return new Vec3(this.x, this.y, this.z);
   }
 
@@ -97,7 +80,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to add to this one
    * @return {Vec3}					Returns itself, modified
    */
-  add(vector) {
+  add(vector:Vec3):Vec3 {
     this.x += vector.x;
     this.y += vector.y;
     this.z += vector.z;
@@ -111,7 +94,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to add to this one
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  addNew(vector) {
+  addNew(vector:Vec3):Vec3 {
     return this.clone().add(vector);
   }
 
@@ -123,7 +106,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec3}					Returns itself, modified
    */
-  addScalar(scalar) {
+  addScalar(scalar:number):Vec3 {
     return this.add(new Vec3(scalar, scalar, scalar));
   }
   /**
@@ -134,7 +117,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  addScalarNew(scalar) {
+  addScalarNew(scalar:number):Vec3 {
     return this.clone().addScalar(scalar);
   }
 
@@ -146,7 +129,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to subtract from this one
    * @return {Vec3}					Returns itself, modified
    */
-  subtract(vector) {
+  subtract(vector:Vec3):Vec3 {
     this.x -= vector.x;
     this.y -= vector.y;
     this.z -= vector.z;
@@ -160,7 +143,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to subtract from this one
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  subtractNew(vector) {
+  subtractNew(vector:Vec3):Vec3 {
     return this.clone().subtract(vector);
   }
 
@@ -172,7 +155,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to subtract from the vector
    * @return {Vec3}					Returns itself, modified
    */
-  subtractScalar(scalar) {
+  subtractScalar(scalar:number):Vec3 {
     return this.subtract(new Vec3(scalar, scalar, scalar));
   }
   /**
@@ -183,7 +166,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to add to the vector
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  subtractScalarNew(scalar) {
+  subtractScalarNew(scalar:number):Vec3 {
     return this.clone().subtractScalar(scalar);
   }
 
@@ -195,7 +178,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to divide this by
    * @return {Vec3}					Returns itself, modified
    */
-  divide(vector) {
+  divide(vector:Vec3):Vec3 {
     if(vector.x !== 0) {
       this.x /= vector.x
     } else {
@@ -221,7 +204,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to divide the clone by
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  divideNew(vector) {
+  divideNew(vector:Vec3):Vec3 {
     return this.clone().divide(vector);
   }
 
@@ -233,7 +216,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec3}					Returns itself, modified
    */
-  divideScalar(scalar) {
+  divideScalar(scalar:number):Vec3 {
     var v = new Vec3(scalar, scalar, scalar);
     return this.divide(v);
   }
@@ -245,7 +228,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to divide both x and y by
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  divideScalarNew(scalar) {
+  divideScalarNew(scalar:number):Vec3 {
     return this.clone().divideScalar(scalar);
   }
 
@@ -257,7 +240,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to multiply this by
    * @return {Vec3}					Returns itself, modified
    */
-  multiply(vector) {
+  multiply(vector:Vec3):Vec3 {
     this.x *= vector.x;
     this.y *= vector.y;
     this.z *= vector.z;
@@ -271,7 +254,7 @@ class Vec3 {
    * @param  {Vec3}  vector The vector to multiply the clone by
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  multiplyNew(vector) {
+  multiplyNew(vector:Vec3):Vec3 {
     return this.clone().multiply(vector);
   }
 
@@ -283,7 +266,7 @@ class Vec3 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec3}					Returns itself, modified
    */
-  multiplyScalar(scalar) {
+  multiplyScalar(scalar:number):Vec3 {
     var v = new Vec3(scalar, scalar, scalar);
     return this.multiply(v);
   }
@@ -295,24 +278,24 @@ class Vec3 {
    * @param  {number}  scalar The scalar to multiply both x and y by
    * @return {Vec3}					Returns the clone of itself, modified
    */
-  multiplyScalarNew(scalar) {
+  multiplyScalarNew(scalar:number):Vec3 {
     return this.clone().multiplyScalar(scalar);
   }
 
   /**
    * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
    */
-  scale(scalar) {
+  scale(scalar:number):Vec3 {
     return this.multiplyScalar(scalar);
   }
   /**
    * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
    */
-  scaleNew(scalar) {
+  scaleNew(scalar:number):Vec3 {
     return this.multiplyScalarNew(scalar);
   }
 
-  rotateX(origin, radian) {
+  rotateX(origin:Vec3, radian:number):Vec3 {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -332,11 +315,11 @@ class Vec3 {
   	return this;
   }
   
-  rotateXNew(radian) {
-    return this.clone().rotateX(radian);
+  rotateXNew(origin:Vec3, radian:number):Vec3 {
+    return this.clone().rotateX(origin, radian);
   }
 
-  rotateY(origin, radian) {
+  rotateY(origin:Vec3, radian:number):Vec3 {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -356,11 +339,11 @@ class Vec3 {
   	return this;
   }
   
-  rotateyNew(radian) {
-    return this.clone().rotateY(radian);
+  rotateyNew(origin:Vec3, radian:number):Vec3 {
+    return this.clone().rotateY(origin, radian);
   }
 
-  rotateZ(origin, radian) {
+  rotateZ(origin:Vec3, radian:number):Vec3 {
     
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -380,11 +363,11 @@ class Vec3 {
   	return this;
   }
   
-  rotateZNew(radian) {
-    return this.clone().rotateZ(radian);
+  rotateZNew(origin:Vec3, radian:number):Vec3 {
+    return this.clone().rotateZ(origin, radian);
   }
   
-  transformByMat4(m) {
+  transformByMat4(m:any):Vec3 {
     if(m.array) m = m.array; // This just transforms the matrix to an array.
     if(m instanceof Array && m.length >= 16) {
       const o = this.clone();
@@ -396,11 +379,11 @@ class Vec3 {
     return this;
   }
   
-  transformByMat4New(m) {
+  transformByMat4New(m:any):Vec3 {
     return this.clone().transformByMat4(m);
   }
   
-  transformByMat3(m) {
+  transformByMat3(m:any):Vec3 {
     if(m.array) m = m.array; // This just transforms the matrix to an array.
     if(m instanceof Array && m.length >= 9) {
       const o = this.clone();
@@ -411,11 +394,11 @@ class Vec3 {
     return this;
   }
   
-  transformByMat3New(m) {
+  transformByMat3New(m:any):Vec3 {
     return this.clone().transformByMat3(m);
   }
   
-  transformByQuat(q) {
+  transformByQuat(q:any):Vec3 {
     if(q.array) q = q.array; // This just transforms the quaternion to an array.
     if(q instanceof Array && q.length >= 4) {
       const o = this.clone();
@@ -438,7 +421,7 @@ class Vec3 {
     return this;
   }
   
-  transformByQuatNew(q) {
+  transformByQuatNew(q:any):Vec3 {
     return this.clone().transformByQuat(q);
   }
   
@@ -449,7 +432,7 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns itself, modified
 	 */
-  negate() {
+  negate():Vec3 {
     return this.multiplyScalar(-1.);
   }
   
@@ -460,7 +443,7 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns itself, modified
 	 */
-  negateNew() {
+  negateNew():Vec3 {
     return this.multiplyScalarNew(-1.);
   }
   
@@ -471,7 +454,7 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns itself, modified
 	 */
-  inverse() {
+  inverse():Vec3 {
     this.x = 1./this.x;
     this.y = 1./this.y;
     this.z = 1./this.z;
@@ -485,11 +468,11 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns itself, modified
 	 */
-  inverseNew() {
-    const c = new Vector();
-    c.x = 1./this.x;
-    c.y = 1./this.y;
-    c.z = 1./this.z;
+  inverseNew():Vec3 {
+    const c = this.clone();
+    c.x = 1./c.x;
+    c.y = 1./c.y;
+    c.z = 1./c.z;
     return c;
   }
 
@@ -500,7 +483,7 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns itself, modified
 	 */
-	normalise() {
+	normalise():Vec3 {
 		return this.divideScalar(this.length);
 	}
 	/**
@@ -510,7 +493,7 @@ class Vec3 {
 	 * @chainable
 	 * @return {Vec3}					Returns a clone of itself, modified
 	 */
-	normaliseNew() {
+	normaliseNew():Vec3 {
 		return this.divideScalarNew(this.length);
 	}
 
@@ -520,7 +503,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector to calculate the distance from
 	 * @return {number}        The distance between this and the supplied vector
 	 */
-	distance(vector) {
+	distance(vector:Vec3):number {
 		return this.subtractNew(vector).length;
 	}
 
@@ -530,7 +513,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the x axis, between this and the supplied vector
 	 */
-	distanceX(vector) {
+	distanceX(vector:Vec3):number {
 		return this.x - vector.x;
 	}
 
@@ -540,7 +523,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the y axis, between this and the supplied vector
 	 */
-	distanceY(vector) {
+	distanceY(vector:Vec3):number {
 		return this.y - vector.y;
 	}
 
@@ -550,7 +533,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector to calculate the distance from
 	 * @return {number}        The distance, along the y axis, between this and the supplied vector
 	 */
-	distanceZ(vector) {
+	distanceZ(vector:Vec3):number {
 		return this.z - vector.z;
 	}
 
@@ -567,7 +550,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector object against which to calculate the dot product
 	 * @return {number}        The dot product of the two vectors
 	 */
-	dot(vector) {
+	dot(vector:Vec3):number {
 		return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
 	}
 
@@ -584,7 +567,7 @@ class Vec3 {
 	 * @param  {Vec3} vector The vector object against which to calculate the cross product
 	 * @return {Vec3}        The cross product of the two vectors
 	 */
-	cross(vector) {
+	cross(vector:Vec3):Vec3 {
     return new Vec3(
       this.y * vector.z - this.z * vector.y,
       this.z * vector.x - this.x * vector.z,
@@ -592,75 +575,52 @@ class Vec3 {
     );
 	}
   
-  crossNew() {
-    this.clone().cross();
+  crossNew(vector:Vec3):Vec3 {
+    return this.clone().cross(vector);
   }
   
-  ceil() {
+  ceil():Vec3 {
     this.x = Math.ceil(this.x);
     this.y = Math.ceil(this.y);
     this.z = Math.ceil(this.z);
     return this;
   }
   
-  ceilNew() {
+  ceilNew():Vec3 {
     return this.clone().ceil();
   }
   
-  floor() {
+  floor():Vec3 {
     this.x = Math.floor(this.x);
     this.y = Math.floor(this.y);
     this.z = Math.floor(this.z);
     return this;
   }
   
-  floorNew() {
+  floorNew():Vec3 {
     return this.clone().floor();
   }
   
-  round() {
+  round():Vec3 {
     this.x = Math.round(this.x);
     this.y = Math.round(this.y);
     this.z = Math.round(this.z);
     return this;
   }
   
-  roundNew() {
+  roundNew():Vec3 {
     return this.clone().round();
   }
   
-  fract() {
+  fract():Vec3 {
     this.x -= Math.floor(this.x);
     this.y -= Math.floor(this.y);
     this.z -= Math.floor(this.z);
     return this;
   }
   
-  fractNew() {
+  fractNew():Vec3 {
     return this.clone().fract();
-  }
-  
-  /**
-   * Gets the rotation axis and angle for a given
-   *
-   * @param  {vec3} axis  Vector receiving the axis of rotation
-   * @return {Number}     Angle, in radians, of the rotation
-   */
-  getAxisAngle(q) {
-    if(q.array) q = q.array; // Parsing the quaternion into an array, if possible
-    if(q instanceof Array && q.length >= 4) {
-      const rad = Math.acos(q[3]) * 2.;
-      const s = Math.sin(rad * .5);
-      if(s > EPSILON) {
-        this.x = q[0] / s;
-        this.y = q[1] / s;
-        this.z = q[2] / s;
-      } else {
-        this.x = 1;
-        this.y = 0;
-        this.z = 0;
-      }
-    }
   }
 
 
@@ -674,15 +634,16 @@ class Vec3 {
    * @type {number}
    * @default 0
    */
-  set x(x) {
+  #x:number = 0;
+  set x(x:number) {
     if(typeof x == 'number') {
-      this._x = x;
+      this.#x = x;
     } else {
       throw new TypeError('X should be a number');
     }
   }
-  get x() {
-    return this._x || 0;
+  get x():number {
+    return this.#x || 0;
   }
 
  /**
@@ -691,15 +652,16 @@ class Vec3 {
 	* @type {number}
 	* @default 0
 	*/
-  set y(y) {
+  #y:number = 0;
+  set y(y:number) {
     if(typeof y == 'number') {
-      this._y = y;
+      this.#y = y;
     } else {
       throw new TypeError('Y should be a number');
     }
   }
-  get y() {
-    return this._y || 0;
+  get y():number {
+    return this.#y || 0;
   }
 
  /**
@@ -708,15 +670,16 @@ class Vec3 {
 	* @type {number}
 	* @default 0
 	*/
-  set z(z) {
+  #z:number = 0;
+  set z(z:number) {
     if(typeof z == 'number') {
-      this._z = z;
+      this.#z = z;
     } else {
       throw new TypeError('Y should be a number');
     }
   }
-  get z() {
-    return this._z || 0;
+  get z():number {
+    return this.#z || 0;
   }
 
 	/**
@@ -726,7 +689,7 @@ class Vec3 {
 	* @type {number}
 	* @default 0
 	*/
-  set lengthSquared(length) {
+  set lengthSquared(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.lengthSquared;
@@ -735,7 +698,7 @@ class Vec3 {
       throw new TypeError('length should be a number');
     }
   }
-  get lengthSquared() {
+  get lengthSquared():number {
     return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
   }
 
@@ -745,7 +708,7 @@ class Vec3 {
 	* @type {number}
 	* @default 0
 	*/
-  set length(length) {
+  set length(length:number) {
     var factor;
     if(typeof length == 'number') {
       factor = length / this.length;
@@ -754,7 +717,7 @@ class Vec3 {
       throw new TypeError('length should be a number');
     }
   }
-  get length() {
+  get length():number {
     return Math.sqrt(this.lengthSquared);
   }
 
@@ -764,10 +727,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-	set width(w) {
+	set width(w:number) {
 		this.x = w;
 	}
-	get width() {
+	get width():number {
 		return this.x;
 	}
 
@@ -777,10 +740,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-	set height(h) {
+	set height(h:number) {
 		this.y = h;
 	}
-	get height() {
+	get height():number {
 		return this.y;
 	}
 
@@ -790,10 +753,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-	set depth(h) {
+	set depth(h:number) {
 		this.z = h;
 	}
-	get depth() {
+	get depth():number {
 		return this.z;
 	}
 
@@ -803,7 +766,7 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-	get area() {
+	get area():number {
 		return this.x * this.y * this.z;
 	}
 
@@ -813,7 +776,7 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get array() {
+  get array():number[] {
     return [this.x, this.y, this.z];
   }
   
@@ -822,14 +785,14 @@ class Vec3 {
 	 *
 	 * @type {Vec3}
 	 */
-  get xyz() {
+  get xyz():any {
     return new Vec3(this.x, this.y, this.z);
   }
-  set xyz(v) {
+  set xyz(v:any) {
     if(v instanceof Vec3) {
       this.resetToVector(v);
     } else if(v instanceof Array && v.length >= 3) {
-      this.reset(v);
+      this.reset(v[0], v[1], v[2]);
     } else {
       throw new Error('input should be of type Vector');
     }
@@ -840,10 +803,10 @@ class Vec3 {
 	 *
 	 * @type {Vec3}
 	 */
-  get yzx() {
+  get yzx():any {
     return new Vec3(this.y, this.z, this.x);
   }
-  set yzx(v) {
+  set yzx(v:any) {
     this.xyz = Vec3.interpolate(v).yzx;
   }
   
@@ -852,10 +815,10 @@ class Vec3 {
 	 *
 	 * @type {Vec3}
 	 */
-  get zxy() {
+  get zxy():any {
     return new Vec3(this.z, this.x, this.y);
   }
-  set zxy(v) {
+  set zxy(v:any) {
     this.xyz = Vec3.interpolate(v).zxy;
   }
   
@@ -864,10 +827,10 @@ class Vec3 {
 	 *
 	 * @type {Vec2}
 	 */
-  get xy() {
+  get xy():any {
     return new Vec2(this.x, this.y);
   }
-  set xy(v) {
+  set xy(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -878,10 +841,10 @@ class Vec3 {
 	 *
 	 * @type {Vec2}
 	 */
-  get yz() {
+  get yz():any {
     return new Vec2(this.y, this.z);
   }
-  set yz(v) {
+  set yz(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
@@ -892,10 +855,10 @@ class Vec3 {
 	 *
 	 * @type {Vec2}
 	 */
-  get zx() {
+  get zx():any {
     return new Vec2(this.z, this.x);
   }
-  set zx(v) {
+  set zx(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
@@ -906,10 +869,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get yx() {
+  get yx():any {
     return new Vec2(this.y, this.x);
   }
-  set yx(v) {
+  set yx(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
@@ -920,10 +883,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get zy() {
+  get zy():any {
     return new Vec2(this.z, this.y);
   }
-  set zy(v) {
+  set zy(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
@@ -934,10 +897,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get xx() {
+  get xx():any {
     return new Vec2(this.x, this.x);
   }
-  set xx(v) {
+  set xx(v:any) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -947,10 +910,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get yy() {
+  get yy():any {
     return new Vec2(this.y, this.y);
   }
-  set yy(v) {
+  set yy(v:any) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -960,10 +923,10 @@ class Vec3 {
 	 *
 	 * @type {number}
 	 */
-  get zz() {
+  get zz():any {
     return new Vec2(this.z, this.z);
   }
-  set zz(v) {
+  set zz(v:any) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }
@@ -978,7 +941,7 @@ class Vec3 {
    * @param {Vec3|array|string|number} v The value to interpolate
    * @returns {Vec3} out
    */
-  static interpolate(v) {
+  static interpolate(v:any) {
     if(v instanceof Vec3) {
       return new Vec3(v.x, v.y, v.z);
     } else if(v instanceof Array && v.length >= 3) {
@@ -987,8 +950,11 @@ class Vec3 {
       return new Vec3(v, v, v);
     } else if(typeof v === 'string') {
       const nv = v.split(',');
-      if(nv.length >= 3 && !isNaN(nv[0]) && !isNaN(nv[1]) && !isNaN(nv[2])) {
-        return new Vec3(Number(nv[0], nv[1], nv[2]));
+      const x:number = Number(nv[0]);
+      const y:number = Number(nv[1]);
+      const z:number = Number(nv[2]);
+      if(nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
+        return new Vec3(x, y, z);
       }
     } else {
       throw new Error('The passed interpolant could not be parsed into a Vec3');
@@ -1003,7 +969,7 @@ class Vec3 {
    * @param {Number} d interpolation amount in the range of 0 - 1
    * @returns {Vec3}
    */
-  static lerp(v1, v2, d) {
+  static lerp(v1:Vec3, v2:Vec3, d):Vec3 {
     return new Vec3(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y),
@@ -1011,7 +977,7 @@ class Vec3 {
     );
   }
   
-  static getAngle(a, b) {
+  static getAngle(a:Vec3, b:Vec3) {
     const _a = a.xy,
           _b = b.xy;
 
