@@ -1,4 +1,9 @@
 {
+  "source": {
+    "include": ["./src"],
+    "includePattern": ".js$",
+    "exludePattern": "(node_modules/|docs)"
+  },
   "typescript": {
     "moduleRoot": "src"
   },
