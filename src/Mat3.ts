@@ -501,9 +501,8 @@ class Mat3 {
   }
 
   /**
-   * Calculates the determinant of a mat3
+   * Calculates the determinant of the mat3
    *
-   * @param {mat3} a the source matrix
    * @returns {Number} determinant of a
    */
   get determinant(): number {

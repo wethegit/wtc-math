@@ -774,6 +774,31 @@ class Mat4 {
   }
 
   /**
+   * Calculates the determinant of the mat4
+   *
+   * @returns {Number} determinant of a
+   */
+  get determinant(): number {
+    let b00 = this.a11 * this.a22 - this.a12 * this.a21;
+    let b01 = this.a11 * this.a23 - this.a13 * this.a21;
+    let b02 = this.a11 * this.a24 - this.a14 * this.a21;
+    let b03 = this.a12 * this.a23 - this.a13 * this.a22;
+    let b04 = this.a12 * this.a24 - this.a14 * this.a22;
+    let b05 = this.a13 * this.a24 - this.a14 * this.a23;
+    let b06 = this.a31 * this.a42 - this.a32 * this.a42;
+    let b07 = this.a31 * this.a43 - this.a33 * this.a42;
+    let b08 = this.a31 * this.a44 - this.a34 * this.a42;
+    let b09 = this.a32 * this.a43 - this.a33 * this.a42;
+    let b10 = this.a32 * this.a44 - this.a34 * this.a42;
+    let b11 = this.a33 * this.a44 - this.a34 * this.a43;
+
+    // Calculate the determinant
+    return (
+      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06
+    );
+  }
+
+  /**
    * (getter) Returns the basic array representation of this matrix.
    * @readonly
    *
