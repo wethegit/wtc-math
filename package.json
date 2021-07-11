@@ -32,7 +32,7 @@
     "build": "rm -rf dist; microbundle",
     "dev": "microbundle watch",
     "prepare": "husky install; npm run build",
-    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/*.js  --layout markdown --output README.md"
+    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/*.ts  --layout markdown --output README.md"
   },
   "devDependencies": {
     "doxdox": "^3.0.0",
