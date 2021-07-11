@@ -1,5 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2015"
+    "target": "es2015",
+    "moduleResolution": "node",
+    "module": "commonjs"
+  },
+  "typedocOptions": {
+    "out": "documentation",
+    "entryPoints": "src/index.ts",
+    "exclude": ["dist/*+.ts*"]
   }
 }

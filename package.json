@@ -1,6 +1,6 @@
 {
   "name": "wtc-math",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
   "repository": {
     "type": "git",
@@ -32,12 +32,15 @@
     "build": "rm -rf dist; microbundle",
     "dev": "microbundle watch",
     "prepare": "husky install; npm run build",
-    "document": "npx jsdoc -c jsdoc.json && npx doxdox src/*.js  --layout markdown --output README.md"
+    "document": "npx typedoc src/index.ts"
   },
   "devDependencies": {
     "doxdox": "^3.0.0",
     "husky": "^5.1.3",
-    "jsdoc": "^3.6.4",
-    "microbundle": "^0.12.0"
+    "microbundle": "^0.12.0",
+    "typedoc": "^0.21.3"
+  },
+  "dependencies": {
+    "typescript": "^4.3.5"
   }
 }
