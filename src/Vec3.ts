@@ -1,5 +1,5 @@
-import Vec2 from "./Vec2";
-import Mat4 from "./Mat4";
+import { Vec2 } from "./Vec2";
+import { Mat4 } from "./Mat4";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -1061,4 +1061,4 @@ class Vec3 {
   }
 }
 
-export default Vec3;
+export { Vec3 };
