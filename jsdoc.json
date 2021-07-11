@@ -1,17 +1,13 @@
 {
-  "source": {
-    "include": ["./src"],
-    "includePattern": ".js$",
-    "exludePattern": "(node_modules/|docs)"
+  "typescript": {
+    "moduleRoot": "src"
   },
   "opts": {
     "destination": "./docs",
     "private": true,
     "readme": "./README.md"
   },
-  "plugins": [
-    "plugins/markdown"
-  ],
+  "plugins": ["plugins/markdown", "jsdoc-plugin-typescript"],
   "sourceType": "module",
   "tags": {
     "allowUnknownTags": true
