@@ -134,6 +134,54 @@ class Quat extends Vec4 implements V4Q {
     const s = Math.sin(rad);
     return new Quat(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
   }
+
+  static fromEuler(euler: any, order: string = "YXZ"): Quat | void {
+    if (euler.array) euler = euler.array; // This just transforms the matrix to an array.
+    if (euler instanceof Array && euler.length >= 3) {
+      const out = new Quat();
+
+      let sx = Math.sin(euler[0] * 0.5);
+      let cx = Math.cos(euler[0] * 0.5);
+      let sy = Math.sin(euler[1] * 0.5);
+      let cy = Math.cos(euler[1] * 0.5);
+      let sz = Math.sin(euler[2] * 0.5);
+      let cz = Math.cos(euler[2] * 0.5);
+
+      if (order === "XYZ") {
+        out.x = sx * cy * cz + cx * sy * sz;
+        out.y = cx * sy * cz - sx * cy * sz;
+        out.z = cx * cy * sz + sx * sy * cz;
+        out.w = cx * cy * cz - sx * sy * sz;
+      } else if (order === "YXZ") {
+        out.x = sx * cy * cz + cx * sy * sz;
+        out.y = cx * sy * cz - sx * cy * sz;
+        out.z = cx * cy * sz - sx * sy * cz;
+        out.w = cx * cy * cz + sx * sy * sz;
+      } else if (order === "ZXY") {
+        out.x = sx * cy * cz - cx * sy * sz;
+        out.y = cx * sy * cz + sx * cy * sz;
+        out.z = cx * cy * sz + sx * sy * cz;
+        out.w = cx * cy * cz - sx * sy * sz;
+      } else if (order === "ZYX") {
+        out.x = sx * cy * cz - cx * sy * sz;
+        out.y = cx * sy * cz + sx * cy * sz;
+        out.z = cx * cy * sz - sx * sy * cz;
+        out.w = cx * cy * cz + sx * sy * sz;
+      } else if (order === "YZX") {
+        out.x = sx * cy * cz + cx * sy * sz;
+        out.y = cx * sy * cz + sx * cy * sz;
+        out.z = cx * cy * sz - sx * sy * cz;
+        out.w = cx * cy * cz - sx * sy * sz;
+      } else if (order === "XZY") {
+        out.x = sx * cy * cz - cx * sy * sz;
+        out.y = cx * sy * cz - sx * cy * sz;
+        out.z = cx * cy * sz + sx * sy * cz;
+        out.w = cx * cy * cz + sx * sy * sz;
+      }
+
+      return out;
+    }
+  }
 }
 
 export { Quat };
