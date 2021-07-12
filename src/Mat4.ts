@@ -403,6 +403,53 @@ class Mat4 {
     return this.clone().rotate(r, axis);
   }
 
+  invert(): Mat4 {
+    const c = this.clone();
+
+    let det = this.determinant;
+
+    let b00 = this.a11 * this.a22 - this.a12 * this.a21;
+    let b01 = this.a11 * this.a23 - this.a13 * this.a21;
+    let b02 = this.a11 * this.a24 - this.a14 * this.a21;
+    let b03 = this.a12 * this.a23 - this.a13 * this.a22;
+    let b04 = this.a12 * this.a24 - this.a14 * this.a22;
+    let b05 = this.a13 * this.a24 - this.a14 * this.a23;
+    let b06 = this.a31 * this.a42 - this.a32 * this.a41;
+    let b07 = this.a31 * this.a43 - this.a33 * this.a41;
+    let b08 = this.a31 * this.a44 - this.a34 * this.a41;
+    let b09 = this.a32 * this.a43 - this.a33 * this.a42;
+    let b10 = this.a32 * this.a44 - this.a34 * this.a42;
+    let b11 = this.a33 * this.a44 - this.a34 * this.a43;
+
+    // If we don't have a determinant this function should fail silently and just return the unmodified array
+    if (det) {
+      det = 1.0 / det;
+
+      this.a11 = (c.a13 * b10 - c.a12 * b11 - c.a14 * b09) * det;
+      this.a12 = (c.a22 * b11 - c.a23 * b10 + c.a24 * b09) * det;
+      this.a13 = (c.a42 * b05 - c.a43 * b04 + c.a44 * b03) * det;
+      this.a14 = (c.a33 * b04 - c.a32 * b05 - c.a34 * b03) * det;
+      this.a21 = (c.a23 * b08 - c.a21 * b11 - c.a24 * b07) * det;
+      this.a22 = (c.a11 * b11 - c.a13 * b08 + c.a14 * b07) * det;
+      this.a23 = (c.a43 * b02 - c.a41 * b05 - c.a44 * b01) * det;
+      this.a24 = (c.a31 * b05 - c.a33 * b02 + c.a34 * b01) * det;
+      this.a31 = (c.a21 * b10 - c.a22 * b08 + c.a24 * b06) * det;
+      this.a32 = (c.a12 * b08 - c.a11 * b10 - c.a14 * b06) * det;
+      this.a33 = (c.a41 * b04 - c.a42 * b02 + c.a44 * b00) * det;
+      this.a34 = (c.a32 * b02 - c.a31 * b04 - c.a34 * b00) * det;
+      this.a41 = (c.a22 * b07 - c.a21 * b09 - c.a23 * b06) * det;
+      this.a42 = (c.a11 * b09 - c.a12 * b07 + c.a13 * b06) * det;
+      this.a43 = (c.a42 * b01 - c.a41 * b03 - c.a43 * b00) * det;
+      this.a44 = (c.a31 * b03 - c.a32 * b01 + c.a33 * b00) * det;
+    }
+
+    return this;
+  }
+
+  invertNew(): Mat4 {
+    return this.clone().invert();
+  }
+
   toString(): string {
     return `
       ${this.a11}, ${this.a12}, ${this.a13}, ${this.a14},
@@ -785,9 +832,9 @@ class Mat4 {
     let b03 = this.a12 * this.a23 - this.a13 * this.a22;
     let b04 = this.a12 * this.a24 - this.a14 * this.a22;
     let b05 = this.a13 * this.a24 - this.a14 * this.a23;
-    let b06 = this.a31 * this.a42 - this.a32 * this.a42;
-    let b07 = this.a31 * this.a43 - this.a33 * this.a42;
-    let b08 = this.a31 * this.a44 - this.a34 * this.a42;
+    let b06 = this.a31 * this.a42 - this.a32 * this.a41;
+    let b07 = this.a31 * this.a43 - this.a33 * this.a41;
+    let b08 = this.a31 * this.a44 - this.a34 * this.a41;
     let b09 = this.a32 * this.a43 - this.a33 * this.a42;
     let b10 = this.a32 * this.a44 - this.a34 * this.a42;
     let b11 = this.a33 * this.a44 - this.a34 * this.a43;

@@ -107,39 +107,6 @@ class Mat3 {
     return this.clone().transpose();
   }
 
-  invert(): Mat3 {
-    const o = this.clone();
-
-    const b01 = this.a33 * this.a22 - this.a23 * this.a32,
-      b11 = -this.a33 * this.a21 + this.a23 * this.a31,
-      b21 = this.a32 * this.a21 - this.a22 * this.a31;
-
-    let det = this.determinant;
-
-    // If we don't have a determinant this function should fail silently and just return the unmodified array
-    if (det) {
-      det = 1 / det;
-
-      this.a11 = b01 * det;
-      this.a12 = (-o.a33 * o.a12 + o.a13 * o.a32) * det;
-      this.a13 = (o.a23 * o.a12 - o.a13 * o.a22) * det;
-
-      this.a21 = b11 * det;
-      this.a22 = (o.a33 * o.a11 - o.a13 * o.a31) * det;
-      this.a23 = (-o.a23 * o.a11 + o.a13 * o.a21) * det;
-
-      this.a31 = b21 * det;
-      this.a32 = (-o.a32 * o.a11 + o.a12 * o.a31) * det;
-      this.a33 = (o.a22 * o.a11 - o.a12 * o.a21) * det;
-    }
-
-    return this;
-  }
-
-  invertNew(): Mat3 {
-    return this.clone().invert();
-  }
-
   adjoint(): Mat3 {
     const o = this.clone();
 
@@ -279,6 +246,39 @@ class Mat3 {
 
   rotateNew(r: number): Mat3 {
     return this.clone().rotate(r);
+  }
+
+  invert(): Mat3 {
+    const o = this.clone();
+
+    const b01 = this.a33 * this.a22 - this.a23 * this.a32,
+      b11 = -this.a33 * this.a21 + this.a23 * this.a31,
+      b21 = this.a32 * this.a21 - this.a22 * this.a31;
+
+    let det = this.determinant;
+
+    // If we don't have a determinant this function should fail silently and just return the unmodified array
+    if (det) {
+      det = 1 / det;
+
+      this.a11 = b01 * det;
+      this.a12 = (-o.a33 * o.a12 + o.a13 * o.a32) * det;
+      this.a13 = (o.a23 * o.a12 - o.a13 * o.a22) * det;
+
+      this.a21 = b11 * det;
+      this.a22 = (o.a33 * o.a11 - o.a13 * o.a31) * det;
+      this.a23 = (-o.a23 * o.a11 + o.a13 * o.a21) * det;
+
+      this.a31 = b21 * det;
+      this.a32 = (-o.a32 * o.a11 + o.a12 * o.a31) * det;
+      this.a33 = (o.a22 * o.a11 - o.a12 * o.a21) * det;
+    }
+
+    return this;
+  }
+
+  invertNew(): Mat3 {
+    return this.clone().invert();
   }
 
   toString(): string {
