@@ -1057,6 +1057,7 @@ class Vec3 {
           v.y = 0;
         }
       }
+      return v;
     }
   }
 }

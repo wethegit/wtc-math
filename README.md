@@ -1,4 +1,4 @@
-# [wtc-math](https://github.com/wethegit/wtc-math#readme) _1.0.2_
+# [wtc-math](https://github.com/wethegit/wtc-math#readme) _1.0.3_
 
 > A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.
 
