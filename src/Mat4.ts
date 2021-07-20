@@ -406,8 +406,6 @@ class Mat4 {
   invert(): Mat4 {
     const c = this.clone();
 
-    let det = this.determinant;
-
     let b00 = this.a11 * this.a22 - this.a12 * this.a21;
     let b01 = this.a11 * this.a23 - this.a13 * this.a21;
     let b02 = this.a11 * this.a24 - this.a14 * this.a21;
@@ -421,12 +419,16 @@ class Mat4 {
     let b10 = this.a32 * this.a44 - this.a34 * this.a42;
     let b11 = this.a33 * this.a44 - this.a34 * this.a43;
 
+    // Calculate the determinant
+    let det =
+      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
     // If we don't have a determinant this function should fail silently and just return the unmodified array
     if (det) {
       det = 1.0 / det;
 
-      this.a11 = (c.a13 * b10 - c.a12 * b11 - c.a14 * b09) * det;
-      this.a12 = (c.a22 * b11 - c.a23 * b10 + c.a24 * b09) * det;
+      this.a11 = (c.a22 * b11 - c.a23 * b10 + c.a24 * b09) * det;
+      this.a12 = (c.a13 * b10 - c.a12 * b11 - c.a14 * b09) * det;
       this.a13 = (c.a42 * b05 - c.a43 * b04 + c.a44 * b03) * det;
       this.a14 = (c.a33 * b04 - c.a32 * b05 - c.a34 * b03) * det;
       this.a21 = (c.a23 * b08 - c.a21 * b11 - c.a24 * b07) * det;
