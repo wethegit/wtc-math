@@ -1,5 +1,25 @@
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
+/** TO DO
+ * Move these functions to a types file
+ */
+type DeterminantFunction = {
+  f: {
+    b00: number;
+    b01: number;
+    b02: number;
+    b03: number;
+    b04: number;
+    b05: number;
+    b06: number;
+    b07: number;
+    b08: number;
+    b09: number;
+    b10: number;
+    b11: number;
+  };
+  determinant: number;
+};
 interface Mat4 {
   a11: number;
   a12: number;
@@ -20,6 +40,8 @@ interface Mat4 {
   a42: number;
   a43: number;
   a44: number;
+
+  determinantFunction: DeterminantFunction;
 }
 
 const identToIndex = function (v: string): number {
@@ -568,45 +590,26 @@ class Mat3 {
    * @returns {mat3}
    */
   static fromMat4(a: Mat4): Mat3 {
-    const t = [
-      a.a11 * a.a22 - a.a12 * a.a21,
-      a.a11 * a.a23 - a.a13 * a.a21,
-      a.a11 * a.a24 - a.a14 * a.a21,
-      a.a12 * a.a23 - a.a13 * a.a22,
-      a.a12 * a.a24 - a.a14 * a.a22,
-      a.a13 * a.a24 - a.a14 * a.a23,
-      a.a31 * a.a42 - a.a32 * a.a41,
-      a.a31 * a.a43 - a.a33 * a.a41,
-      a.a31 * a.a44 - a.a34 * a.a41,
-      a.a32 * a.a43 - a.a33 * a.a42,
-      a.a32 * a.a44 - a.a34 * a.a42,
-      a.a33 * a.a44 - a.a34 * a.a43,
-    ];
+    const {
+      f: { b00, b01, b02, b03, b04, b05, b06, b07, b08, b09, b10, b11 },
+      determinant,
+    } = a.determinantFunction;
 
-    // Calculate the determinant
-    let det =
-      t[0] * t[11] -
-      t[1] * t[10] +
-      t[2] * t[9] +
-      t[3] * t[8] -
-      t[4] * t[7] +
-      t[5] * t[6];
-
-    if (!det) {
+    if (!determinant) {
       return null;
     }
-    det = 1.0 / det;
+    const det = 1.0 / determinant;
 
     return new Mat3(
-      (a.a22 * t[11] - a.a23 * t[10] + a.a24 * t[9]) * det,
-      (a.a23 * t[8] - a.a21 * t[11] - a.a24 * t[7]) * det,
-      (a.a21 * t[10] - a.a22 * t[8] + a.a24 * t[6]) * det,
-      (a.a13 * t[10] - a.a12 * t[11] - a.a14 * t[9]) * det,
-      (a.a11 * t[11] - a.a13 * t[8] + a.a14 * t[7]) * det,
-      (a.a12 * t[8] - a.a11 * t[10] - a.a14 * t[6]) * det,
-      (a.a42 * t[5] - a.a43 * t[4] + a.a44 * t[3]) * det,
-      (a.a43 * t[2] - a.a41 * t[5] - a.a44 * t[1]) * det,
-      (a.a41 * t[4] - a.a42 * t[2] + a.a44 * t[0]) * det
+      (a.a22 * b11 - a.a23 * b10 + a.a24 * b09) * det,
+      (a.a23 * b08 - a.a21 * b11 - a.a24 * b07) * det,
+      (a.a21 * b10 - a.a22 * b08 + a.a24 * b06) * det,
+      (a.a13 * b10 - a.a12 * b11 - a.a14 * b09) * det,
+      (a.a11 * b11 - a.a13 * b08 + a.a14 * b07) * det,
+      (a.a12 * b08 - a.a11 * b10 - a.a14 * b06) * det,
+      (a.a42 * b05 - a.a43 * b04 + a.a44 * b03) * det,
+      (a.a43 * b02 - a.a41 * b05 - a.a44 * b01) * det,
+      (a.a41 * b04 - a.a42 * b02 + a.a44 * b00) * det
     );
   }
 
