@@ -1,6 +1,24 @@
 import { Vec3 } from "./Vec3";
 import { Quat } from "./Quat";
 
+type DeterminantFunction = {
+  f: {
+    b00: number;
+    b01: number;
+    b02: number;
+    b03: number;
+    b04: number;
+    b05: number;
+    b06: number;
+    b07: number;
+    b08: number;
+    b09: number;
+    b10: number;
+    b11: number;
+  };
+  determinant: number;
+};
+
 const EPSILON: number = 0.0001;
 
 const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -406,26 +424,14 @@ class Mat4 {
   invert(): Mat4 {
     const c = this.clone();
 
-    let b00 = this.a11 * this.a22 - this.a12 * this.a21;
-    let b01 = this.a11 * this.a23 - this.a13 * this.a21;
-    let b02 = this.a11 * this.a24 - this.a14 * this.a21;
-    let b03 = this.a12 * this.a23 - this.a13 * this.a22;
-    let b04 = this.a12 * this.a24 - this.a14 * this.a22;
-    let b05 = this.a13 * this.a24 - this.a14 * this.a23;
-    let b06 = this.a31 * this.a42 - this.a32 * this.a41;
-    let b07 = this.a31 * this.a43 - this.a33 * this.a41;
-    let b08 = this.a31 * this.a44 - this.a34 * this.a41;
-    let b09 = this.a32 * this.a43 - this.a33 * this.a42;
-    let b10 = this.a32 * this.a44 - this.a34 * this.a42;
-    let b11 = this.a33 * this.a44 - this.a34 * this.a43;
-
-    // Calculate the determinant
-    let det =
-      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    const {
+      f: { b00, b01, b02, b03, b04, b05, b06, b07, b08, b09, b10, b11 },
+      determinant,
+    } = this.determinantFunction;
 
     // If we don't have a determinant this function should fail silently and just return the unmodified array
-    if (det) {
-      det = 1.0 / det;
+    if (determinant) {
+      const det = 1.0 / determinant;
 
       this.a11 = (c.a22 * b11 - c.a23 * b10 + c.a24 * b09) * det;
       this.a12 = (c.a13 * b10 - c.a12 * b11 - c.a14 * b09) * det;
@@ -823,11 +829,11 @@ class Mat4 {
   }
 
   /**
-   * Calculates the determinant of the mat4
+   * Calculates the determinant function the mat4
    *
    * @returns {Number} determinant of a
    */
-  get determinant(): number {
+  get determinantFunction(): DeterminantFunction {
     let b00 = this.a11 * this.a22 - this.a12 * this.a21;
     let b01 = this.a11 * this.a23 - this.a13 * this.a21;
     let b02 = this.a11 * this.a24 - this.a14 * this.a21;
@@ -840,11 +846,21 @@ class Mat4 {
     let b09 = this.a32 * this.a43 - this.a33 * this.a42;
     let b10 = this.a32 * this.a44 - this.a34 * this.a42;
     let b11 = this.a33 * this.a44 - this.a34 * this.a43;
-
     // Calculate the determinant
-    return (
-      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06
-    );
+    return {
+      f: { b00, b01, b02, b03, b04, b05, b06, b07, b08, b09, b10, b11 },
+      determinant:
+        b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06,
+    };
+  }
+
+  /**
+   * Calculates the determinant of the mat4
+   *
+   * @returns {Number} determinant of a
+   */
+  get determinant(): number {
+    return this.determinantFunction.determinant;
   }
 
   /**
