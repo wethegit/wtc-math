@@ -281,15 +281,14 @@ class Mat3 {
   invert(): Mat3 {
     const o = this.clone();
 
-    const b01 = this.a33 * this.a22 - this.a23 * this.a32,
-      b11 = -this.a33 * this.a21 + this.a23 * this.a31,
-      b21 = this.a32 * this.a21 - this.a22 * this.a31;
-
-    let det = this.determinant;
+    const {
+      f: { b01, b11, b21 },
+      determinant,
+    } = this.determinantFunction;
 
     // If we don't have a determinant this function should fail silently and just return the unmodified array
-    if (det) {
-      det = 1 / det;
+    if (determinant) {
+      const det = 1 / determinant;
 
       this.a11 = b01 * det;
       this.a12 = (-o.a33 * o.a12 + o.a13 * o.a32) * det;
@@ -530,17 +529,24 @@ class Mat3 {
     ];
   }
 
+  get determinantFunction(): Mat3DeterminantFunction {
+    let b01 = this.a33 * this.a22 - this.a23 * this.a32;
+    let b11 = -this.a33 * this.a21 + this.a23 * this.a31;
+    let b21 = this.a32 * this.a21 - this.a22 * this.a31;
+    // Calculate the determinant
+    return {
+      f: { b01, b11, b21 },
+      determinant: this.a11 * b01 + this.a12 * b11 + this.a13 * b21,
+    };
+  }
+
   /**
    * Calculates the determinant of the mat3
    *
    * @returns {Number} determinant of a
    */
   get determinant(): number {
-    let b01 = this.a33 * this.a22 - this.a23 * this.a32;
-    let b11 = -this.a33 * this.a21 + this.a23 * this.a31;
-    let b21 = this.a32 * this.a21 - this.a22 * this.a31;
-
-    return this.a11 * b01 + this.a12 * b11 + this.a13 * b21;
+    return this.determinantFunction.determinant;
   }
 
   static fromAngle(r: number): Mat3 {
