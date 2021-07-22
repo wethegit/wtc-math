@@ -1,7 +1,7 @@
 import { Vec3 } from "./Vec3";
 import { Quat } from "./Quat";
 
-type DeterminantFunction = {
+type Mat4DeterminantFunction = {
   f: {
     b00: number;
     b01: number;
@@ -833,7 +833,7 @@ class Mat4 {
    *
    * @returns {Number} determinant of a
    */
-  get determinantFunction(): DeterminantFunction {
+  get determinantFunction(): Mat4DeterminantFunction {
     let b00 = this.a11 * this.a22 - this.a12 * this.a21;
     let b01 = this.a11 * this.a23 - this.a13 * this.a21;
     let b02 = this.a11 * this.a24 - this.a14 * this.a21;

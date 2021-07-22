@@ -3,7 +3,15 @@ const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 /** TO DO
  * Move these functions to a types file
  */
-type DeterminantFunction = {
+type Mat3DeterminantFunction = {
+  f: {
+    b01: number;
+    b11: number;
+    b21: number;
+  };
+  determinant: number;
+};
+type Mat4DeterminantFunction = {
   f: {
     b00: number;
     b01: number;
@@ -41,7 +49,7 @@ interface Mat4 {
   a43: number;
   a44: number;
 
-  determinantFunction: DeterminantFunction;
+  determinantFunction: Mat4DeterminantFunction;
 }
 
 const identToIndex = function (v: string): number {
