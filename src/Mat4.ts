@@ -805,23 +805,23 @@ class Mat4 {
       S = Math.sqrt(1.0 + sm11 - sm22 - sm33) * 2;
       return new Quat(
         0.25 * S,
-        (sm12 - sm21) / S,
-        (sm31 - sm13) / S,
+        (sm12 + sm21) / S,
+        (sm31 + sm13) / S,
         (sm23 - sm32) / S
       );
     } else if (sm22 > sm33) {
       S = Math.sqrt(1.0 + sm22 - sm11 - sm33) * 2;
       return new Quat(
-        (sm12 - sm21) / S,
+        (sm12 + sm21) / S,
         0.25 * S,
-        (sm23 - sm32) / S,
+        (sm23 + sm32) / S,
         (sm31 - sm13) / S
       );
     } else {
       S = Math.sqrt(1.0 + sm33 - sm11 - sm22) * 2;
       return new Quat(
-        (sm31 - sm13) / S,
-        (sm23 - sm32) / S,
+        (sm31 + sm13) / S,
+        (sm23 + sm32) / S,
         0.25 * S,
         (sm12 - sm21) / S
       );
