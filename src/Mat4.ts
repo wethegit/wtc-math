@@ -1372,17 +1372,19 @@ class Mat4 {
       up.length &&
       up.length >= 3
     ) {
-      const e = new Vec3(eye),
-        c = new Vec3(target),
-        u = new Vec3(up);
+      const e = new Vec3(...eye),
+        c = new Vec3(...target),
+        u = new Vec3(...up);
 
       const off = e.subtractNew(c);
-      let l = off.x * off.x + off.y * off.y + off.z * off.z;
+      let l = off.lengthSquared;
       if (l > 0) {
         l = 1 / Math.sqrt(l);
         off.x *= l;
         off.y *= l;
         off.z *= l;
+      } else {
+        off.z = 1;
       }
 
       const or = new Vec3(
@@ -1390,13 +1392,23 @@ class Mat4 {
         u.z * off.x - u.x * off.z,
         u.x * off.y - u.y * off.x
       );
-      l = or.x * or.x + or.y * or.y + or.z * or.z;
-      if (l > 0) {
-        l = 1 / Math.sqrt(l);
-        or.x *= l;
-        or.y *= l;
-        or.z *= l;
+      l = or.lengthSquared;
+      if (l === 0) {
+        if(u.z) u.x += 1e-6;
+        else if(u.y) u.z += 1e-6;
+        else u.y += 1e-6;
+        or.reset(
+          u.y * off.z - u.z * off.y,
+          u.z * off.x - u.x * off.z,
+          u.x * off.y - u.y * off.x
+        );
+        l = or.lengthSquared;
       }
+      
+      l = 1 / Math.sqrt(l);
+      or.x *= l;
+      or.y *= l;
+      or.z *= l;
 
       return new Mat4(
         or.x,
