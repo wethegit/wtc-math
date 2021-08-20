@@ -371,7 +371,7 @@ class Vec3 {
       const w = m[3] * o.x + m[7] * o.y + m[11] * o.z + m[15] || 1;
       this.x = (m[0] * o.x + m[4] * o.y + m[8] * o.z + m[12]) / w;
       this.y = (m[1] * o.x + m[5] * o.y + m[9] * o.z + m[13]) / w;
-      this.y = (m[2] * o.x + m[6] * o.y + m[10] * o.z + m[14]) / w;
+      this.z = (m[2] * o.x + m[6] * o.y + m[10] * o.z + m[14]) / w;
     }
     return this;
   }
