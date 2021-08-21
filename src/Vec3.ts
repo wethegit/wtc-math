@@ -717,6 +717,45 @@ class Vec3 {
   }
 
   /**
+   * (getter/setter) Spherical radius. For using a vec3 as spherical coordinates.
+   * Alias of {@link Vector#x x}
+   *
+   * @type {number}
+   */
+  set radius(s: number) {
+    this.x = s;
+  }
+  get radius(): number {
+    return this.x;
+  }
+
+  /**
+   * (getter/setter) Spherical phi. For using a vec3 as spherical coordinates.
+   * Alias of {@link Vector#y y}
+   *
+   * @type {number}
+   */
+  set phi(p: number) {
+    this.y = p;
+  }
+  get phi(): number {
+    return this.y;
+  }
+
+  /**
+   * (getter/setter) Spherical theta. For using a vec3 as spherical coordinates.
+   * Alias of {@link Vector#z z}
+   *
+   * @type {number}
+   */
+  set theta(t: number) {
+    this.z = t;
+  }
+  get theta(): number {
+    return this.z;
+  }
+
+  /**
    * (getter/setter) Vector width.
    * Alias of {@link Vector#x x}
    *
