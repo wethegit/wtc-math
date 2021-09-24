@@ -1251,7 +1251,7 @@ class Vec4 implements V4Q {
    * @returns {Vec4} out
    */
   static interpolate(v) {
-    if (v instanceof Vec4) {
+    if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z) && !isNaN(v.w)) {
       return new Vec4(v.x, v.y, v.z, v.w);
     } else if (v instanceof Array && v.length >= 4) {
       return new Vec4(v[0], v[1], v[2], v[3]);

@@ -975,7 +975,7 @@ class Vec3 {
    * @returns {Vec3} out
    */
   static interpolate(v: any) {
-    if (v instanceof Vec3) {
+    if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z)) {
       return new Vec3(v.x, v.y, v.z);
     } else if (v instanceof Array && v.length >= 3) {
       return new Vec3(v[0], v[1], v[2]);

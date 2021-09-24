@@ -866,13 +866,13 @@ class Vec2 {
    * @returns {Vec2} out
    */
   static interpolate(v: any) {
-    if (v instanceof Vec2) {
+    if (!isNaN(v.x) && !isNaN(v.x)) {                 // Vec2 or Vec2 like object
       return new Vec2(v.x, v.y);
-    } else if (v instanceof Array && v.length >= 2) {
+    } else if (v instanceof Array && v.length >= 2) { // 2-dimensional array
       return new Vec2(v[0], v[1]);
-    } else if (!isNaN(v)) {
+    } else if (!isNaN(v)) {                           // Single number
       return new Vec2(v, v);
-    } else if (typeof v === "string") {
+    } else if (typeof v === "string") {               // comma delimited string of numbers
       const nv = v.split(",");
       const x: number = Number(nv[0]);
       const y: number = Number(nv[1]);
