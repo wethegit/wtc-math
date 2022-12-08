@@ -1,6 +1,7 @@
 {
   "name": "wtc-math",
-  "version": "1.0.14",
+  "version": "1.0.15",
+  "type": "module",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
   "repository": {
     "type": "git",
