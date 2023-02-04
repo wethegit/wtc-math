@@ -357,9 +357,50 @@ class Mat4 {
 
     return this;
   }
-
   transformToNew(v: any): Mat4 {
     return this.clone().transform(v);
+  }
+
+  /**
+   * Translates the mat4 to a given position
+   *
+   * @param {Vec3} v The amount to add to the matrixes translation properties
+   * @returns {mat4} output
+   */
+  translate(v: any): Mat4 {
+    const v0 = v[0];
+    const v1 = v[1];
+    const v2 = v[2];
+
+    const a11 = this.a11;
+    const a12 = this.a12;
+    const a13 = this.a13;
+    const a14 = this.a14;
+
+    const a21 = this.a21;
+    const a22 = this.a22;
+    const a23 = this.a23;
+    const a24 = this.a24;
+
+    const a31 = this.a31;
+    const a32 = this.a32;
+    const a33 = this.a33;
+    const a34 = this.a34;
+
+    const a41 = this.a41;
+    const a42 = this.a42;
+    const a43 = this.a43;
+    const a44 = this.a44;
+
+    this.a41 = a11 * v0 + a21 * v1 + a31 * v2 + a41;
+    this.a42 = a12 * v0 + a22 * v1 + a32 * v2 + a42;
+    this.a43 = a13 * v0 + a23 * v1 + a33 * v2 + a43;
+    this.a44 = a14 * v0 + a24 * v1 + a34 * v2 + a44;
+
+    return this;
+  }
+  translateNew(v: any): Mat4 {
+    return this.clone().translate(v);
   }
 
   /**
@@ -1394,8 +1435,8 @@ class Mat4 {
       );
       l = or.lengthSquared;
       if (l === 0) {
-        if(u.z) u.x += 1e-6;
-        else if(u.y) u.z += 1e-6;
+        if (u.z) u.x += 1e-6;
+        else if (u.y) u.z += 1e-6;
         else u.y += 1e-6;
         or.reset(
           u.y * off.z - u.z * off.y,
@@ -1404,7 +1445,7 @@ class Mat4 {
         );
         l = or.lengthSquared;
       }
-      
+
       l = 1 / Math.sqrt(l);
       or.x *= l;
       or.y *= l;
