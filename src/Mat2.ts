@@ -304,6 +304,25 @@ class Mat2 {
   static identity(): Mat2 {
     return new Mat2(...identity);
   }
+  
+  /**
+   * Adds iteration to the object, allowing it 
+   * to be destructured and iterated upon in 
+   * various useful ways.
+  */
+  [Symbol.iterator]() {
+    let values = this.array;
+    let index = 0;
+    return {
+      next() {
+        if (index < values.length) {
+          let value = values[index];
+          index++;
+          return { value, done: false };
+        } else return { done: true }
+      }
+    }
+  }
 }
 
 export { Mat2 };
