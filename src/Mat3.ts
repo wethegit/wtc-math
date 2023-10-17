@@ -1,3 +1,5 @@
+import { Vec2 } from "../dist";
+
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
 /** TO DO
@@ -256,6 +258,13 @@ class Mat3 {
 
   scaleByVec2New(v: any): Mat3 {
     return this.clone().scaleByVec2(v);
+  }
+
+  translate(v: Vec2) {
+    this.a31 += v.x * this.a11 + v.y * this.a21;
+    this.a32 += v.x * this.a12 + v.y * this.a22;
+    this.a33 += v.x * this.a13 + v.y * this.a23;
+    return this;
   }
 
   rotate(r: number): Mat3 {
