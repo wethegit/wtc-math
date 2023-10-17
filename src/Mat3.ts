@@ -260,7 +260,7 @@ class Mat3 {
     return this.clone().scaleByVec2(v);
   }
 
-  translate(v: Vec2) {
+  translate(v: Vec2): Mat3 {
     this.a31 += v.x * this.a11 + v.y * this.a21;
     this.a32 += v.x * this.a12 + v.y * this.a22;
     this.a33 += v.x * this.a13 + v.y * this.a23;
