@@ -1,6 +1,6 @@
 {
   "name": "wtc-math",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "type": "module",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
   "repository": {
@@ -22,12 +22,15 @@
   },
   "homepage": "https://github.com/wethegit/wtc-math#readme",
   "source": "src/index.ts",
+  "typings": "./dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "umd:main": "dist/index.umd.js",
   "unpkg": "dist/index.umd.js",
   "exports": {
-    ".": "./dist/index.modern.js"
+    "import": { "types": "./dist/index.d.ts", "default": "./dist/index.modern.js" },
+    "require": { "types": "./dist/index.d.ts", "default": "./dist/index.umd.js" }
   },
   "scripts": {
     "build": "rm -rf dist; microbundle",
@@ -43,6 +46,5 @@
   },
   "dependencies": {
     "typescript": "^4.3.5"
-  },
-  "types": "dist/index.d.ts"
+  }
 }
