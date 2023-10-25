@@ -41,7 +41,7 @@
   "devDependencies": {
     "doxdox": "^3.0.0",
     "husky": "^5.1.3",
-    "microbundle": "^0.12.0",
+    "microbundle": "^0.15.1",
     "typedoc": "^0.21.3"
   },
   "dependencies": {
