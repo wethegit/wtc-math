@@ -39,7 +39,7 @@
     "document": "npx typedoc src/index.ts"
   },
   "devDependencies": {
-    "doxdox": "^3.0.0",
+    "doxdox": "^4.0.0-preview.20",
     "husky": "^5.1.3",
     "microbundle": "^0.12.0",
     "typedoc": "^0.21.3"
