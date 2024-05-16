@@ -45,6 +45,6 @@
     "typedoc": "^0.25.13"
   },
   "dependencies": {
-    "typescript": "^4.3.5"
+    "typescript": "^5.4.5"
   }
 }
