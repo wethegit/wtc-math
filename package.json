@@ -29,8 +29,14 @@
   "umd:main": "dist/index.umd.js",
   "unpkg": "dist/index.umd.js",
   "exports": {
-    "import": { "types": "./dist/index.d.ts", "default": "./dist/index.modern.js" },
-    "require": { "types": "./dist/index.d.ts", "default": "./dist/index.umd.js" }
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.modern.js"
+    },
+    "require": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.umd.js"
+    }
   },
   "scripts": {
     "build": "rm -rf dist; microbundle",
@@ -39,6 +45,7 @@
     "document": "npx typedoc src/index.ts"
   },
   "devDependencies": {
+    "@types/markdown-it": "~14.1.1",
     "doxdox": "^4.0.0-preview.23",
     "husky": "^9.0.11",
     "microbundle": "^0.15.1",
