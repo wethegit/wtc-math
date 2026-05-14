@@ -21,17 +21,14 @@
     "url": "https://github.com/wethegit/wtc-math/issues"
   },
   "homepage": "https://github.com/wethegit/wtc-math#readme",
-  "source": "src/index.ts",
-  "typings": "./dist/index.d.ts",
   "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.module.js",
-  "umd:main": "dist/index.umd.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
   "unpkg": "dist/index.umd.js",
   "exports": {
     "import": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.modern.js"
+      "default": "./dist/index.es.js"
     },
     "require": {
       "types": "./dist/index.d.ts",
@@ -39,17 +36,20 @@
     }
   },
   "scripts": {
-    "build": "rm -rf dist; microbundle",
-    "dev": "microbundle watch",
+    "build": "rm -rf dist && vite build",
+    "build:site": "npm run document && vite build --config vite.site.config.ts && cp -r documentation dist-site/docs",
+    "dev": "vite --config vite.site.config.ts",
+    "preview": "vite preview --config vite.site.config.ts",
     "prepare": "husky install; npm run build",
     "document": "npx typedoc src/index.ts"
   },
   "devDependencies": {
     "@types/markdown-it": "~14.1.1",
-    "doxdox": "^4.0.0-preview.23",
+    "@types/node": "^25.7.0",
     "husky": "^9.0.11",
-    "microbundle": "^0.15.1",
-    "typedoc": "^0.28.19"
+    "typedoc": "^0.28.19",
+    "vite": "^8.0.13",
+    "vite-plugin-dts": "^5.0.0"
   },
   "dependencies": {
     "typescript": "^6.0.3"
