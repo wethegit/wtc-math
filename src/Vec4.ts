@@ -672,16 +672,16 @@ class Vec4 implements V4Q {
   cross(v: V4Q, w: V4Q): V4Q {
     const u = this.clone();
 
-    const A = v[0] * w[1] - v[1] * w[0],
-      B = v[0] * w[2] - v[2] * w[0],
-      C = v[0] * w[3] - v[3] * w[0],
-      D = v[1] * w[2] - v[2] * w[1],
-      E = v[1] * w[3] - v[3] * w[1],
-      F = v[2] * w[3] - v[3] * w[2],
-      G = u[0],
-      H = u[1],
-      I = u[2],
-      J = u[3];
+    const A = v.x * w.y - v.y * w.x,
+      B = v.x * w.z - v.z * w.x,
+      C = v.x * w.w - v.w * w.x,
+      D = v.y * w.z - v.z * w.y,
+      E = v.y * w.w - v.w * w.y,
+      F = v.z * w.w - v.w * w.z,
+      G = u.x,
+      H = u.y,
+      I = u.z,
+      J = u.w;
 
     return new Vec4(
       H * F - I * E + J * D,
@@ -1250,7 +1250,7 @@ class Vec4 implements V4Q {
    * @param {Vec4|array|string|number} v The value to interpolate
    * @returns {Vec4} out
    */
-  static interpolate(v) {
+  static interpolate(v: any) {
     if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z) && !isNaN(v.w)) {
       return new Vec4(v.x, v.y, v.z, v.w);
     } else if (v instanceof Array && v.length >= 4) {
@@ -1265,6 +1265,8 @@ class Vec4 implements V4Q {
       const w: number = Number(nv[3]);
       if (nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z) && !isNaN(w)) {
         return new Vec4(x, y, z, w);
+      } else {
+        throw new Error("The passed interpolant could not be parsed into a Vec4");
       }
     } else {
       throw new Error("The passed interpolant could not be parsed into a Vec4");
@@ -1279,7 +1281,7 @@ class Vec4 implements V4Q {
    * @param {Number} d interpolation amount in the range of 0 - 1
    * @returns {Vec4}
    */
-  static lerp(v1, v2, d) {
+  static lerp(v1: Vec4, v2: Vec4, d: number) {
     return new Vec4(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y),
@@ -1288,7 +1290,7 @@ class Vec4 implements V4Q {
     );
   }
 
-  static getAngle(a, b) {
+  static getAngle(a: Vec4, b: Vec4) {
     let dotproduct = a.dot(b);
 
     return Math.acos(2 * dotproduct * dotproduct - 1);

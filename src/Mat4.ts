@@ -519,7 +519,7 @@ class Mat4 {
    * @default 0
    */
   #a11: number = 0;
-  set a11(v) {
+  set a11(v: number) {
     if (typeof v == "number") {
       this.#a11 = v;
     } else {
@@ -537,7 +537,7 @@ class Mat4 {
    * @default 0
    */
   #a12: number = 0;
-  set a12(v) {
+  set a12(v: number) {
     if (typeof v == "number") {
       this.#a12 = v;
     } else {
@@ -555,7 +555,7 @@ class Mat4 {
    * @default 0
    */
   #a13: number = 0;
-  set a13(v) {
+  set a13(v: number) {
     if (typeof v == "number") {
       this.#a13 = v;
     } else {
@@ -573,7 +573,7 @@ class Mat4 {
    * @default 0
    */
   #a14: number = 0;
-  set a14(v) {
+  set a14(v: number) {
     if (typeof v == "number") {
       this.#a14 = v;
     } else {
@@ -591,7 +591,7 @@ class Mat4 {
    * @default 0
    */
   #a21: number = 0;
-  set a21(v) {
+  set a21(v: number) {
     if (typeof v == "number") {
       this.#a21 = v;
     } else {
@@ -609,7 +609,7 @@ class Mat4 {
    * @default 0
    */
   #a22: number = 0;
-  set a22(v) {
+  set a22(v: number) {
     if (typeof v == "number") {
       this.#a22 = v;
     } else {
@@ -627,7 +627,7 @@ class Mat4 {
    * @default 0
    */
   #a23: number = 0;
-  set a23(v) {
+  set a23(v: number) {
     if (typeof v == "number") {
       this.#a23 = v;
     } else {
@@ -645,7 +645,7 @@ class Mat4 {
    * @default 0
    */
   #a24: number = 0;
-  set a24(v) {
+  set a24(v: number) {
     if (typeof v == "number") {
       this.#a24 = v;
     } else {
@@ -663,7 +663,7 @@ class Mat4 {
    * @default 0
    */
   #a31: number = 0;
-  set a31(v) {
+  set a31(v: number) {
     if (typeof v == "number") {
       this.#a31 = v;
     } else {
@@ -681,7 +681,7 @@ class Mat4 {
    * @default 0
    */
   #a32: number = 0;
-  set a32(v) {
+  set a32(v: number) {
     if (typeof v == "number") {
       this.#a32 = v;
     } else {
@@ -699,7 +699,7 @@ class Mat4 {
    * @default 0
    */
   #a33: number = 0;
-  set a33(v) {
+  set a33(v: number) {
     if (typeof v == "number") {
       this.#a33 = v;
     } else {
@@ -717,7 +717,7 @@ class Mat4 {
    * @default 0
    */
   #a34: number = 0;
-  set a34(v) {
+  set a34(v: number) {
     if (typeof v == "number") {
       this.#a34 = v;
     } else {
@@ -735,7 +735,7 @@ class Mat4 {
    * @default 0
    */
   #a41: number = 0;
-  set a41(v) {
+  set a41(v: number) {
     if (typeof v == "number") {
       this.#a41 = v;
     } else {
@@ -753,7 +753,7 @@ class Mat4 {
    * @default 0
    */
   #a42: number = 0;
-  set a42(v) {
+  set a42(v: number) {
     if (typeof v == "number") {
       this.#a42 = v;
     } else {
@@ -771,7 +771,7 @@ class Mat4 {
    * @default 0
    */
   #a43: number = 0;
-  set a43(v) {
+  set a43(v: number) {
     if (typeof v == "number") {
       this.#a43 = v;
     } else {
@@ -789,7 +789,7 @@ class Mat4 {
    * @default 0
    */
   #a44: number = 0;
-  set a44(v) {
+  set a44(v: number) {
     if (typeof v == "number") {
       this.#a44 = v;
     } else {
@@ -931,45 +931,47 @@ class Mat4 {
     ];
   }
 
-  static fromRotation(r, axis) {
+  static fromRotation(r: number, axis: any) {
     return new Mat4().rotate(r, axis);
   }
 
-  static fromXRotation(r) {
+  static fromXRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
 
     return new Mat4(1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
   }
 
-  static fromYRotation(r) {
+  static fromYRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
 
     return new Mat4(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
   }
 
-  static fromZRotation(r) {
+  static fromZRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
 
     return new Mat4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  static fromScalingVec3(v) {
+  static fromScalingVec3(v: any) {
     if (v.array) v = v.array; // This just transforms a provided vector into to an array.
 
     if (v instanceof Array) {
       return new Mat4(v[0], 0, 0, 0, 0, v[1], 0, 0, 0, 0, v[2], 0, 0, 0, 0, 1);
     }
+    throw new Error("The passed vector could not be parsed into a Mat4");
   }
 
-  static fromTranslatingVec3(v) {
+  static fromTranslatingVec3(v: any) {
     if (v.array) v = v.array; // This just transforms a provided vector into to an array.
 
     if (v instanceof Array) {
       return new Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v[0], v[1], v[2], 1);
     }
+    throw new Error("The passed vector could not be parsed into a Mat4");
   }
 
   /**
@@ -979,7 +981,7 @@ class Mat4 {
    *
    * @returns {mat4} out
    */
-  static fromQuat(q) {
+  static fromQuat(q: any) {
     if (q.array) q = q.array; // This just transforms a provided vector into to an array.
 
     if (q instanceof Array && q.length >= 4) {
@@ -1015,6 +1017,7 @@ class Mat4 {
         1
       );
     }
+    throw new Error("The passed quaternion could not be parsed into a Mat4");
   }
 
   /**
@@ -1033,7 +1036,7 @@ class Mat4 {
    * @param {vec3} s Scaling vector
    * @returns {mat4} out
    */
-  static fromRotationTranslationScale(q, v, s) {
+  static fromRotationTranslationScale(q: any, v: any, s: any) {
     if (q.array) q = q.array;
     if (v.array) v = v.array;
     if (s.array) s = s.array;
@@ -1082,6 +1085,7 @@ class Mat4 {
         1
       );
     }
+    throw new Error("The passed arguments could not be parsed into a Mat4");
   }
 
   /**
@@ -1103,7 +1107,7 @@ class Mat4 {
    * @param {vec3} o The origin vector around which to scale and rotate
    * @returns {mat4} out
    */
-  static fromRotationTranslationScaleOrigin(q, v, s, o) {
+  static fromRotationTranslationScaleOrigin(q: any, v: any, s: any, o: any) {
     if (q.array) q = q.array;
     if (v.array) v = v.array;
     if (s.array) s = s.array;
@@ -1168,6 +1172,7 @@ class Mat4 {
         1
       );
     }
+    throw new Error("The passed arguments could not be parsed into a Mat4");
   }
 
   /**
@@ -1181,7 +1186,7 @@ class Mat4 {
    * @param {Number} far Far bound of the frustum
    * @returns {mat4} out
    */
-  static frustum(left, right, bottom, top, near, far) {
+  static frustum(left: number, right: number, bottom: number, top: number, near: number, far: number) {
     const rl = 1 / (right - left),
       tb = 1 / (top - bottom),
       nf = 1 / (near - far);
@@ -1219,7 +1224,7 @@ class Mat4 {
    * @param {number} far Far bound of the frustum, can be null or Infinity
    * @returns {mat4} out
    */
-  static perspective(fovy, aspect, near, far) {
+  static perspective(fovy: number, aspect: number, near: number, far: number) {
     const f = 1.0 / Math.tan(fovy / 2);
     let nf, a33, a43;
 
@@ -1269,7 +1274,7 @@ class Mat4 {
    * @param {number} far Far bound of the frustum
    * @returns {mat4} out
    */
-  static ortho(left, right, bottom, top, near, far) {
+  static ortho(left: number, right: number, bottom: number, top: number, near: number, far: number) {
     const lr = 1 / (left - right),
       bt = 1 / (bottom - top),
       nf = 1 / (near - far);
@@ -1307,7 +1312,7 @@ class Mat4 {
    * @param {vec3} up vec3 pointing up
    * @returns {mat4} out
    */
-  static lookAt(eye, center, up) {
+  static lookAt(eye: any, center: any, up: any) {
     if (eye.array) eye = eye.array;
     if (center.array) center = center.array;
     if (up.array) up = up.array;
@@ -1400,7 +1405,7 @@ class Mat4 {
    * @param {vec3} up vec3 pointing up
    * @returns {mat4} out
    */
-  static targetTo(eye, target, up) {
+  static targetTo(eye: any, target: any, up: any) {
     if (eye.array) eye = eye.array;
     if (target.array) target = target.array;
     if (up.array) up = up.array;

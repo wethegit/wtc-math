@@ -28,7 +28,7 @@ class Quat extends Vec4 implements V4Q {
     return this;
   }
 
-  resetToQuat(q): Quat {
+  resetToQuat(q: V4Q): Quat {
     this.x = q.x;
     this.y = q.y;
     this.z = q.z;

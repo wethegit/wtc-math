@@ -988,6 +988,8 @@ class Vec3 {
       const z: number = Number(nv[2]);
       if (nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
         return new Vec3(x, y, z);
+      } else {
+        throw new Error("The passed interpolant could not be parsed into a Vec3");
       }
     } else {
       throw new Error("The passed interpolant could not be parsed into a Vec3");
@@ -1002,7 +1004,7 @@ class Vec3 {
    * @param {Number} d interpolation amount in the range of 0 - 1
    * @returns {Vec3}
    */
-  static lerp(v1: Vec3, v2: Vec3, d): Vec3 {
+  static lerp(v1: Vec3, v2: Vec3, d: number): Vec3 {
     return new Vec3(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y),

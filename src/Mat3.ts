@@ -603,6 +603,7 @@ class Mat3 {
         1 - xx - yy
       );
     }
+    throw new Error("The passed quaternion could not be parsed into a Mat3");
   }
 
   /**
@@ -612,7 +613,7 @@ class Mat3 {
    *
    * @returns {mat3}
    */
-  static fromMat4(a: Mat4): Mat3 {
+  static fromMat4(a: Mat4): Mat3 | null {
     const {
       f: { b00, b01, b02, b03, b04, b05, b06, b07, b08, b09, b10, b11 },
       determinant,

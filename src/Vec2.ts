@@ -598,7 +598,7 @@ class Vec2 {
     return this.clone().fract();
   }
 
-  transformByMat2(m): Vec2 {
+  transformByMat2(m: any): Vec2 {
     if (m.array) m = m.array; // This just transforms the matrix to an array.
     if (m instanceof Array && m.length >= 4) {
       const c = this.clone();
@@ -608,11 +608,11 @@ class Vec2 {
     return this;
   }
 
-  transformByMat2New(m): Vec2 {
+  transformByMat2New(m: any): Vec2 {
     return this.clone().transformByMat2(m);
   }
 
-  transformByMat3(m): Vec2 {
+  transformByMat3(m: any): Vec2 {
     if (m.array) m = m.array; // This just transforms the matrix to an array.
     if (m instanceof Array && m.length >= 9) {
       const c = this.clone();
@@ -622,7 +622,7 @@ class Vec2 {
     return this;
   }
 
-  transformByMat3New(m): Vec2 {
+  transformByMat3New(m: any): Vec2 {
     return this.clone().transformByMat3(m);
   }
 
@@ -878,6 +878,8 @@ class Vec2 {
       const y: number = Number(nv[1]);
       if (nv.length >= 2 && !isNaN(x) && !isNaN(y)) {
         return new Vec2(x, y);
+      } else {
+        throw new Error("The passed interpolant could not be parsed into a vec2");
       }
     } else {
       throw new Error("The passed interpolant could not be parsed into a vec2");
