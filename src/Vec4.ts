@@ -1,5 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Vec3 } from "./Vec3";
+import type { Vec2Like } from "./types";
 
 interface V4Q {
   x: number;
@@ -20,22 +21,22 @@ interface V4Q {
   xyz: any;
   yzx: any;
   zxy: any;
-  xx: any;
-  xy: any;
-  xz: any;
-  xw: any;
-  yx: any;
-  yy: any;
-  yz: any;
-  yw: any;
-  zx: any;
-  zy: any;
-  zz: any;
-  zw: any;
-  wx: any;
-  wy: any;
-  wz: any;
-  ww: any;
+  xx: Vec2Like;
+  xy: Vec2Like;
+  xz: Vec2Like;
+  xw: Vec2Like;
+  yx: Vec2Like;
+  yy: Vec2Like;
+  yz: Vec2Like;
+  yw: Vec2Like;
+  zx: Vec2Like;
+  zy: Vec2Like;
+  zz: Vec2Like;
+  zw: Vec2Like;
+  wx: Vec2Like;
+  wy: Vec2Like;
+  wz: Vec2Like;
+  ww: Vec2Like;
   reset(...args: number[]): V4Q;
   resetToVector(v: V4Q): V4Q;
   clone(): V4Q;
@@ -1025,10 +1026,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get xx(): any {
+  get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
-  set xx(v: any) {
+  set xx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -1038,10 +1039,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get xy(): any {
+  get xy(): Vec2 {
     return new Vec2(this.x, this.y);
   }
-  set xy(v: any) {
+  set xy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -1052,10 +1053,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get xz(): any {
+  get xz(): Vec2 {
     return new Vec2(this.x, this.z);
   }
-  set xz(v: any) {
+  set xz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.z = v.y;
@@ -1066,10 +1067,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get xw(): any {
+  get xw(): Vec2 {
     return new Vec2(this.x, this.w);
   }
-  set xw(v: any) {
+  set xw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.z = v.y;
@@ -1080,10 +1081,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get yx(): any {
+  get yx(): Vec2 {
     return new Vec2(this.y, this.x);
   }
-  set yx(v: any) {
+  set yx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
@@ -1094,10 +1095,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get yy(): any {
+  get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
-  set yy(v: any) {
+  set yy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -1107,10 +1108,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get yz(): any {
+  get yz(): Vec2 {
     return new Vec2(this.y, this.z);
   }
-  set yz(v: any) {
+  set yz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
@@ -1121,10 +1122,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get yw(): any {
+  get yw(): Vec2 {
     return new Vec2(this.y, this.w);
   }
-  set yw(v: any) {
+  set yw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.w = v.y;
@@ -1135,10 +1136,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get zx(): any {
+  get zx(): Vec2 {
     return new Vec2(this.z, this.x);
   }
-  set zx(v: any) {
+  set zx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
@@ -1149,10 +1150,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get zy(): any {
+  get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
-  set zy(v: any) {
+  set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
@@ -1163,10 +1164,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get zz(): any {
+  get zz(): Vec2 {
     return new Vec2(this.z, this.z);
   }
-  set zz(v: any) {
+  set zz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }
@@ -1176,10 +1177,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get zw(): any {
+  get zw(): Vec2 {
     return new Vec2(this.z, this.w);
   }
-  set zw(v: any) {
+  set zw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.w = v.y;
@@ -1190,10 +1191,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get wx(): any {
+  get wx(): Vec2 {
     return new Vec2(this.w, this.x);
   }
-  set wx(v: any) {
+  set wx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.x = v.y;
@@ -1204,10 +1205,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get wy(): any {
+  get wy(): Vec2 {
     return new Vec2(this.w, this.y);
   }
-  set wy(v: any) {
+  set wy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.y = v.y;
@@ -1218,10 +1219,10 @@ class Vec4 implements V4Q {
    *
    * @type {number}
    */
-  get wz(): any {
+  get wz(): Vec2 {
     return new Vec2(this.w, this.z);
   }
-  set wz(v: any) {
+  set wz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.z = v.y;
@@ -1232,10 +1233,10 @@ class Vec4 implements V4Q {
    *
    * @type {Vec2}
    */
-  get ww(): any {
+  get ww(): Vec2 {
     return new Vec2(this.w, this.w);
   }
-  set ww(v: any) {
+  set ww(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.y;
   }

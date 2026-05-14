@@ -1,5 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Mat4 } from "./Mat4";
+import type { Vec2Like } from "./types";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -861,10 +862,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get xy(): any {
+  get xy(): Vec2 {
     return new Vec2(this.x, this.y);
   }
-  set xy(v: any) {
+  set xy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -875,10 +876,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get yz(): any {
+  get yz(): Vec2 {
     return new Vec2(this.y, this.z);
   }
-  set yz(v: any) {
+  set yz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
@@ -889,10 +890,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get zx(): any {
+  get zx(): Vec2 {
     return new Vec2(this.z, this.x);
   }
-  set zx(v: any) {
+  set zx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
@@ -903,10 +904,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get yx(): any {
+  get yx(): Vec2 {
     return new Vec2(this.y, this.x);
   }
-  set yx(v: any) {
+  set yx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
@@ -917,10 +918,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get zy(): any {
+  get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
-  set zy(v: any) {
+  set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
@@ -931,10 +932,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get xx(): any {
+  get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
-  set xx(v: any) {
+  set xx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -944,10 +945,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get yy(): any {
+  get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
-  set yy(v: any) {
+  set yy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -957,10 +958,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get zz(): any {
+  get zz(): Vec2 {
     return new Vec2(this.z, this.z);
   }
-  set zz(v: any) {
+  set zz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }

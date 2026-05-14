@@ -1,4 +1,5 @@
 import { radianToDegrees, degreesToRadian } from "./common";
+import type { Vec2Like } from "./types";
 
 /**
  * A basic 2D Vector class that provides simple algebraic functionality in the form
@@ -823,10 +824,10 @@ class Vec2 {
    *
    * @type {number}
    */
-  get yx(): any {
+  get yx(): Vec2 {
     return new Vec2(this.y, this.x);
   }
-  set yx(v: any) {
+  set yx(v: Vec2Like) {
     this.xy = Vec2.interpolate(v).yx;
   }
 
@@ -835,12 +836,12 @@ class Vec2 {
    *
    * @type {number}
    */
-  get xx(): any {
+  get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
-  set xx(v: any) {
-    v = Vec2.interpolate(v);
-    this.x = v.y;
+  set xx(v: Vec2Like) {
+    const resolved = Vec2.interpolate(v);
+    this.x = resolved.y;
   }
 
   /**
@@ -848,12 +849,12 @@ class Vec2 {
    *
    * @type {number}
    */
-  get yy(): any {
+  get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
-  set yy(v: any) {
-    v = Vec2.interpolate(v);
-    this.y = v.y;
+  set yy(v: Vec2Like) {
+    const resolved = Vec2.interpolate(v);
+    this.y = resolved.y;
   }
 
   /**
@@ -865,12 +866,9 @@ class Vec2 {
    * @param {Vec2|array|string|number} v The value to interpolate
    * @returns {Vec2} out
    */
-  static interpolate(v: any) {
-    if (!isNaN(v.x) && !isNaN(v.x)) {                 // Vec2 or Vec2 like object
-      return new Vec2(v.x, v.y);
-    } else if (v instanceof Array && v.length >= 2) { // 2-dimensional array
-      return new Vec2(v[0], v[1]);
-    } else if (!isNaN(v)) {                           // Single number
+  static interpolate(v: Vec2Like | number | string): Vec2 {
+    if (typeof v === "number") {                       // Single number
+      if (isNaN(v)) throw new Error("The passed interpolant could not be parsed into a vec2");
       return new Vec2(v, v);
     } else if (typeof v === "string") {               // comma delimited string of numbers
       const nv = v.split(",");
@@ -881,8 +879,11 @@ class Vec2 {
       } else {
         throw new Error("The passed interpolant could not be parsed into a vec2");
       }
-    } else {
-      throw new Error("The passed interpolant could not be parsed into a vec2");
+    } else if (Array.isArray(v) && v.length >= 2) {  // 2-dimensional array
+      return new Vec2(v[0], v[1]);
+    } else {                                          // Vec2 or Vec2-like object
+      const obj = v as { x: number; y: number };
+      return new Vec2(obj.x, obj.y);
     }
   }
 

@@ -1,3 +1,5 @@
+import type { Vec2Like } from "./types";
+
 const identity = [1, 0, 0, 1];
 
 const identToIndex = function (v: string): number {
@@ -104,20 +106,16 @@ class Mat2 {
     return this.multiplyScalarNew(s);
   }
 
-  scaleByVec2(v: any): Mat2 {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      this.a11 *= v[0];
-      this.a12 *= v[0];
-      this.a21 *= v[1];
-      this.a22 *= v[1];
-    }
-
+  scaleByVec2(v: Vec2Like): Mat2 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    this.a11 *= arr[0];
+    this.a12 *= arr[0];
+    this.a21 *= arr[1];
+    this.a22 *= arr[1];
     return this;
   }
 
-  scaleByVec2New(v: any): Mat2 {
+  scaleByVec2New(v: Vec2Like): Mat2 {
     return this.clone().scaleByVec2(v);
   }
 
@@ -292,13 +290,9 @@ class Mat2 {
     return new Mat2(c, -s, s, c);
   }
 
-  static fromScalingVec2(v: any): Mat2 {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      return new Mat2(v[0], 0, 0, v[1]);
-    }
-    return Mat2.identity();
+  static fromScalingVec2(v: Vec2Like): Mat2 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    return new Mat2(arr[0], 0, 0, arr[1]);
   }
 
   static identity(): Mat2 {

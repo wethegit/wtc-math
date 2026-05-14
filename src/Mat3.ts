@@ -1,4 +1,5 @@
 import { Vec2 } from "./Vec2";
+import type { Vec2Like } from "./types";
 
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
@@ -242,21 +243,18 @@ class Mat3 {
     return this.multiplyScalarNew(s);
   }
 
-  scaleByVec2(v: any): Mat3 {
-    if (v.array) v = v.array;
-
-    this.a11 *= v[0];
-    this.a12 *= v[0];
-    this.a13 *= v[0];
-
-    this.a21 *= v[1];
-    this.a22 *= v[1];
-    this.a23 *= v[1];
-
+  scaleByVec2(v: Vec2Like): Mat3 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    this.a11 *= arr[0];
+    this.a12 *= arr[0];
+    this.a13 *= arr[0];
+    this.a21 *= arr[1];
+    this.a22 *= arr[1];
+    this.a23 *= arr[1];
     return this;
   }
 
-  scaleByVec2New(v: any): Mat3 {
+  scaleByVec2New(v: Vec2Like): Mat3 {
     return this.clone().scaleByVec2(v);
   }
 
@@ -565,13 +563,9 @@ class Mat3 {
     return new Mat3(c, -s, 0, s, c, 0, 0, 0, 0);
   }
 
-  static fromScalingVec2(v: any): Mat3 {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      return new Mat3(v[0], 0, 0, 0, v[1], 0, 0, 0, 1);
-    }
-    return Mat3.identity();
+  static fromScalingVec2(v: Vec2Like): Mat3 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    return new Mat3(arr[0], 0, 0, 0, arr[1], 0, 0, 0, 1);
   }
 
   static fromQuat(q: any): Mat3 {

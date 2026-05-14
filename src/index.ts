@@ -1,4 +1,5 @@
 import { Vec2 } from "./Vec2";
+export type { Vec2Like } from "./types";
 import { Vec3 } from "./Vec3";
 import { Vec4 } from "./Vec4";
 
