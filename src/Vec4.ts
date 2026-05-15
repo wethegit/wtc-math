@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Vec3 } from "./Vec3";
-import type { Vec2Like } from "./types";
+import type { Vec2Like, Vec3Like } from "./types";
 
 interface V4Q {
   x: number;
@@ -18,9 +18,9 @@ interface V4Q {
   yzwx: any;
   zwxy: any;
   wxyz: any;
-  xyz: any;
-  yzx: any;
-  zxy: any;
+  xyz: Vec3Like;
+  yzx: Vec3Like;
+  zxy: Vec3Like;
   xx: Vec2Like;
   xy: Vec2Like;
   xz: Vec2Like;
@@ -981,14 +981,19 @@ class Vec4 implements V4Q {
    *
    * @type {Vec3}
    */
-  get xyz(): any {
+  get xyz(): Vec3 {
     return new Vec3(this.x, this.y, this.z);
   }
-  set xyz(v: any) {
-    v = Vec3.interpolate(v);
-    this.x = v.x;
-    this.y = v.y;
-    this.z = v.z;
+  set xyz(v: Vec3Like) {
+    if (Array.isArray(v)) {
+      this.x = v[0];
+      this.y = v[1];
+      this.z = v[2];
+    } else {
+      this.x = v.x;
+      this.y = v.y;
+      this.z = v.z;
+    }
   }
 
   /**
@@ -996,14 +1001,19 @@ class Vec4 implements V4Q {
    *
    * @type {Vec3}
    */
-  get yzx(): any {
+  get yzx(): Vec3 {
     return new Vec3(this.y, this.z, this.x);
   }
-  set yzx(v: any) {
-    v = Vec3.interpolate(v);
-    this.x = v.y;
-    this.y = v.z;
-    this.z = v.x;
+  set yzx(v: Vec3Like) {
+    if (Array.isArray(v)) {
+      this.x = v[1];
+      this.y = v[2];
+      this.z = v[0];
+    } else {
+      this.x = v.y;
+      this.y = v.z;
+      this.z = v.x;
+    }
   }
 
   /**
@@ -1011,14 +1021,19 @@ class Vec4 implements V4Q {
    *
    * @type {Vec3}
    */
-  get zxy(): any {
+  get zxy(): Vec3 {
     return new Vec3(this.z, this.x, this.y);
   }
-  set zxy(v: any) {
-    v = Vec3.interpolate(v);
-    this.x = v.z;
-    this.y = v.x;
-    this.z = v.y;
+  set zxy(v: Vec3Like) {
+    if (Array.isArray(v)) {
+      this.x = v[2];
+      this.y = v[0];
+      this.z = v[1];
+    } else {
+      this.x = v.z;
+      this.y = v.x;
+      this.z = v.y;
+    }
   }
 
   /**

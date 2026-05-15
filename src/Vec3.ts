@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Mat4 } from "./Mat4";
-import type { Vec2Like } from "./types";
+import type { Vec2Like, Vec3Like } from "./types";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -820,16 +820,16 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get xyz(): any {
+  get xyz(): Vec3 {
     return new Vec3(this.x, this.y, this.z);
   }
-  set xyz(v: any) {
-    if (v instanceof Vec3) {
-      this.resetToVector(v);
-    } else if (v instanceof Array && v.length >= 3) {
+  set xyz(v: Vec3Like) {
+    if (Array.isArray(v)) {
       this.reset(v[0], v[1], v[2]);
     } else {
-      throw new Error("input should be of type Vector");
+      this.x = v.x;
+      this.y = v.y;
+      this.z = v.z;
     }
   }
 
@@ -838,10 +838,10 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get yzx(): any {
+  get yzx(): Vec3 {
     return new Vec3(this.y, this.z, this.x);
   }
-  set yzx(v: any) {
+  set yzx(v: Vec3Like) {
     this.xyz = Vec3.interpolate(v).yzx;
   }
 
@@ -850,10 +850,10 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get zxy(): any {
+  get zxy(): Vec3 {
     return new Vec3(this.z, this.x, this.y);
   }
-  set zxy(v: any) {
+  set zxy(v: Vec3Like) {
     this.xyz = Vec3.interpolate(v).zxy;
   }
 
@@ -975,14 +975,11 @@ class Vec3 {
    * @param {Vec3|array|string|number} v The value to interpolate
    * @returns {Vec3} out
    */
-  static interpolate(v: any) {
-    if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z)) {
-      return new Vec3(v.x, v.y, v.z);
-    } else if (v instanceof Array && v.length >= 3) {
-      return new Vec3(v[0], v[1], v[2]);
-    } else if (!isNaN(v)) {
+  static interpolate(v: Vec3Like | number | string): Vec3 {
+    if (typeof v === "number") {                          // Single number
+      if (isNaN(v)) throw new Error("The passed interpolant could not be parsed into a Vec3");
       return new Vec3(v, v, v);
-    } else if (typeof v === "string") {
+    } else if (typeof v === "string") {                  // Comma-delimited string
       const nv = v.split(",");
       const x: number = Number(nv[0]);
       const y: number = Number(nv[1]);
@@ -992,8 +989,10 @@ class Vec3 {
       } else {
         throw new Error("The passed interpolant could not be parsed into a Vec3");
       }
-    } else {
-      throw new Error("The passed interpolant could not be parsed into a Vec3");
+    } else if (Array.isArray(v)) {                       // 3-dimensional array
+      return new Vec3(v[0], v[1], v[2]);
+    } else {                                             // Vec3 or Vec3-like object
+      return new Vec3(v.x, v.y, v.z);
     }
   }
 
