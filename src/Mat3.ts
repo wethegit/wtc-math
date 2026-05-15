@@ -1,4 +1,5 @@
 import { Vec2 } from "./Vec2";
+import type { Vec2Like, QuatLike } from "./types";
 
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
@@ -242,21 +243,18 @@ class Mat3 {
     return this.multiplyScalarNew(s);
   }
 
-  scaleByVec2(v: any): Mat3 {
-    if (v.array) v = v.array;
-
-    this.a11 *= v[0];
-    this.a12 *= v[0];
-    this.a13 *= v[0];
-
-    this.a21 *= v[1];
-    this.a22 *= v[1];
-    this.a23 *= v[1];
-
+  scaleByVec2(v: Vec2Like): Mat3 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    this.a11 *= arr[0];
+    this.a12 *= arr[0];
+    this.a13 *= arr[0];
+    this.a21 *= arr[1];
+    this.a22 *= arr[1];
+    this.a23 *= arr[1];
     return this;
   }
 
-  scaleByVec2New(v: any): Mat3 {
+  scaleByVec2New(v: Vec2Like): Mat3 {
     return this.clone().scaleByVec2(v);
   }
 
@@ -562,47 +560,40 @@ class Mat3 {
     let s = Math.sin(r);
     let c = Math.cos(r);
 
-    return new Mat3(c, -s, 0, s, c, 0, 0, 0, 0);
+    return new Mat3(c, -s, 0, s, c, 0, 0, 0, 1);
   }
 
-  static fromScalingVec2(v: any): Mat3 {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      return new Mat3(v[0], 0, 0, 0, v[1], 0, 0, 0, 1);
-    }
-    return Mat3.identity();
+  static fromScalingVec2(v: Vec2Like): Mat3 {
+    const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
+    return new Mat3(arr[0], 0, 0, 0, arr[1], 0, 0, 0, 1);
   }
 
-  static fromQuat(q: any): Mat3 {
-    if (q.array) q = q.array; // This just transforms a provided vector into to an array.
+  static fromQuat(q: QuatLike): Mat3 {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const [x, y, z, w] = qa;
+    const [x2, y2, z2] = qa.map((n) => n * 2);
 
-    if (q instanceof Array && q.length >= 4) {
-      const [x, y, z, w] = q;
-      const [x2, y2, z2] = q.map((x) => x * 2);
+    const xx = x * x2,
+      yx = y * x2,
+      yy = y * y2,
+      zx = z * x2,
+      zy = z * y2,
+      zz = z * z2,
+      wx = w * x2,
+      wy = w * y2,
+      wz = w * z2;
 
-      const xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-      return new Mat3(
-        1 - yy - zz,
-        yx - wz,
-        zx + wy,
-        yx + wz,
-        1 - xx - zz,
-        zy - wx,
-        zx - wy,
-        zy + wx,
-        1 - xx - yy
-      );
-    }
+    return new Mat3(
+      1 - yy - zz,
+      yx - wz,
+      zx + wy,
+      yx + wz,
+      1 - xx - zz,
+      zy - wx,
+      zx - wy,
+      zy + wx,
+      1 - xx - yy
+    );
   }
 
   /**
@@ -612,7 +603,7 @@ class Mat3 {
    *
    * @returns {mat3}
    */
-  static fromMat4(a: Mat4): Mat3 {
+  static fromMat4(a: Mat4): Mat3 | null {
     const {
       f: { b00, b01, b02, b03, b04, b05, b06, b07, b08, b09, b10, b11 },
       determinant,

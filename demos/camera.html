@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wtc-math — Camera CSS Transform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    /* label width override — "pitch °" is longest label here */
+    .ctrl-label { width: 60px; }
+
+    .quat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--amber-border);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 6px 10px;
+      font-size: var(--fs-sm);
+      color: var(--amber);
+      line-height: 1.7;
+    }
+
+    .code-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 9px 11px;
+      font-size: var(--fs-sm);
+      line-height: 1.75;
+      color: var(--text-mid);
+      white-space: pre;
+      overflow-x: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .viewport-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    /* ── CSS 3D scene ── */
+    .scene-3d {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      transform-style: preserve-3d;
+    }
+
+    .css-cube {
+      position: absolute;
+      transform-style: preserve-3d;
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 280px; height: 280px;
+      margin: -140px;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font);
+      font-size: var(--fs-md);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      backface-visibility: visible;
+    }
+
+    .cube-face.front  { transform: translateZ(140px);                  background: color-mix(in srgb, var(--green)  4%, transparent); border-color: color-mix(in srgb, var(--green)  22%, transparent); color: color-mix(in srgb, var(--green)  50%, transparent); }
+    .cube-face.back   { transform: rotateY(180deg) translateZ(140px);  background: color-mix(in srgb, var(--green)  2%, transparent); border-color: color-mix(in srgb, var(--green)  10%, transparent); color: color-mix(in srgb, var(--green)  30%, transparent); }
+    .cube-face.right  { transform: rotateY( 90deg) translateZ(140px);  background: color-mix(in srgb, var(--purple) 4%, transparent); border-color: color-mix(in srgb, var(--purple) 22%, transparent); color: color-mix(in srgb, var(--purple) 50%, transparent); }
+    .cube-face.left   { transform: rotateY(-90deg) translateZ(140px);  background: color-mix(in srgb, var(--purple) 2%, transparent); border-color: color-mix(in srgb, var(--purple) 10%, transparent); color: color-mix(in srgb, var(--purple) 30%, transparent); }
+    .cube-face.top    { transform: rotateX( 90deg) translateZ(140px);  background: color-mix(in srgb, var(--amber)  4%, transparent); border-color: color-mix(in srgb, var(--amber)  22%, transparent); color: color-mix(in srgb, var(--amber)  50%, transparent); }
+    .cube-face.bottom { transform: rotateX(-90deg) translateZ(140px);  background: color-mix(in srgb, var(--amber)  2%, transparent); border-color: color-mix(in srgb, var(--amber)  10%, transparent); color: color-mix(in srgb, var(--amber)  30%, transparent); }
+
+    #scene-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+    }
+
+    .pt-label {
+      position: absolute;
+      top: 0; left: 0;
+      font-family: var(--font);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      pointer-events: none;
+      white-space: nowrap;
+      background: var(--label-bg);
+      padding: 1px 5px;
+      border-radius: 2px;
+      text-shadow: 0 0 6px currentColor;
+      transform-origin: top left;
+    }
+
+    .pt-label--x { color: var(--red); }
+    .pt-label--y { color: var(--green); }
+    .pt-label--z { color: var(--purple); }
+
+    .lookat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--green-border);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 6px 10px;
+      font-size: var(--fs-sm);
+      color: var(--green);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wordmark">
+      <span class="w-lib">wtc</span><span class="w-dot">·</span><span class="w-mod">math</span>
+    </div>
+    <p class="header-desc">
+      <a href="./index.html">demos</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">Camera → CSS Transform</span>
+    </p>
+    <a class="header-link" href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener">github ↗</a>
+  </header>
+
+  <main class="demo-main">
+    <aside class="demo-controls">
+
+      <div class="ctrl-section">
+        <h3>Orbit (via Quaternion)</h3>
+        <div class="ctrl-row">
+          <span class="ctrl-label">yaw °</span>
+          <input class="ctrl-slider" type="range" id="yaw" min="-180" max="180" step="1" value="30">
+          <input class="ctrl-num" type="number" id="yawn" min="-180" max="180" step="1" value="30">
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">pitch °</span>
+          <input class="ctrl-slider" type="range" id="pitch" min="-89" max="89" step="1" value="20">
+          <input class="ctrl-num" type="number" id="pitchn" min="-89" max="89" step="1" value="20">
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">radius</span>
+          <input class="ctrl-slider" type="range" id="radius" min="2" max="12" step="0.1" value="5">
+          <input class="ctrl-num" type="number" id="radiusn" min="2" max="12" step="0.1" value="5">
+        </div>
+        <div class="quat-box" id="quat-box">q = { x: 0.000, y: 0.000, z: 0.000, w: 1.000 }</div>
+      </div>
+
+      <div class="ctrl-section">
+        <h3>Look At Vector</h3>
+        <div class="lookat-box" id="lookat-box">forward = { x: 0.000, y: 0.000, z: -1.000 }</div>
+      </div>
+
+      <div class="ctrl-section ctrl-section--fill">
+        <h3>Live Code</h3>
+        <pre class="code-box" id="code-box"></pre>
+      </div>
+
+    </aside>
+
+    <div class="viewport-wrap" id="viewport">
+      <div class="scene-3d" id="scene-3d">
+        <div class="css-cube">
+          <div class="cube-face front">front</div>
+          <div class="cube-face back">back</div>
+          <div class="cube-face right">right</div>
+          <div class="cube-face left">left</div>
+          <div class="cube-face top">top</div>
+          <div class="cube-face bottom">bottom</div>
+        </div>
+      </div>
+      <canvas id="scene-canvas"></canvas>
+    </div>
+  </main>
+
+  <footer>
+    <span>wtc-math</span>
+    <span class="footer-sep">·</span>
+    <a class="footer-link" href="./index.html">demos</a>
+    <span class="footer-right">Mat4 + Quat → CSS transform</span>
+  </footer>
+
+  <script type="module" src="./camera.ts"></script>
+</body>
+</html>

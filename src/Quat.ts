@@ -1,6 +1,7 @@
 import { Mat3 } from "./Mat3";
 import { Vec3 } from "./Vec3";
 import { Vec4, V4Q } from "./Vec4";
+import type { Vec3Like } from "./types";
 
 const identity: number[] = [0, 0, 0, 1];
 
@@ -28,7 +29,7 @@ class Quat extends Vec4 implements V4Q {
     return this;
   }
 
-  resetToQuat(q): Quat {
+  resetToQuat(q: V4Q): Quat {
     this.x = q.x;
     this.y = q.y;
     this.z = q.z;
@@ -135,52 +136,50 @@ class Quat extends Vec4 implements V4Q {
     return new Quat(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
   }
 
-  static fromEuler(euler: any, order: string = "YXZ"): Quat | void {
-    if (euler.array) euler = euler.array; // This just transforms the matrix to an array.
-    if (euler instanceof Array && euler.length >= 3) {
-      const out = new Quat();
+  static fromEuler(euler: Vec3Like, order: string = "YXZ"): Quat {
+    const ea = Array.isArray(euler) ? euler : [euler.x, euler.y, euler.z];
+    const out = new Quat();
 
-      let sx = Math.sin(euler[0] * 0.5);
-      let cx = Math.cos(euler[0] * 0.5);
-      let sy = Math.sin(euler[1] * 0.5);
-      let cy = Math.cos(euler[1] * 0.5);
-      let sz = Math.sin(euler[2] * 0.5);
-      let cz = Math.cos(euler[2] * 0.5);
+    const sx = Math.sin(ea[0] * 0.5);
+    const cx = Math.cos(ea[0] * 0.5);
+    const sy = Math.sin(ea[1] * 0.5);
+    const cy = Math.cos(ea[1] * 0.5);
+    const sz = Math.sin(ea[2] * 0.5);
+    const cz = Math.cos(ea[2] * 0.5);
 
-      if (order === "XYZ") {
-        out.x = sx * cy * cz + cx * sy * sz;
-        out.y = cx * sy * cz - sx * cy * sz;
-        out.z = cx * cy * sz + sx * sy * cz;
-        out.w = cx * cy * cz - sx * sy * sz;
-      } else if (order === "YXZ") {
-        out.x = sx * cy * cz + cx * sy * sz;
-        out.y = cx * sy * cz - sx * cy * sz;
-        out.z = cx * cy * sz - sx * sy * cz;
-        out.w = cx * cy * cz + sx * sy * sz;
-      } else if (order === "ZXY") {
-        out.x = sx * cy * cz - cx * sy * sz;
-        out.y = cx * sy * cz + sx * cy * sz;
-        out.z = cx * cy * sz + sx * sy * cz;
-        out.w = cx * cy * cz - sx * sy * sz;
-      } else if (order === "ZYX") {
-        out.x = sx * cy * cz - cx * sy * sz;
-        out.y = cx * sy * cz + sx * cy * sz;
-        out.z = cx * cy * sz - sx * sy * cz;
-        out.w = cx * cy * cz + sx * sy * sz;
-      } else if (order === "YZX") {
-        out.x = sx * cy * cz + cx * sy * sz;
-        out.y = cx * sy * cz + sx * cy * sz;
-        out.z = cx * cy * sz - sx * sy * cz;
-        out.w = cx * cy * cz - sx * sy * sz;
-      } else if (order === "XZY") {
-        out.x = sx * cy * cz - cx * sy * sz;
-        out.y = cx * sy * cz - sx * cy * sz;
-        out.z = cx * cy * sz + sx * sy * cz;
-        out.w = cx * cy * cz + sx * sy * sz;
-      }
-
-      return out;
+    if (order === "XYZ") {
+      out.x = sx * cy * cz + cx * sy * sz;
+      out.y = cx * sy * cz - sx * cy * sz;
+      out.z = cx * cy * sz + sx * sy * cz;
+      out.w = cx * cy * cz - sx * sy * sz;
+    } else if (order === "YXZ") {
+      out.x = sx * cy * cz + cx * sy * sz;
+      out.y = cx * sy * cz - sx * cy * sz;
+      out.z = cx * cy * sz - sx * sy * cz;
+      out.w = cx * cy * cz + sx * sy * sz;
+    } else if (order === "ZXY") {
+      out.x = sx * cy * cz - cx * sy * sz;
+      out.y = cx * sy * cz + sx * cy * sz;
+      out.z = cx * cy * sz + sx * sy * cz;
+      out.w = cx * cy * cz - sx * sy * sz;
+    } else if (order === "ZYX") {
+      out.x = sx * cy * cz - cx * sy * sz;
+      out.y = cx * sy * cz + sx * cy * sz;
+      out.z = cx * cy * sz - sx * sy * cz;
+      out.w = cx * cy * cz + sx * sy * sz;
+    } else if (order === "YZX") {
+      out.x = sx * cy * cz + cx * sy * sz;
+      out.y = cx * sy * cz + sx * cy * sz;
+      out.z = cx * cy * sz - sx * sy * cz;
+      out.w = cx * cy * cz - sx * sy * sz;
+    } else if (order === "XZY") {
+      out.x = sx * cy * cz - cx * sy * sz;
+      out.y = cx * sy * cz - sx * cy * sz;
+      out.z = cx * cy * sz + sx * sy * cz;
+      out.w = cx * cy * cz + sx * sy * sz;
     }
+
+    return out;
   }
 }
 

@@ -16,4 +16,6 @@ node_modules
 
 build/
 dist/
+dist-site/
+documentation/
 .vscode/

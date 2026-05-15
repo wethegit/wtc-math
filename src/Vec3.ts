@@ -1,5 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Mat4 } from "./Mat4";
+import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -36,7 +37,7 @@ class Vec3 {
    * @param {number} z 				The z coord
    */
   reset(...args: number[]): Vec3 {
-    let [x, y, z, w] = args;
+    let [x, y, z] = args;
     if (isNaN(x)) x = 0;
     if (isNaN(y)) y = 0;
     if (isNaN(z)) z = 0;
@@ -299,17 +300,11 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const ty = translated.y;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.y = rotated.y * c - rotated.z * s;
-    rotated.z = rotated.y * s + rotated.z * c;
-
-    // Translate back
-    this.y = rotated.y + origin.y;
-    this.z = rotated.z + origin.z;
+    this.y = ty * c - translated.z * s + origin.y;
+    this.z = ty * s + translated.z * c + origin.z;
 
     return this;
   }
@@ -322,22 +317,16 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.z * s + rotated.z * c;
-    rotated.z = rotated.z * c - rotated.x * s;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.z = rotated.z + origin.z;
+    this.x = tx * c + translated.z * s + origin.x;
+    this.z = translated.z * c - tx * s + origin.z;
 
     return this;
   }
 
-  rotateyNew(origin: Vec3, radian: number): Vec3 {
+  rotateYNew(origin: Vec3, radian: number): Vec3 {
     return this.clone().rotateY(origin, radian);
   }
 
@@ -345,17 +334,11 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.x * c - rotated.y * s;
-    rotated.y = rotated.x * s + rotated.y * c;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.y = rotated.y + origin.y;
+    this.x = tx * c - translated.y * s + origin.x;
+    this.y = tx * s + translated.y * c + origin.y;
 
     return this;
   }
@@ -364,61 +347,54 @@ class Vec3 {
     return this.clone().rotateZ(origin, radian);
   }
 
-  transformByMat4(m: any): Vec3 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 16) {
-      const o = this.clone();
-      const w = m[3] * o.x + m[7] * o.y + m[11] * o.z + m[15] || 1;
-      this.x = (m[0] * o.x + m[4] * o.y + m[8] * o.z + m[12]) / w;
-      this.y = (m[1] * o.x + m[5] * o.y + m[9] * o.z + m[13]) / w;
-      this.z = (m[2] * o.x + m[6] * o.y + m[10] * o.z + m[14]) / w;
-    }
+  transformByMat4(m: Mat4Like): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const o = this.clone();
+    const w = ma[3] * o.x + ma[7] * o.y + ma[11] * o.z + ma[15] || 1;
+    this.x = (ma[0] * o.x + ma[4] * o.y + ma[8] * o.z + ma[12]) / w;
+    this.y = (ma[1] * o.x + ma[5] * o.y + ma[9] * o.z + ma[13]) / w;
+    this.z = (ma[2] * o.x + ma[6] * o.y + ma[10] * o.z + ma[14]) / w;
     return this;
   }
 
-  transformByMat4New(m: any): Vec3 {
+  transformByMat4New(m: Mat4Like): Vec3 {
     return this.clone().transformByMat4(m);
   }
 
-  transformByMat3(m: any): Vec3 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 9) {
-      const o = this.clone();
-      this.x = m[0] * o.x + m[3] * o.y + m[6] * o.z;
-      this.y = m[1] * o.x + m[4] * o.y + m[7] * o.z;
-      this.z = m[2] * o.x + m[5] * o.y + m[8] * o.z;
-    }
+  transformByMat3(m: Mat3Like): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const o = this.clone();
+    this.x = ma[0] * o.x + ma[3] * o.y + ma[6] * o.z;
+    this.y = ma[1] * o.x + ma[4] * o.y + ma[7] * o.z;
+    this.z = ma[2] * o.x + ma[5] * o.y + ma[8] * o.z;
     return this;
   }
 
-  transformByMat3New(m: any): Vec3 {
+  transformByMat3New(m: Mat3Like): Vec3 {
     return this.clone().transformByMat3(m);
   }
 
-  transformByQuat(q: any): Vec3 {
-    if (q.array) q = q.array; // This just transforms the quaternion to an array.
-    if (q instanceof Array && q.length >= 4) {
-      const o = this.clone();
-      const uv = new Vec3(
-        q[1] * o.z - q[2] * o.y,
-        q[2] * o.x - q[0] * o.z,
-        q[0] * o.y - q[1] * o.x
-      );
-      const uuv = new Vec3(
-        q[1] * uv.z - q[2] * uv.y,
-        q[2] * uv.x - q[0] * uv.z,
-        q[0] * uv.y - q[1] * uv.x
-      );
-      uv.scale(2 * q[3]);
-      uuv.scale(2 * q[3]);
-
-      this.add(uv);
-      this.add(uuv);
-    }
+  transformByQuat(q: QuatLike): Vec3 {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const o = this.clone();
+    const uv = new Vec3(
+      qa[1] * o.z - qa[2] * o.y,
+      qa[2] * o.x - qa[0] * o.z,
+      qa[0] * o.y - qa[1] * o.x
+    );
+    const uuv = new Vec3(
+      qa[1] * uv.z - qa[2] * uv.y,
+      qa[2] * uv.x - qa[0] * uv.z,
+      qa[0] * uv.y - qa[1] * uv.x
+    );
+    uv.scale(2 * qa[3]);
+    uuv.scale(2);
+    this.add(uv);
+    this.add(uuv);
     return this;
   }
 
-  transformByQuatNew(q: any): Vec3 {
+  transformByQuatNew(q: QuatLike): Vec3 {
     return this.clone().transformByQuat(q);
   }
 
@@ -670,7 +646,7 @@ class Vec3 {
     if (typeof z == "number") {
       this.#z = z;
     } else {
-      throw new TypeError("Y should be a number");
+      throw new TypeError("Z should be a number");
     }
   }
   get z(): number {
@@ -819,16 +795,16 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get xyz(): any {
+  get xyz(): Vec3 {
     return new Vec3(this.x, this.y, this.z);
   }
-  set xyz(v: any) {
-    if (v instanceof Vec3) {
-      this.resetToVector(v);
-    } else if (v instanceof Array && v.length >= 3) {
+  set xyz(v: Vec3Like) {
+    if (Array.isArray(v)) {
       this.reset(v[0], v[1], v[2]);
     } else {
-      throw new Error("input should be of type Vector");
+      this.x = v.x;
+      this.y = v.y;
+      this.z = v.z;
     }
   }
 
@@ -837,10 +813,10 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get yzx(): any {
+  get yzx(): Vec3 {
     return new Vec3(this.y, this.z, this.x);
   }
-  set yzx(v: any) {
+  set yzx(v: Vec3Like) {
     this.xyz = Vec3.interpolate(v).yzx;
   }
 
@@ -849,10 +825,10 @@ class Vec3 {
    *
    * @type {Vec3}
    */
-  get zxy(): any {
+  get zxy(): Vec3 {
     return new Vec3(this.z, this.x, this.y);
   }
-  set zxy(v: any) {
+  set zxy(v: Vec3Like) {
     this.xyz = Vec3.interpolate(v).zxy;
   }
 
@@ -861,10 +837,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get xy(): any {
+  get xy(): Vec2 {
     return new Vec2(this.x, this.y);
   }
-  set xy(v: any) {
+  set xy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
@@ -875,10 +851,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get yz(): any {
+  get yz(): Vec2 {
     return new Vec2(this.y, this.z);
   }
-  set yz(v: any) {
+  set yz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
@@ -889,10 +865,10 @@ class Vec3 {
    *
    * @type {Vec2}
    */
-  get zx(): any {
+  get zx(): Vec2 {
     return new Vec2(this.z, this.x);
   }
-  set zx(v: any) {
+  set zx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
@@ -903,10 +879,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get yx(): any {
+  get yx(): Vec2 {
     return new Vec2(this.y, this.x);
   }
-  set yx(v: any) {
+  set yx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
@@ -917,10 +893,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get zy(): any {
+  get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
-  set zy(v: any) {
+  set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
@@ -931,10 +907,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get xx(): any {
+  get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
-  set xx(v: any) {
+  set xx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
@@ -944,10 +920,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get yy(): any {
+  get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
-  set yy(v: any) {
+  set yy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
@@ -957,10 +933,10 @@ class Vec3 {
    *
    * @type {number}
    */
-  get zz(): any {
+  get zz(): Vec2 {
     return new Vec2(this.z, this.z);
   }
-  set zz(v: any) {
+  set zz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }
@@ -974,23 +950,24 @@ class Vec3 {
    * @param {Vec3|array|string|number} v The value to interpolate
    * @returns {Vec3} out
    */
-  static interpolate(v: any) {
-    if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z)) {
-      return new Vec3(v.x, v.y, v.z);
-    } else if (v instanceof Array && v.length >= 3) {
-      return new Vec3(v[0], v[1], v[2]);
-    } else if (!isNaN(v)) {
+  static interpolate(v: Vec3Like | number | string): Vec3 {
+    if (typeof v === "number") {                          // Single number
+      if (isNaN(v)) throw new Error("The passed interpolant could not be parsed into a Vec3");
       return new Vec3(v, v, v);
-    } else if (typeof v === "string") {
+    } else if (typeof v === "string") {                  // Comma-delimited string
       const nv = v.split(",");
       const x: number = Number(nv[0]);
       const y: number = Number(nv[1]);
       const z: number = Number(nv[2]);
       if (nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
         return new Vec3(x, y, z);
+      } else {
+        throw new Error("The passed interpolant could not be parsed into a Vec3");
       }
-    } else {
-      throw new Error("The passed interpolant could not be parsed into a Vec3");
+    } else if (Array.isArray(v)) {                       // 3-dimensional array
+      return new Vec3(v[0], v[1], v[2]);
+    } else {                                             // Vec3 or Vec3-like object
+      return new Vec3(v.x, v.y, v.z);
     }
   }
 
@@ -1002,7 +979,7 @@ class Vec3 {
    * @param {Number} d interpolation amount in the range of 0 - 1
    * @returns {Vec3}
    */
-  static lerp(v1: Vec3, v2: Vec3, d): Vec3 {
+  static lerp(v1: Vec3, v2: Vec3, d: number): Vec3 {
     return new Vec3(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y),
@@ -1011,22 +988,13 @@ class Vec3 {
   }
 
   static getAngle(a: Vec3, b: Vec3) {
-    const _a = a.xy,
-      _b = b.xy;
+    let len1 = a.lengthSquared;
+    if (len1 > 0) len1 = 1 / Math.sqrt(len1);
 
-    let len1 = _a.lengthSquared;
-    if (len1 > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len1 = 1 / Math.sqrt(len1);
-    }
+    let len2 = b.lengthSquared;
+    if (len2 > 0) len2 = 1 / Math.sqrt(len2);
 
-    let len2 = _b.lengthSquared;
-    if (len2 > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len2 = 1 / Math.sqrt(len2);
-    }
-
-    let cosine = (_a.x * _b.x + _a.y * _b.y) * len1 * len2;
+    const cosine = (a.x * b.x + a.y * b.y + a.z * b.z) * len1 * len2;
 
     if (cosine > 1.0) {
       return 0;
@@ -1037,67 +1005,65 @@ class Vec3 {
     }
   }
 
-  static fromRotationMatrix(m: any, order: String = "YXZ"): Vec3 | void {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 16) {
-      const v = new Vec3();
-      if (order === "XYZ") {
-        v.y = Math.asin(Math.min(Math.max(m[8], -1), 1));
-        if (Math.abs(m[8]) < 0.99999) {
-          v.x = Math.atan2(-m[9], m[10]);
-          v.z = Math.atan2(-m[4], m[0]);
-        } else {
-          v.x = Math.atan2(m[6], m[5]);
-          v.z = 0;
-        }
-      } else if (order === "YXZ") {
-        v.x = Math.asin(-Math.min(Math.max(m[9], -1), 1));
-        if (Math.abs(m[9]) < 0.99999) {
-          v.y = Math.atan2(m[8], m[10]);
-          v.z = Math.atan2(m[1], m[5]);
-        } else {
-          v.y = Math.atan2(-m[2], m[0]);
-          v.z = 0;
-        }
-      } else if (order === "ZXY") {
-        v.x = Math.asin(Math.min(Math.max(m[6], -1), 1));
-        if (Math.abs(m[6]) < 0.99999) {
-          v.y = Math.atan2(-m[2], m[10]);
-          v.z = Math.atan2(-m[4], m[5]);
-        } else {
-          v.y = 0;
-          v.z = Math.atan2(m[1], m[0]);
-        }
-      } else if (order === "ZYX") {
-        v.y = Math.asin(-Math.min(Math.max(m[2], -1), 1));
-        if (Math.abs(m[2]) < 0.99999) {
-          v.x = Math.atan2(m[6], m[10]);
-          v.z = Math.atan2(m[1], m[0]);
-        } else {
-          v.x = 0;
-          v.z = Math.atan2(-m[4], m[5]);
-        }
-      } else if (order === "YZX") {
-        v.z = Math.asin(Math.min(Math.max(m[1], -1), 1));
-        if (Math.abs(m[1]) < 0.99999) {
-          v.x = Math.atan2(-m[9], m[5]);
-          v.y = Math.atan2(-m[2], m[0]);
-        } else {
-          v.x = 0;
-          v.y = Math.atan2(m[8], m[10]);
-        }
-      } else if (order === "XZY") {
-        v.z = Math.asin(-Math.min(Math.max(m[4], -1), 1));
-        if (Math.abs(m[4]) < 0.99999) {
-          v.x = Math.atan2(m[6], m[5]);
-          v.y = Math.atan2(m[8], m[0]);
-        } else {
-          v.x = Math.atan2(-m[9], m[10]);
-          v.y = 0;
-        }
+  static fromRotationMatrix(m: Mat4Like, order: string = "YXZ"): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const v = new Vec3();
+    if (order === "XYZ") {
+      v.y = Math.asin(Math.min(Math.max(ma[8], -1), 1));
+      if (Math.abs(ma[8]) < 0.99999) {
+        v.x = Math.atan2(-ma[9], ma[10]);
+        v.z = Math.atan2(-ma[4], ma[0]);
+      } else {
+        v.x = Math.atan2(ma[6], ma[5]);
+        v.z = 0;
       }
-      return v;
+    } else if (order === "YXZ") {
+      v.x = Math.asin(-Math.min(Math.max(ma[9], -1), 1));
+      if (Math.abs(ma[9]) < 0.99999) {
+        v.y = Math.atan2(ma[8], ma[10]);
+        v.z = Math.atan2(ma[1], ma[5]);
+      } else {
+        v.y = Math.atan2(-ma[2], ma[0]);
+        v.z = 0;
+      }
+    } else if (order === "ZXY") {
+      v.x = Math.asin(Math.min(Math.max(ma[6], -1), 1));
+      if (Math.abs(ma[6]) < 0.99999) {
+        v.y = Math.atan2(-ma[2], ma[10]);
+        v.z = Math.atan2(-ma[4], ma[5]);
+      } else {
+        v.y = 0;
+        v.z = Math.atan2(ma[1], ma[0]);
+      }
+    } else if (order === "ZYX") {
+      v.y = Math.asin(-Math.min(Math.max(ma[2], -1), 1));
+      if (Math.abs(ma[2]) < 0.99999) {
+        v.x = Math.atan2(ma[6], ma[10]);
+        v.z = Math.atan2(ma[1], ma[0]);
+      } else {
+        v.x = 0;
+        v.z = Math.atan2(-ma[4], ma[5]);
+      }
+    } else if (order === "YZX") {
+      v.z = Math.asin(Math.min(Math.max(ma[1], -1), 1));
+      if (Math.abs(ma[1]) < 0.99999) {
+        v.x = Math.atan2(-ma[9], ma[5]);
+        v.y = Math.atan2(-ma[2], ma[0]);
+      } else {
+        v.x = 0;
+        v.y = Math.atan2(ma[8], ma[10]);
+      }
+    } else if (order === "XZY") {
+      v.z = Math.asin(-Math.min(Math.max(ma[4], -1), 1));
+      if (Math.abs(ma[4]) < 0.99999) {
+        v.x = Math.atan2(ma[6], ma[5]);
+        v.y = Math.atan2(ma[8], ma[0]);
+      } else {
+        v.x = Math.atan2(-ma[9], ma[10]);
+        v.y = 0;
+      }
     }
+    return v;
   }
   
   /**
