@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Mat4 } from "./Mat4";
-import type { Vec2Like, Vec3Like, QuatLike } from "./types";
+import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -365,34 +365,30 @@ class Vec3 {
     return this.clone().rotateZ(origin, radian);
   }
 
-  transformByMat4(m: any): Vec3 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 16) {
-      const o = this.clone();
-      const w = m[3] * o.x + m[7] * o.y + m[11] * o.z + m[15] || 1;
-      this.x = (m[0] * o.x + m[4] * o.y + m[8] * o.z + m[12]) / w;
-      this.y = (m[1] * o.x + m[5] * o.y + m[9] * o.z + m[13]) / w;
-      this.z = (m[2] * o.x + m[6] * o.y + m[10] * o.z + m[14]) / w;
-    }
+  transformByMat4(m: Mat4Like): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const o = this.clone();
+    const w = ma[3] * o.x + ma[7] * o.y + ma[11] * o.z + ma[15] || 1;
+    this.x = (ma[0] * o.x + ma[4] * o.y + ma[8] * o.z + ma[12]) / w;
+    this.y = (ma[1] * o.x + ma[5] * o.y + ma[9] * o.z + ma[13]) / w;
+    this.z = (ma[2] * o.x + ma[6] * o.y + ma[10] * o.z + ma[14]) / w;
     return this;
   }
 
-  transformByMat4New(m: any): Vec3 {
+  transformByMat4New(m: Mat4Like): Vec3 {
     return this.clone().transformByMat4(m);
   }
 
-  transformByMat3(m: any): Vec3 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 9) {
-      const o = this.clone();
-      this.x = m[0] * o.x + m[3] * o.y + m[6] * o.z;
-      this.y = m[1] * o.x + m[4] * o.y + m[7] * o.z;
-      this.z = m[2] * o.x + m[5] * o.y + m[8] * o.z;
-    }
+  transformByMat3(m: Mat3Like): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const o = this.clone();
+    this.x = ma[0] * o.x + ma[3] * o.y + ma[6] * o.z;
+    this.y = ma[1] * o.x + ma[4] * o.y + ma[7] * o.z;
+    this.z = ma[2] * o.x + ma[5] * o.y + ma[8] * o.z;
     return this;
   }
 
-  transformByMat3New(m: any): Vec3 {
+  transformByMat3New(m: Mat3Like): Vec3 {
     return this.clone().transformByMat3(m);
   }
 
@@ -1036,67 +1032,65 @@ class Vec3 {
     }
   }
 
-  static fromRotationMatrix(m: any, order: String = "YXZ"): Vec3 | void {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 16) {
-      const v = new Vec3();
-      if (order === "XYZ") {
-        v.y = Math.asin(Math.min(Math.max(m[8], -1), 1));
-        if (Math.abs(m[8]) < 0.99999) {
-          v.x = Math.atan2(-m[9], m[10]);
-          v.z = Math.atan2(-m[4], m[0]);
-        } else {
-          v.x = Math.atan2(m[6], m[5]);
-          v.z = 0;
-        }
-      } else if (order === "YXZ") {
-        v.x = Math.asin(-Math.min(Math.max(m[9], -1), 1));
-        if (Math.abs(m[9]) < 0.99999) {
-          v.y = Math.atan2(m[8], m[10]);
-          v.z = Math.atan2(m[1], m[5]);
-        } else {
-          v.y = Math.atan2(-m[2], m[0]);
-          v.z = 0;
-        }
-      } else if (order === "ZXY") {
-        v.x = Math.asin(Math.min(Math.max(m[6], -1), 1));
-        if (Math.abs(m[6]) < 0.99999) {
-          v.y = Math.atan2(-m[2], m[10]);
-          v.z = Math.atan2(-m[4], m[5]);
-        } else {
-          v.y = 0;
-          v.z = Math.atan2(m[1], m[0]);
-        }
-      } else if (order === "ZYX") {
-        v.y = Math.asin(-Math.min(Math.max(m[2], -1), 1));
-        if (Math.abs(m[2]) < 0.99999) {
-          v.x = Math.atan2(m[6], m[10]);
-          v.z = Math.atan2(m[1], m[0]);
-        } else {
-          v.x = 0;
-          v.z = Math.atan2(-m[4], m[5]);
-        }
-      } else if (order === "YZX") {
-        v.z = Math.asin(Math.min(Math.max(m[1], -1), 1));
-        if (Math.abs(m[1]) < 0.99999) {
-          v.x = Math.atan2(-m[9], m[5]);
-          v.y = Math.atan2(-m[2], m[0]);
-        } else {
-          v.x = 0;
-          v.y = Math.atan2(m[8], m[10]);
-        }
-      } else if (order === "XZY") {
-        v.z = Math.asin(-Math.min(Math.max(m[4], -1), 1));
-        if (Math.abs(m[4]) < 0.99999) {
-          v.x = Math.atan2(m[6], m[5]);
-          v.y = Math.atan2(m[8], m[0]);
-        } else {
-          v.x = Math.atan2(-m[9], m[10]);
-          v.y = 0;
-        }
+  static fromRotationMatrix(m: Mat4Like, order: String = "YXZ"): Vec3 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const v = new Vec3();
+    if (order === "XYZ") {
+      v.y = Math.asin(Math.min(Math.max(ma[8], -1), 1));
+      if (Math.abs(ma[8]) < 0.99999) {
+        v.x = Math.atan2(-ma[9], ma[10]);
+        v.z = Math.atan2(-ma[4], ma[0]);
+      } else {
+        v.x = Math.atan2(ma[6], ma[5]);
+        v.z = 0;
       }
-      return v;
+    } else if (order === "YXZ") {
+      v.x = Math.asin(-Math.min(Math.max(ma[9], -1), 1));
+      if (Math.abs(ma[9]) < 0.99999) {
+        v.y = Math.atan2(ma[8], ma[10]);
+        v.z = Math.atan2(ma[1], ma[5]);
+      } else {
+        v.y = Math.atan2(-ma[2], ma[0]);
+        v.z = 0;
+      }
+    } else if (order === "ZXY") {
+      v.x = Math.asin(Math.min(Math.max(ma[6], -1), 1));
+      if (Math.abs(ma[6]) < 0.99999) {
+        v.y = Math.atan2(-ma[2], ma[10]);
+        v.z = Math.atan2(-ma[4], ma[5]);
+      } else {
+        v.y = 0;
+        v.z = Math.atan2(ma[1], ma[0]);
+      }
+    } else if (order === "ZYX") {
+      v.y = Math.asin(-Math.min(Math.max(ma[2], -1), 1));
+      if (Math.abs(ma[2]) < 0.99999) {
+        v.x = Math.atan2(ma[6], ma[10]);
+        v.z = Math.atan2(ma[1], ma[0]);
+      } else {
+        v.x = 0;
+        v.z = Math.atan2(-ma[4], ma[5]);
+      }
+    } else if (order === "YZX") {
+      v.z = Math.asin(Math.min(Math.max(ma[1], -1), 1));
+      if (Math.abs(ma[1]) < 0.99999) {
+        v.x = Math.atan2(-ma[9], ma[5]);
+        v.y = Math.atan2(-ma[2], ma[0]);
+      } else {
+        v.x = 0;
+        v.y = Math.atan2(ma[8], ma[10]);
+      }
+    } else if (order === "XZY") {
+      v.z = Math.asin(-Math.min(Math.max(ma[4], -1), 1));
+      if (Math.abs(ma[4]) < 0.99999) {
+        v.x = Math.atan2(ma[6], ma[5]);
+        v.y = Math.atan2(ma[8], ma[0]);
+      } else {
+        v.x = Math.atan2(-ma[9], ma[10]);
+        v.y = 0;
+      }
     }
+    return v;
   }
   
   /**

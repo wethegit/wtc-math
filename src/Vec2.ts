@@ -1,5 +1,5 @@
 import { radianToDegrees, degreesToRadian } from "./common";
-import type { Vec2Like } from "./types";
+import type { Vec2Like, Mat2Like, Mat3Like } from "./types";
 
 /**
  * A basic 2D Vector class that provides simple algebraic functionality in the form
@@ -599,31 +599,27 @@ class Vec2 {
     return this.clone().fract();
   }
 
-  transformByMat2(m: any): Vec2 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 4) {
-      const c = this.clone();
-      this.x = m[0] * c.x + m[2] * c.y;
-      this.y = m[1] * c.x + m[3] * c.y;
-    }
+  transformByMat2(m: Mat2Like): Vec2 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const c = this.clone();
+    this.x = ma[0] * c.x + ma[2] * c.y;
+    this.y = ma[1] * c.x + ma[3] * c.y;
     return this;
   }
 
-  transformByMat2New(m: any): Vec2 {
+  transformByMat2New(m: Mat2Like): Vec2 {
     return this.clone().transformByMat2(m);
   }
 
-  transformByMat3(m: any): Vec2 {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 9) {
-      const c = this.clone();
-      this.x = m[0] * c.x + m[3] * c.y + m[6];
-      this.y = m[1] * c.x + m[4] * c.y + m[7];
-    }
+  transformByMat3(m: Mat3Like): Vec2 {
+    const ma = Array.isArray(m) ? m : m.array;
+    const c = this.clone();
+    this.x = ma[0] * c.x + ma[3] * c.y + ma[6];
+    this.y = ma[1] * c.x + ma[4] * c.y + ma[7];
     return this;
   }
 
-  transformByMat3New(m: any): Vec2 {
+  transformByMat3New(m: Mat3Like): Vec2 {
     return this.clone().transformByMat3(m);
   }
 

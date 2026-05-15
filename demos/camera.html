@@ -122,6 +122,42 @@
       background: var(--surface);
     }
 
+    /* ── CSS 3D scene ── */
+    .scene-3d {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      transform-style: preserve-3d;
+    }
+
+    .css-cube {
+      position: absolute;
+      transform-style: preserve-3d;
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 280px; height: 280px;
+      margin: -140px;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      backface-visibility: visible;
+    }
+
+    .cube-face.front  { transform: translateZ(140px);                      background: rgba( 57,255,138,0.04); border-color: rgba( 57,255,138,0.22); color: rgba( 57,255,138,0.5); }
+    .cube-face.back   { transform: rotateY(180deg)  translateZ(140px);     background: rgba( 57,255,138,0.02); border-color: rgba( 57,255,138,0.10); color: rgba( 57,255,138,0.3); }
+    .cube-face.right  { transform: rotateY( 90deg)  translateZ(140px);     background: rgba(136,102,255,0.04); border-color: rgba(136,102,255,0.22); color: rgba(136,102,255,0.5); }
+    .cube-face.left   { transform: rotateY(-90deg)  translateZ(140px);     background: rgba(136,102,255,0.02); border-color: rgba(136,102,255,0.10); color: rgba(136,102,255,0.3); }
+    .cube-face.top    { transform: rotateX( 90deg)  translateZ(140px);     background: rgba(255,201, 64,0.04); border-color: rgba(255,201, 64,0.22); color: rgba(255,201, 64,0.5); }
+    .cube-face.bottom { transform: rotateX(-90deg)  translateZ(140px);     background: rgba(255,201, 64,0.02); border-color: rgba(255,201, 64,0.10); color: rgba(255,201, 64,0.3); }
+
     #scene-canvas {
       position: absolute;
       top: 0; left: 0;
@@ -141,6 +177,17 @@
       border-radius: 2px;
       text-shadow: 0 0 6px currentColor;
       transform-origin: top left;
+    }
+
+    .lookat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 2px solid rgba(57,255,138,0.35);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 6px 10px;
+      font-size: 10px;
+      color: var(--green);
+      line-height: 1.7;
     }
   </style>
 </head>
@@ -194,6 +241,11 @@
         <div class="quat-box" id="quat-box">q = { x: 0.000, y: 0.000, z: 0.000, w: 1.000 }</div>
       </div>
 
+      <div class="ctrl-section">
+        <h3>Look At Vector</h3>
+        <div class="lookat-box" id="lookat-box">forward = { x: 0.000, y: 0.000, z: -1.000 }</div>
+      </div>
+
       <div class="ctrl-section" style="flex:1;min-height:0">
         <h3>Live Code</h3>
         <pre class="code-box" id="code-box"></pre>
@@ -202,6 +254,16 @@
     </aside>
 
     <div class="viewport-wrap" id="viewport">
+      <div class="scene-3d" id="scene-3d">
+        <div class="css-cube">
+          <div class="cube-face front">front</div>
+          <div class="cube-face back">back</div>
+          <div class="cube-face right">right</div>
+          <div class="cube-face left">left</div>
+          <div class="cube-face top">top</div>
+          <div class="cube-face bottom">bottom</div>
+        </div>
+      </div>
       <canvas id="scene-canvas"></canvas>
     </div>
   </main>

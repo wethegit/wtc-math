@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Vec3 } from "./Vec3";
-import type { Vec2Like, Vec3Like, Vec4Like, QuatLike } from "./types";
+import type { Vec2Like, Vec3Like, Vec4Like, QuatLike, Mat4Like } from "./types";
 
 interface V4Q {
   x: number;
@@ -64,8 +64,8 @@ interface V4Q {
   multiplyScalarNew(scalar: number): V4Q;
   scale(scalar: number): V4Q;
   scaleNew(scalar: number): V4Q;
-  transformByMat4(m: any): V4Q;
-  transformByMat4New(m: any): V4Q;
+  transformByMat4(m: Mat4Like): V4Q;
+  transformByMat4New(m: Mat4Like): V4Q;
   transformByQuat(q: QuatLike): V4Q;
   transformByQuatNew(q: QuatLike): V4Q;
   negate(): V4Q;
@@ -466,19 +466,17 @@ class Vec4 implements V4Q {
     return this.clone().rotateZ(origin, radian);
   }
 
-  transformByMat4(m: any): V4Q {
-    if (m.array) m = m.array; // This just transforms the matrix to an array.
-    if (m instanceof Array && m.length >= 16) {
-      const o = this.clone();
-      this.x = (m[0] * o.x + m[4] * o.y + m[8] * o.z + m[12]) / this.w;
-      this.y = (m[1] * o.x + m[5] * o.y + m[9] * o.z + m[13]) / this.w;
-      this.z = (m[2] * o.x + m[6] * o.y + m[10] * o.z + m[14]) / this.w;
-      this.w = (m[3] * o.x + m[7] * o.y + m[11] * o.z + m[15]) / this.w;
-    }
+  transformByMat4(m: Mat4Like): V4Q {
+    const ma = Array.isArray(m) ? m : m.array;
+    const o = this.clone();
+    this.x = (ma[0] * o.x + ma[4] * o.y + ma[8] * o.z + ma[12]) / this.w;
+    this.y = (ma[1] * o.x + ma[5] * o.y + ma[9] * o.z + ma[13]) / this.w;
+    this.z = (ma[2] * o.x + ma[6] * o.y + ma[10] * o.z + ma[14]) / this.w;
+    this.w = (ma[3] * o.x + ma[7] * o.y + ma[11] * o.z + ma[15]) / this.w;
     return this;
   }
 
-  transformByMat4New(m: any): V4Q {
+  transformByMat4New(m: Mat4Like): V4Q {
     return this.clone().transformByMat4(m);
   }
 

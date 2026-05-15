@@ -1,6 +1,6 @@
 import { Vec3 } from "./Vec3";
 import { Quat } from "./Quat";
-import type { QuatLike } from "./types";
+import type { QuatLike, Vec3Like } from "./types";
 
 type Mat4DeterminantFunction = {
   f: {
@@ -292,10 +292,9 @@ class Mat4 {
     return this.multiplyScalarNew(s);
   }
 
-  scaleByVec3(v: any): Mat4 {
-    if (v.array) v = v.array;
-    v = v.concat([1, 1, 1]);
-    const [x, y, z] = v;
+  scaleByVec3(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const [x, y, z] = va;
 
     this.a11 *= x;
     this.a12 *= x;
@@ -315,7 +314,7 @@ class Mat4 {
     return this;
   }
 
-  scaleByVec3New(v: any): Mat4 {
+  scaleByVec3New(v: Vec3Like): Mat4 {
     return this.clone().scaleByVec3(v);
   }
 
@@ -325,10 +324,9 @@ class Mat4 {
    * @param {Vec3} v The amount to add to the matrixes transformation properties
    * @returns {mat4} output
    */
-  transform(v: any): Mat4 {
-    if (v.array) v = v.array;
-    v = v.concat([0, 0, 0]);
-    const [x, y, z] = v;
+  transform(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const [x, y, z] = va;
 
     this.a14 += x;
     this.a24 += y;
@@ -337,7 +335,7 @@ class Mat4 {
     return this;
   }
 
-  transformNew(v: any): Mat4 {
+  transformNew(v: Vec3Like): Mat4 {
     return this.clone().transform(v);
   }
 
@@ -347,10 +345,9 @@ class Mat4 {
    * @param {Vec3} v The amount to add to the matrixes transformation properties
    * @returns {mat4} output
    */
-  transformTo(v: any): Mat4 {
-    if (v.array) v = v.array;
-    v = v.concat([0, 0, 0]);
-    const [x, y, z] = v;
+  transformTo(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const [x, y, z] = va;
 
     this.a14 = x;
     this.a24 = y;
@@ -358,7 +355,7 @@ class Mat4 {
 
     return this;
   }
-  transformToNew(v: any): Mat4 {
+  transformToNew(v: Vec3Like): Mat4 {
     return this.clone().transform(v);
   }
 
@@ -368,10 +365,11 @@ class Mat4 {
    * @param {Vec3} v The amount to add to the matrixes translation properties
    * @returns {mat4} output
    */
-  translate(v: any): Mat4 {
-    const v0 = v[0];
-    const v1 = v[1];
-    const v2 = v[2];
+  translate(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const v0 = va[0];
+    const v1 = va[1];
+    const v2 = va[2];
 
     const a11 = this.a11;
     const a12 = this.a12;
@@ -400,7 +398,7 @@ class Mat4 {
 
     return this;
   }
-  translateNew(v: any): Mat4 {
+  translateNew(v: Vec3Like): Mat4 {
     return this.clone().translate(v);
   }
 
@@ -411,16 +409,15 @@ class Mat4 {
    * @param {vec3} axis the axis to rotate around
    * @returns {mat4} output
    */
-  rotate(r: number, axis: any): Mat4 {
-    if (axis.array) axis = axis.array;
-    if (!axis.length || axis.length < 3) return this;
-    let l = Math.hypot(axis[0], axis[1], axis[2]);
+  rotate(r: number, axis: Vec3Like): Mat4 {
+    const aa = Array.isArray(axis) ? axis : [axis.x, axis.y, axis.z];
+    let l = Math.hypot(aa[0], aa[1], aa[2]);
     if (l < EPSILON) return this;
 
     l = 1 / l;
-    const x = axis[0] / l,
-      y = axis[1] / l,
-      z = axis[2] / l,
+    const x = aa[0] / l,
+      y = aa[1] / l,
+      z = aa[2] / l,
       s = Math.sin(r),
       c = Math.cos(r),
       t = 1 - c,
@@ -459,7 +456,7 @@ class Mat4 {
     return this;
   }
 
-  rotateNew(r: number, axis: any): Mat4 {
+  rotateNew(r: number, axis: Vec3Like): Mat4 {
     return this.clone().rotate(r, axis);
   }
 
@@ -957,22 +954,14 @@ class Mat4 {
     return new Mat4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  static fromScalingVec3(v: any) {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      return new Mat4(v[0], 0, 0, 0, 0, v[1], 0, 0, 0, 0, v[2], 0, 0, 0, 0, 1);
-    }
-    throw new Error("The passed vector could not be parsed into a Mat4");
+  static fromScalingVec3(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    return new Mat4(va[0], 0, 0, 0, 0, va[1], 0, 0, 0, 0, va[2], 0, 0, 0, 0, 1);
   }
 
-  static fromTranslatingVec3(v: any) {
-    if (v.array) v = v.array; // This just transforms a provided vector into to an array.
-
-    if (v instanceof Array) {
-      return new Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v[0], v[1], v[2], 1);
-    }
-    throw new Error("The passed vector could not be parsed into a Mat4");
+  static fromTranslatingVec3(v: Vec3Like): Mat4 {
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    return new Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, va[0], va[1], va[2], 1);
   }
 
   /**
@@ -1033,49 +1022,46 @@ class Mat4 {
    * @param {vec3} s Scaling vector
    * @returns {mat4} out
    */
-  static fromRotationTranslationScale(q: QuatLike, v: any, s: any) {
+  static fromRotationTranslationScale(q: QuatLike, v: Vec3Like, s: Vec3Like): Mat4 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
-    if (v.array) v = v.array;
-    if (s.array) s = s.array;
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const sa = Array.isArray(s) ? s : [s.x, s.y, s.z];
 
-    if (v.length && v.length >= 3 && s.length && s.length >= 3) {
-      const x2 = qa[0] + qa[0],
-        y2 = qa[1] + qa[1],
-        z2 = qa[2] + qa[2];
+    const x2 = qa[0] + qa[0],
+      y2 = qa[1] + qa[1],
+      z2 = qa[2] + qa[2];
 
-      const xx = qa[0] * x2,
-        xy = qa[0] * y2,
-        xz = qa[0] * z2,
-        yy = qa[1] * y2,
-        yz = qa[1] * z2,
-        zz = qa[2] * z2,
-        wx = qa[3] * x2,
-        wy = qa[3] * y2,
-        wz = qa[3] * z2,
-        sx = s[0],
-        sy = s[1],
-        sz = s[2];
+    const xx = qa[0] * x2,
+      xy = qa[0] * y2,
+      xz = qa[0] * z2,
+      yy = qa[1] * y2,
+      yz = qa[1] * z2,
+      zz = qa[2] * z2,
+      wx = qa[3] * x2,
+      wy = qa[3] * y2,
+      wz = qa[3] * z2,
+      sx = sa[0],
+      sy = sa[1],
+      sz = sa[2];
 
-      return new Mat4(
-        (1 - (yy + zz)) * sx,
-        (xy + wz) * sx,
-        (xz - wy) * sx,
-        0,
-        (xy - wz) * sy,
-        (1 - (xx + zz)) * sy,
-        (yz + wx) * sy,
-        0,
-        (xz + wy) * sz,
-        (yz - wx) * sz,
-        (1 - (xx + yy)) * sz,
-        0,
-        v[0],
-        v[1],
-        v[2],
-        1
-      );
-    }
-    throw new Error("The passed arguments could not be parsed into a Mat4");
+    return new Mat4(
+      (1 - (yy + zz)) * sx,
+      (xy + wz) * sx,
+      (xz - wy) * sx,
+      0,
+      (xy - wz) * sy,
+      (1 - (xx + zz)) * sy,
+      (yz + wx) * sy,
+      0,
+      (xz + wy) * sz,
+      (yz - wx) * sz,
+      (1 - (xx + yy)) * sz,
+      0,
+      va[0],
+      va[1],
+      va[2],
+      1
+    );
   }
 
   /**
@@ -1097,70 +1083,60 @@ class Mat4 {
    * @param {vec3} o The origin vector around which to scale and rotate
    * @returns {mat4} out
    */
-  static fromRotationTranslationScaleOrigin(q: QuatLike, v: any, s: any, o: any) {
+  static fromRotationTranslationScaleOrigin(q: QuatLike, v: Vec3Like, s: Vec3Like, o: Vec3Like): Mat4 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
-    if (v.array) v = v.array;
-    if (s.array) s = s.array;
-    if (o.array) o = o.array;
+    const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
+    const sa = Array.isArray(s) ? s : [s.x, s.y, s.z];
+    const oa = Array.isArray(o) ? o : [o.x, o.y, o.z];
 
-    if (
-      v.length &&
-      v.length >= 3 &&
-      s.length &&
-      s.length >= 3 &&
-      o.length &&
-      o.length >= 3
-    ) {
-      const x2 = qa[0] + qa[0],
-        y2 = qa[1] + qa[1],
-        z2 = qa[2] + qa[2];
+    const x2 = qa[0] + qa[0],
+      y2 = qa[1] + qa[1],
+      z2 = qa[2] + qa[2];
 
-      const xx = qa[0] * x2,
-        xy = qa[0] * y2,
-        xz = qa[0] * z2,
-        yy = qa[1] * y2,
-        yz = qa[1] * z2,
-        zz = qa[2] * z2,
-        wx = qa[3] * x2,
-        wy = qa[3] * y2,
-        wz = qa[3] * z2,
-        sx = s[0],
-        sy = s[1],
-        sz = s[2],
-        ox = o[0],
-        oy = o[1],
-        oz = o[2];
+    const xx = qa[0] * x2,
+      xy = qa[0] * y2,
+      xz = qa[0] * z2,
+      yy = qa[1] * y2,
+      yz = qa[1] * z2,
+      zz = qa[2] * z2,
+      wx = qa[3] * x2,
+      wy = qa[3] * y2,
+      wz = qa[3] * z2,
+      sx = sa[0],
+      sy = sa[1],
+      sz = sa[2],
+      ox = oa[0],
+      oy = oa[1],
+      oz = oa[2];
 
-      const out0 = (1 - (yy + zz)) * sx,
-        out1 = (xy + wz) * sx,
-        out2 = (xz - wy) * sx,
-        out4 = (xy - wz) * sy,
-        out5 = (1 - (xx + zz)) * sy,
-        out6 = (yz + wx) * sy,
-        out8 = (xz + wy) * sz,
-        out9 = (yz - wx) * sz,
-        out10 = (1 - (xx + yy)) * sz;
+    const out0 = (1 - (yy + zz)) * sx,
+      out1 = (xy + wz) * sx,
+      out2 = (xz - wy) * sx,
+      out4 = (xy - wz) * sy,
+      out5 = (1 - (xx + zz)) * sy,
+      out6 = (yz + wx) * sy,
+      out8 = (xz + wy) * sz,
+      out9 = (yz - wx) * sz,
+      out10 = (1 - (xx + yy)) * sz;
 
-      return new Mat4(
-        out0,
-        out1,
-        out2,
-        0,
-        out4,
-        out5,
-        out6,
-        0,
-        out8,
-        out9,
-        out10,
-        0,
-        v[0] + ox - (out0 * ox + out4 * oy + out8 * oz),
-        v[1] + oy - (out1 * ox + out5 * oy + out9 * oz),
-        v[2] + oz - (out2 * ox + out6 * oy + out10 * oz),
-        1
-      );
-    }
-    throw new Error("The passed arguments could not be parsed into a Mat4");
+    return new Mat4(
+      out0,
+      out1,
+      out2,
+      0,
+      out4,
+      out5,
+      out6,
+      0,
+      out8,
+      out9,
+      out10,
+      0,
+      va[0] + ox - (out0 * ox + out4 * oy + out8 * oz),
+      va[1] + oy - (out1 * ox + out5 * oy + out9 * oz),
+      va[2] + oz - (out2 * ox + out6 * oy + out10 * oz),
+      1
+    );
   }
 
   /**
@@ -1300,89 +1276,79 @@ class Mat4 {
    * @param {vec3} up vec3 pointing up
    * @returns {mat4} out
    */
-  static lookAt(eye: any, center: any, up: any) {
-    if (eye.array) eye = eye.array;
-    if (center.array) center = center.array;
-    if (up.array) up = up.array;
+  static lookAt(eye: Vec3Like, center: Vec3Like, up: Vec3Like) {
+    const ea = Array.isArray(eye) ? eye : [eye.x, eye.y, eye.z];
+    const ca = Array.isArray(center) ? center : [center.x, center.y, center.z];
+    const ua = Array.isArray(up) ? up : [up.x, up.y, up.z];
+    const e = new Vec3(...ea),
+      c = new Vec3(...ca),
+      u = new Vec3(...ua);
 
     if (
-      eye.length &&
-      eye.length >= 3 &&
-      center.length &&
-      center.length >= 3 &&
-      up.length &&
-      up.length >= 3
+      Math.abs(e.x - c.x) < EPSILON &&
+      Math.abs(e.y - c.y) < EPSILON &&
+      Math.abs(e.z - c.z) < EPSILON
     ) {
-      const e = new Vec3(...eye),
-        c = new Vec3(...center),
-        u = new Vec3(...up);
-
-      if (
-        Math.abs(e.x - c.x) < EPSILON &&
-        Math.abs(e.y - c.y) < EPSILON &&
-        Math.abs(e.z - c.z) < EPSILON
-      ) {
-        return new Mat4();
-      }
-
-      const off = e.subtractNew(c);
-      let l = 1 / Math.hypot(off.x, off.y, off.z);
-      off.x *= l;
-      off.y *= l;
-      off.z *= l;
-
-      const or = new Vec3(
-        u.y * off.z - u.z * off.y,
-        u.z * off.x - u.x * off.z,
-        u.x * off.y - u.y * off.x
-      );
-      l = Math.hypot(or.x, or.y, or.z);
-      if (!l) {
-        or.reset(0, 0, 0);
-      } else {
-        l = 1 / l;
-        or.x *= l;
-        or.y *= l;
-        or.z *= l;
-      }
-
-      const tn = new Vec3(
-        off.y * or.z - off.z * or.y,
-        off.z * or.x - off.x * or.z,
-        off.x * or.y - off.y * or.x
-      );
-      l = Math.hypot(tn.x, tn.y, tn.z);
-      if (!l) {
-        tn.reset(0, 0, 0);
-      } else {
-        l = 1 / l;
-        tn.x *= l;
-        tn.y *= l;
-        tn.z *= l;
-      }
-
-      return new Mat4(
-        or.x,
-        tn.x,
-        off.x,
-        0,
-
-        or.y,
-        tn.y,
-        off.y,
-        0,
-
-        or.z,
-        tn.z,
-        off.z,
-        0,
-
-        -(or.x * e.x + or.y * e.y + or.z * e.z),
-        -(tn.x * e.x + tn.y * e.y + tn.z * e.z),
-        -(off.x * e.x + off.y * e.y + off.z * e.z),
-        1
-      );
+      return new Mat4();
     }
+
+    const off = e.subtractNew(c);
+    let l = 1 / Math.hypot(off.x, off.y, off.z);
+    off.x *= l;
+    off.y *= l;
+    off.z *= l;
+
+    const or = new Vec3(
+      u.y * off.z - u.z * off.y,
+      u.z * off.x - u.x * off.z,
+      u.x * off.y - u.y * off.x
+    );
+    l = Math.hypot(or.x, or.y, or.z);
+    if (!l) {
+      or.reset(0, 0, 0);
+    } else {
+      l = 1 / l;
+      or.x *= l;
+      or.y *= l;
+      or.z *= l;
+    }
+
+    const tn = new Vec3(
+      off.y * or.z - off.z * or.y,
+      off.z * or.x - off.x * or.z,
+      off.x * or.y - off.y * or.x
+    );
+    l = Math.hypot(tn.x, tn.y, tn.z);
+    if (!l) {
+      tn.reset(0, 0, 0);
+    } else {
+      l = 1 / l;
+      tn.x *= l;
+      tn.y *= l;
+      tn.z *= l;
+    }
+
+    return new Mat4(
+      or.x,
+      tn.x,
+      off.x,
+      0,
+
+      or.y,
+      tn.y,
+      off.y,
+      0,
+
+      or.z,
+      tn.z,
+      off.z,
+      0,
+
+      -(or.x * e.x + or.y * e.y + or.z * e.z),
+      -(tn.x * e.x + tn.y * e.y + tn.z * e.z),
+      -(off.x * e.x + off.y * e.y + off.z * e.z),
+      1
+    );
   }
 
   /**
@@ -1393,79 +1359,69 @@ class Mat4 {
    * @param {vec3} up vec3 pointing up
    * @returns {mat4} out
    */
-  static targetTo(eye: any, target: any, up: any) {
-    if (eye.array) eye = eye.array;
-    if (target.array) target = target.array;
-    if (up.array) up = up.array;
+  static targetTo(eye: Vec3Like, target: Vec3Like, up: Vec3Like) {
+    const ea = Array.isArray(eye) ? eye : [eye.x, eye.y, eye.z];
+    const ta = Array.isArray(target) ? target : [target.x, target.y, target.z];
+    const ua = Array.isArray(up) ? up : [up.x, up.y, up.z];
+    const e = new Vec3(...ea),
+      c = new Vec3(...ta),
+      u = new Vec3(...ua);
 
-    if (
-      eye.length &&
-      eye.length >= 3 &&
-      target.length &&
-      target.length >= 3 &&
-      up.length &&
-      up.length >= 3
-    ) {
-      const e = new Vec3(...eye),
-        c = new Vec3(...target),
-        u = new Vec3(...up);
+    const off = e.subtractNew(c);
+    let l = off.lengthSquared;
+    if (l > 0) {
+      l = 1 / Math.sqrt(l);
+      off.x *= l;
+      off.y *= l;
+      off.z *= l;
+    } else {
+      off.z = 1;
+    }
 
-      const off = e.subtractNew(c);
-      let l = off.lengthSquared;
-      if (l > 0) {
-        l = 1 / Math.sqrt(l);
-        off.x *= l;
-        off.y *= l;
-        off.z *= l;
-      } else {
-        off.z = 1;
-      }
-
-      const or = new Vec3(
+    const or = new Vec3(
+      u.y * off.z - u.z * off.y,
+      u.z * off.x - u.x * off.z,
+      u.x * off.y - u.y * off.x
+    );
+    l = or.lengthSquared;
+    if (l === 0) {
+      if (u.z) u.x += 1e-6;
+      else if (u.y) u.z += 1e-6;
+      else u.y += 1e-6;
+      or.reset(
         u.y * off.z - u.z * off.y,
         u.z * off.x - u.x * off.z,
         u.x * off.y - u.y * off.x
       );
       l = or.lengthSquared;
-      if (l === 0) {
-        if (u.z) u.x += 1e-6;
-        else if (u.y) u.z += 1e-6;
-        else u.y += 1e-6;
-        or.reset(
-          u.y * off.z - u.z * off.y,
-          u.z * off.x - u.x * off.z,
-          u.x * off.y - u.y * off.x
-        );
-        l = or.lengthSquared;
-      }
-
-      l = 1 / Math.sqrt(l);
-      or.x *= l;
-      or.y *= l;
-      or.z *= l;
-
-      return new Mat4(
-        or.x,
-        or.y,
-        or.z,
-        0,
-
-        off.y * or.z - off.z * or.y,
-        off.z * or.x - off.x * or.z,
-        off.x * or.y - off.y * or.x,
-        0,
-
-        off.x,
-        off.y,
-        off.z,
-        0,
-
-        e.x,
-        e.y,
-        e.z,
-        1
-      );
     }
+
+    l = 1 / Math.sqrt(l);
+    or.x *= l;
+    or.y *= l;
+    or.z *= l;
+
+    return new Mat4(
+      or.x,
+      or.y,
+      or.z,
+      0,
+
+      off.y * or.z - off.z * or.y,
+      off.z * or.x - off.x * or.z,
+      off.x * or.y - off.y * or.x,
+      0,
+
+      off.x,
+      off.y,
+      off.z,
+      0,
+
+      e.x,
+      e.y,
+      e.z,
+      1
+    );
   }
   
   /**

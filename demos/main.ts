@@ -1118,3 +1118,13 @@ window.addEventListener('resize', () => {
 });
 
 init();
+
+// Close demos dropdown when clicking outside it
+const demosDropdown = document.querySelector<HTMLDetailsElement>('.nav-dropdown');
+if (demosDropdown) {
+  document.addEventListener('click', e => {
+    if (!demosDropdown.contains(e.target as Node)) {
+      demosDropdown.removeAttribute('open');
+    }
+  });
+}
