@@ -1,0 +1,73 @@
+extends ./_layout
+
+block title
+  | wtc-math — Plane
+
+block head
+  style.
+    .result-box {
+      font-size: var(--fs-sm);
+      color: var(--amber);
+      background: var(--amber-dim);
+      border-left: 2px solid var(--amber-border);
+      padding: 6px 10px;
+      border-radius: 0 var(--r) var(--r) 0;
+      line-height: 1.8;
+      white-space: pre;
+    }
+    .canvas-fill {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: var(--surface);
+      cursor: crosshair;
+    }
+    #plane-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+block header-desc
+  p.header-desc
+    a(href="./index.html") demos
+    span.breadcrumb-sep ›
+    span.breadcrumb-current Plane
+
+block main
+  main.demo-main
+    aside.demo-controls
+
+      div.ctrl-section
+        h3 Normal angle
+        div.ctrl-row
+          span.ctrl-label °
+          input.ctrl-slider(type="range" id="angleSlider" min="0" max="360" step="1" value="45")
+          input.ctrl-num(type="number" id="angleNum" min="0" max="360" step="1" value="45")
+
+      div.ctrl-section
+        h3 Offset (constant)
+        div.ctrl-row
+          span.ctrl-label d
+          input.ctrl-slider(type="range" id="constSlider" min="-4" max="4" step="0.1" value="0")
+          input.ctrl-num(type="number" id="constNum" min="-4" max="4" step="0.1" value="0")
+
+      div.ctrl-section
+        h3 Result (mouse = point)
+        pre.result-box#resultBox distanceTo: —
+
+      div.ctrl-section.ctrl-section--fill
+        h3 How it works
+        p.info-text A #[code.txt-green Plane] is defined by a unit #[code.txt-amber normal] vector and a scalar #[code.txt-amber constant] (#[em d] in #[em nx·x + nz·z + d = 0]). Move the mouse over the canvas to position a point. #[code.txt-green distanceTo(p)] returns the signed distance — positive on the normal side, negative on the other. #[code.txt-green projectPoint(p)] drops a perpendicular onto the plane surface (dashed line).
+
+    div.canvas-fill#canvas-fill
+      canvas#plane-canvas
+
+block footer-links
+  a.footer-link(href="./index.html") demos
+
+block footer-right
+  span.footer-right Plane · distanceTo · projectPoint
+
+block scripts
+  script(type="module" src="./plane.ts")

@@ -1,0 +1,46 @@
+extends ./_layout
+
+block title
+  | wtc-math — playground
+
+append header-links
+  a.header-link(href="./docs/index.html") docs ↗
+
+block main
+  nav.tab-nav(role="tablist")
+    button.tab-btn(role="tab" data-tab="0") Vec2
+    button.tab-btn(role="tab" data-tab="1") Vec3
+    button.tab-btn(role="tab" data-tab="2") Vec4
+    button.tab-btn(role="tab" data-tab="3") Mat2
+    button.tab-btn(role="tab" data-tab="4") Mat3
+    button.tab-btn(role="tab" data-tab="5") Mat4
+    button.tab-btn(role="tab" data-tab="6") Quat
+
+  main.main
+    div.col-left
+      div.intro
+        p.intro-text A lightweight math library for JavaScript — vectors, matrices, and quaternions for 3D graphics and simulations. No dependencies.
+        div.intro-install
+          code.install-cmd npm install wtc-math
+        div.intro-links
+          a.intro-link(href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener") github ↗
+          a.intro-link(href="./docs/index.html") docs ↗
+      div.tab-desc#tab-desc
+      div.examples#examples(role="list")
+
+      div.tryit
+        div.tryit-header
+          span.tryit-label try it
+          span.tryit-hint all classes available in scope
+        textarea.tryit-input#tryit-input(spellcheck="false" rows="2")
+        div.tryit-output
+          span.output-prompt ›
+          span.output-value#output-value —
+
+    div.col-right
+      div.canvas-wrap
+        canvas#canvas
+      div.canvas-legend#canvas-legend
+
+block scripts
+  script(type="module" src="./main.ts")

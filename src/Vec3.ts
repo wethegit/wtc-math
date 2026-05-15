@@ -1,5 +1,4 @@
 import { Vec2 } from "./Vec2";
-import { Mat4 } from "./Mat4";
 import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types";
 
 /**
@@ -380,12 +379,12 @@ class Vec3 {
     const uv = new Vec3(
       qa[1] * o.z - qa[2] * o.y,
       qa[2] * o.x - qa[0] * o.z,
-      qa[0] * o.y - qa[1] * o.x
+      qa[0] * o.y - qa[1] * o.x,
     );
     const uuv = new Vec3(
       qa[1] * uv.z - qa[2] * uv.y,
       qa[2] * uv.x - qa[0] * uv.z,
-      qa[0] * uv.y - qa[1] * uv.x
+      qa[0] * uv.y - qa[1] * uv.x,
     );
     uv.scale(2 * qa[3]);
     uuv.scale(2);
@@ -543,7 +542,7 @@ class Vec3 {
     return new Vec3(
       this.y * vector.z - this.z * vector.y,
       this.z * vector.x - this.x * vector.z,
-      this.x * vector.y - this.y * vector.x
+      this.x * vector.y - this.y * vector.x,
     );
   }
 
@@ -951,10 +950,15 @@ class Vec3 {
    * @returns {Vec3} out
    */
   static interpolate(v: Vec3Like | number | string): Vec3 {
-    if (typeof v === "number") {                          // Single number
-      if (isNaN(v)) throw new Error("The passed interpolant could not be parsed into a Vec3");
+    if (typeof v === "number") {
+      // Single number
+      if (isNaN(v))
+        throw new Error(
+          "The passed interpolant could not be parsed into a Vec3",
+        );
       return new Vec3(v, v, v);
-    } else if (typeof v === "string") {                  // Comma-delimited string
+    } else if (typeof v === "string") {
+      // Comma-delimited string
       const nv = v.split(",");
       const x: number = Number(nv[0]);
       const y: number = Number(nv[1]);
@@ -962,11 +966,15 @@ class Vec3 {
       if (nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
         return new Vec3(x, y, z);
       } else {
-        throw new Error("The passed interpolant could not be parsed into a Vec3");
+        throw new Error(
+          "The passed interpolant could not be parsed into a Vec3",
+        );
       }
-    } else if (Array.isArray(v)) {                       // 3-dimensional array
+    } else if (Array.isArray(v)) {
+      // 3-dimensional array
       return new Vec3(v[0], v[1], v[2]);
-    } else {                                             // Vec3 or Vec3-like object
+    } else {
+      // Vec3 or Vec3-like object
       return new Vec3(v.x, v.y, v.z);
     }
   }
@@ -983,7 +991,7 @@ class Vec3 {
     return new Vec3(
       v1.x + d * (v2.x - v1.x),
       v1.y + d * (v2.y - v1.y),
-      v1.z + d * (v2.z - v1.z)
+      v1.z + d * (v2.z - v1.z),
     );
   }
 
@@ -1065,12 +1073,12 @@ class Vec3 {
     }
     return v;
   }
-  
+
   /**
-   * Adds iteration to the object, allowing it 
-   * to be destructured and iterated upon in 
+   * Adds iteration to the object, allowing it
+   * to be destructured and iterated upon in
    * various useful ways.
-  */
+   */
   [Symbol.iterator]() {
     let values = this.array;
     let index = 0;
@@ -1080,9 +1088,9 @@ class Vec3 {
           let value = values[index];
           index++;
           return { value, done: false };
-        } else return { done: true }
-      }
-    }
+        } else return { done: true };
+      },
+    };
   }
 }
 

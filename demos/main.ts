@@ -1,6 +1,6 @@
 import { Vec2, Vec3, Vec4, Mat2, Mat3, Mat4, Quat } from '../src/index';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 
 interface Input {
   label: string;
@@ -28,7 +28,7 @@ interface Tab {
   examples:    Example[];
 }
 
-// ─── Palette ──────────────────────────────────────────────────────────────────
+// Palette
 
 const P = {
   green:  '#39ff8a',
@@ -40,7 +40,7 @@ const P = {
   bg:     '#07080c',
 };
 
-// ─── Canvas Utilities ─────────────────────────────────────────────────────────
+// Canvas Utilities
 
 function setupCanvas(canvas: HTMLCanvasElement) {
   const wrap = canvas.parentElement!;
@@ -148,7 +148,7 @@ function dot(ctx: CanvasRenderingContext2D, x: number, y: number, color: string,
   ctx.restore();
 }
 
-// ─── Vec3 Isometric ──────────────────────────────────────────────────────────
+// Vec3 Isometric
 
 const ISO_X: [number, number] = [Math.sqrt(3) / 2,  0.5];
 const ISO_Y: [number, number] = [0,                 -1  ];
@@ -196,7 +196,7 @@ function drawIso(ctx: CanvasRenderingContext2D, size: number, vectors: IsoVector
   });
 }
 
-// ─── Matrix Grid ──────────────────────────────────────────────────────────────
+// Matrix Grid
 
 function drawMatrixGrid(
   ctx: CanvasRenderingContext2D,
@@ -255,7 +255,7 @@ function drawMatrixGrid(
   ctx.textBaseline = 'alphabetic';
 }
 
-// ─── Result Formatter ─────────────────────────────────────────────────────────
+// Result Formatter
 
 function fmt(v: number) {
   return parseFloat(v.toFixed(4)).toString();
@@ -284,11 +284,11 @@ function formatResult(v: unknown): string {
   return JSON.stringify(v);
 }
 
-// ─── Tab Definitions ──────────────────────────────────────────────────────────
+// Tab Definitions
 
 const TABS: Tab[] = [
 
-  // ─── Vec2 ────────────────────────────────────────────────────────────────
+  // Vec2
   {
     name: 'Vec2',
     description: '2D vector — x, y components. Supports add, subtract, scale, rotate, dot product, and lerp.',
@@ -483,7 +483,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Vec3 ────────────────────────────────────────────────────────────────
+  // Vec3
   {
     name: 'Vec3',
     description: '3D vector — x, y, z components. Supports cross product, dot product, normalise, lerp.',
@@ -595,7 +595,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Vec4 ────────────────────────────────────────────────────────────────
+  // Vec4
   {
     name: 'Vec4',
     description: '4D vector — x, y, z, w components. Basis for quaternions and homogeneous coordinates.',
@@ -645,7 +645,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Mat2 ────────────────────────────────────────────────────────────────
+  // Mat2
   {
     name: 'Mat2',
     description: '2×2 matrix — rotation, scaling in 2D. Can transform Vec2 via transformByMat2.',
@@ -706,7 +706,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Mat3 ────────────────────────────────────────────────────────────────
+  // Mat3
   {
     name: 'Mat3',
     description: '3×3 matrix — 2D transforms with translation, or normal matrices for 3D.',
@@ -760,7 +760,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Mat4 ────────────────────────────────────────────────────────────────
+  // Mat4
   {
     name: 'Mat4',
     description: '4×4 matrix — 3D transforms, perspective projection, view matrices.',
@@ -810,7 +810,7 @@ const TABS: Tab[] = [
     ],
   },
 
-  // ─── Quat ────────────────────────────────────────────────────────────────
+  // Quat
   {
     name: 'Quat',
     description: 'Quaternion — encodes 3D rotation as (x, y, z, w). Avoids gimbal lock.',
@@ -889,13 +889,13 @@ const TABS: Tab[] = [
 
 ];
 
-// ─── State ────────────────────────────────────────────────────────────────────
+// State
 
 let activeTab     = 0;
 let activeExample = 0;
 const inputValues: Record<string, number> = {};
 
-// ─── DOM refs ─────────────────────────────────────────────────────────────────
+// DOM refs
 
 const tabBtns      = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab-btn'));
 const tabDescEl    = document.getElementById('tab-desc')!;
@@ -908,7 +908,7 @@ const outputValEl  = document.getElementById('output-value')!;
 let canvasCtx: CanvasRenderingContext2D;
 let canvasSize: number;
 
-// ─── Rendering ───────────────────────────────────────────────────────────────
+// Rendering
 
 function getValues(): Record<string, number> {
   return { ...inputValues };
@@ -1062,7 +1062,7 @@ function setTab(idx: number) {
   renderCanvas();
 }
 
-// ─── Try It Evaluator ────────────────────────────────────────────────────────
+// Try It Evaluator
 
 function evaluate(code: string) {
   const fn = new Function(
@@ -1094,13 +1094,13 @@ tryitInputEl.addEventListener('input', () => {
   }, 120);
 });
 
-// ─── Tab buttons ─────────────────────────────────────────────────────────────
+// Tab buttons
 
 tabBtns.forEach((btn, idx) => {
   btn.addEventListener('click', () => setTab(idx));
 });
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// Init
 
 function init() {
   const result = setupCanvas(canvasEl);
