@@ -1,5 +1,6 @@
 import { Vec3 } from "./Vec3";
 import { Quat } from "./Quat";
+import type { QuatLike } from "./types";
 
 type Mat4DeterminantFunction = {
   f: {
@@ -981,43 +982,39 @@ class Mat4 {
    *
    * @returns {mat4} out
    */
-  static fromQuat(q: any) {
-    if (q.array) q = q.array; // This just transforms a provided vector into to an array.
+  static fromQuat(q: QuatLike): Mat4 {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const [x, y, z, w] = qa;
+    const [x2, y2, z2] = qa.map((n) => n * 2);
 
-    if (q instanceof Array && q.length >= 4) {
-      const [x, y, z, w] = q;
-      const [x2, y2, z2] = q.map((x) => x * 2);
+    const xx = x * x2,
+      yx = y * x2,
+      yy = y * y2,
+      zx = z * x2,
+      zy = z * y2,
+      zz = z * z2,
+      wx = w * x2,
+      wy = w * y2,
+      wz = w * z2;
 
-      const xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-      return new Mat4(
-        1 - yy - zz,
-        yx + wz,
-        zx - wy,
-        0,
-        yx - wz,
-        1 - xx - zz,
-        zy + wx,
-        0,
-        zx + wy,
-        zy - wx,
-        1 - xx - yy,
-        0,
-        0,
-        0,
-        0,
-        1
-      );
-    }
-    throw new Error("The passed quaternion could not be parsed into a Mat4");
+    return new Mat4(
+      1 - yy - zz,
+      yx + wz,
+      zx - wy,
+      0,
+      yx - wz,
+      1 - xx - zz,
+      zy + wx,
+      0,
+      zx + wy,
+      zy - wx,
+      1 - xx - yy,
+      0,
+      0,
+      0,
+      0,
+      1
+    );
   }
 
   /**
@@ -1036,32 +1033,25 @@ class Mat4 {
    * @param {vec3} s Scaling vector
    * @returns {mat4} out
    */
-  static fromRotationTranslationScale(q: any, v: any, s: any) {
-    if (q.array) q = q.array;
+  static fromRotationTranslationScale(q: QuatLike, v: any, s: any) {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
     if (v.array) v = v.array;
     if (s.array) s = s.array;
 
-    if (
-      q.length &&
-      q.length >= 4 &&
-      v.length &&
-      v.length >= 3 &&
-      s.length &&
-      s.length >= 3
-    ) {
-      const x2 = q[0] + q[0],
-        y2 = q[1] + q[1],
-        z2 = q[2] + q[2];
+    if (v.length && v.length >= 3 && s.length && s.length >= 3) {
+      const x2 = qa[0] + qa[0],
+        y2 = qa[1] + qa[1],
+        z2 = qa[2] + qa[2];
 
-      const xx = q[0] * x2,
-        xy = q[0] * y2,
-        xz = q[0] * z2,
-        yy = q[1] * y2,
-        yz = q[1] * z2,
-        zz = q[2] * z2,
-        wx = q[3] * x2,
-        wy = q[3] * y2,
-        wz = q[3] * z2,
+      const xx = qa[0] * x2,
+        xy = qa[0] * y2,
+        xz = qa[0] * z2,
+        yy = qa[1] * y2,
+        yz = qa[1] * z2,
+        zz = qa[2] * z2,
+        wx = qa[3] * x2,
+        wy = qa[3] * y2,
+        wz = qa[3] * z2,
         sx = s[0],
         sy = s[1],
         sz = s[2];
@@ -1107,15 +1097,13 @@ class Mat4 {
    * @param {vec3} o The origin vector around which to scale and rotate
    * @returns {mat4} out
    */
-  static fromRotationTranslationScaleOrigin(q: any, v: any, s: any, o: any) {
-    if (q.array) q = q.array;
+  static fromRotationTranslationScaleOrigin(q: QuatLike, v: any, s: any, o: any) {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
     if (v.array) v = v.array;
     if (s.array) s = s.array;
     if (o.array) o = o.array;
 
     if (
-      q.length &&
-      q.length >= 4 &&
       v.length &&
       v.length >= 3 &&
       s.length &&
@@ -1123,19 +1111,19 @@ class Mat4 {
       o.length &&
       o.length >= 3
     ) {
-      const x2 = q[0] + q[0],
-        y2 = q[1] + q[1],
-        z2 = q[2] + q[2];
+      const x2 = qa[0] + qa[0],
+        y2 = qa[1] + qa[1],
+        z2 = qa[2] + qa[2];
 
-      const xx = q[0] * x2,
-        xy = q[0] * y2,
-        xz = q[0] * z2,
-        yy = q[1] * y2,
-        yz = q[1] * z2,
-        zz = q[2] * z2,
-        wx = q[3] * x2,
-        wy = q[3] * y2,
-        wz = q[3] * z2,
+      const xx = qa[0] * x2,
+        xy = qa[0] * y2,
+        xz = qa[0] * z2,
+        yy = qa[1] * y2,
+        yz = qa[1] * z2,
+        zz = qa[2] * z2,
+        wx = qa[3] * x2,
+        wy = qa[3] * y2,
+        wz = qa[3] * z2,
         sx = s[0],
         sy = s[1],
         sz = s[2],

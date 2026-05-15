@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wtc-math — Camera CSS Transform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <style>
+    html, body { overflow: hidden; }
+
+    .demo-main {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      height: calc(100vh - var(--header-h) - var(--footer-h));
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 14px 18px;
+      gap: 14px;
+    }
+
+    .ctrl-section { display: flex; flex-direction: column; gap: 8px; }
+
+    .ctrl-section h3 {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ctrl-label {
+      width: 44px;
+      font-size: 11px;
+      color: var(--text-mid);
+      flex-shrink: 0;
+    }
+
+    .ctrl-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 2px;
+      background: var(--border-hi);
+      border-radius: 1px;
+      outline: none;
+      cursor: pointer;
+    }
+    .ctrl-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--green-glow);
+    }
+    .ctrl-slider::-moz-range-thumb {
+      width: 10px; height: 10px;
+      border-radius: 50%; border: none;
+      background: var(--green);
+    }
+
+    .ctrl-num {
+      width: 48px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 2px 5px;
+      text-align: right;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .ctrl-num:focus { border-color: rgba(57,255,138,0.4); }
+
+    .quat-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 2px solid rgba(255,201,64,0.35);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 6px 10px;
+      font-size: 10px;
+      color: var(--amber);
+      line-height: 1.7;
+    }
+
+    .code-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 9px 11px;
+      font-size: 10px;
+      line-height: 1.75;
+      color: var(--text-mid);
+      white-space: pre;
+      overflow-x: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .viewport-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    #scene-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+    }
+
+    .pt-label {
+      position: absolute;
+      top: 0; left: 0;
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 500;
+      pointer-events: none;
+      white-space: nowrap;
+      background: rgba(7,8,12,0.72);
+      padding: 1px 5px;
+      border-radius: 2px;
+      text-shadow: 0 0 6px currentColor;
+      transform-origin: top left;
+    }
+  </style>
+  <script type="module" crossorigin src="/wtc-math/assets/camera-075Ok1bY.js"></script>
+  <link rel="modulepreload" crossorigin href="/wtc-math/assets/src-D-qqxNB8.js">
+  <link rel="stylesheet" crossorigin href="/wtc-math/assets/src-Cdd5ZS55.css">
+</head>
+<body>
+  <header>
+    <div class="wordmark">
+      <span class="w-lib">wtc</span><span class="w-dot">·</span><span class="w-mod">math</span>
+    </div>
+    <p class="header-desc">
+      <a href="./index.html" style="color:var(--text-mid);text-decoration:none">demos</a>
+      <span style="color:var(--text-dim);margin:0 4px">›</span>
+      <span style="color:var(--text);font-weight:500">Camera → CSS Transform</span>
+    </p>
+    <a class="header-link" href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener">github ↗</a>
+  </header>
+
+  <main class="demo-main">
+    <aside class="demo-controls">
+
+      <div class="ctrl-section">
+        <h3>Camera Position</h3>
+        <div class="ctrl-row">
+          <span class="ctrl-label">eye.x</span>
+          <input class="ctrl-slider" type="range" id="eyeX" min="-8" max="8" step="0.05" value="0">
+          <input class="ctrl-num" type="number" id="eyeXn" min="-8" max="8" step="0.1" value="0">
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">eye.y</span>
+          <input class="ctrl-slider" type="range" id="eyeY" min="-4" max="8" step="0.05" value="2">
+          <input class="ctrl-num" type="number" id="eyeYn" min="-4" max="8" step="0.1" value="2">
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">eye.z</span>
+          <input class="ctrl-slider" type="range" id="eyeZ" min="-2" max="12" step="0.05" value="5">
+          <input class="ctrl-num" type="number" id="eyeZn" min="-2" max="12" step="0.1" value="5">
+        </div>
+      </div>
+
+      <div class="ctrl-section">
+        <h3>Orientation (Quaternion)</h3>
+        <div class="ctrl-row">
+          <span class="ctrl-label">yaw °</span>
+          <input class="ctrl-slider" type="range" id="yaw" min="-180" max="180" step="1" value="0">
+          <input class="ctrl-num" type="number" id="yawn" min="-180" max="180" step="1" value="0">
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">pitch °</span>
+          <input class="ctrl-slider" type="range" id="pitch" min="-89" max="89" step="1" value="-17">
+          <input class="ctrl-num" type="number" id="pitchn" min="-89" max="89" step="1" value="-17">
+        </div>
+        <div class="quat-box" id="quat-box">q = { x: 0.000, y: 0.000, z: 0.000, w: 1.000 }</div>
+      </div>
+
+      <div class="ctrl-section" style="flex:1;min-height:0">
+        <h3>Live Code</h3>
+        <pre class="code-box" id="code-box"></pre>
+      </div>
+
+    </aside>
+
+    <div class="viewport-wrap" id="viewport">
+      <canvas id="scene-canvas"></canvas>
+    </div>
+  </main>
+
+  <footer>
+    <span>wtc-math</span>
+    <span class="footer-sep">·</span>
+    <a class="footer-link" href="./index.html">demos</a>
+    <span class="footer-right">Mat4 + Quat → CSS transform</span>
+  </footer>
+
+</body>
+</html>

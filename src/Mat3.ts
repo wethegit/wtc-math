@@ -1,5 +1,5 @@
 import { Vec2 } from "./Vec2";
-import type { Vec2Like } from "./types";
+import type { Vec2Like, QuatLike } from "./types";
 
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
@@ -568,36 +568,32 @@ class Mat3 {
     return new Mat3(arr[0], 0, 0, 0, arr[1], 0, 0, 0, 1);
   }
 
-  static fromQuat(q: any): Mat3 {
-    if (q.array) q = q.array; // This just transforms a provided vector into to an array.
+  static fromQuat(q: QuatLike): Mat3 {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const [x, y, z, w] = qa;
+    const [x2, y2, z2] = qa.map((n) => n * 2);
 
-    if (q instanceof Array && q.length >= 4) {
-      const [x, y, z, w] = q;
-      const [x2, y2, z2] = q.map((x) => x * 2);
+    const xx = x * x2,
+      yx = y * x2,
+      yy = y * y2,
+      zx = z * x2,
+      zy = z * y2,
+      zz = z * z2,
+      wx = w * x2,
+      wy = w * y2,
+      wz = w * z2;
 
-      const xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
-
-      return new Mat3(
-        1 - yy - zz,
-        yx - wz,
-        zx + wy,
-        yx + wz,
-        1 - xx - zz,
-        zy - wx,
-        zx - wy,
-        zy + wx,
-        1 - xx - yy
-      );
-    }
-    throw new Error("The passed quaternion could not be parsed into a Mat3");
+    return new Mat3(
+      1 - yy - zz,
+      yx - wz,
+      zx + wy,
+      yx + wz,
+      1 - xx - zz,
+      zy - wx,
+      zx - wy,
+      zy + wx,
+      1 - xx - yy
+    );
   }
 
   /**

@@ -7,5 +7,12 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, "dist-site"),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main:      resolve(__dirname, "demos/index.html"),
+        camera:    resolve(__dirname, "demos/camera.html"),
+        gradients: resolve(__dirname, "demos/gradients.html"),
+      },
+    },
   },
 });

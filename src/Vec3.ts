@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Mat4 } from "./Mat4";
-import type { Vec2Like, Vec3Like } from "./types";
+import type { Vec2Like, Vec3Like, QuatLike } from "./types";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -396,30 +396,27 @@ class Vec3 {
     return this.clone().transformByMat3(m);
   }
 
-  transformByQuat(q: any): Vec3 {
-    if (q.array) q = q.array; // This just transforms the quaternion to an array.
-    if (q instanceof Array && q.length >= 4) {
-      const o = this.clone();
-      const uv = new Vec3(
-        q[1] * o.z - q[2] * o.y,
-        q[2] * o.x - q[0] * o.z,
-        q[0] * o.y - q[1] * o.x
-      );
-      const uuv = new Vec3(
-        q[1] * uv.z - q[2] * uv.y,
-        q[2] * uv.x - q[0] * uv.z,
-        q[0] * uv.y - q[1] * uv.x
-      );
-      uv.scale(2 * q[3]);
-      uuv.scale(2 * q[3]);
-
-      this.add(uv);
-      this.add(uuv);
-    }
+  transformByQuat(q: QuatLike): Vec3 {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const o = this.clone();
+    const uv = new Vec3(
+      qa[1] * o.z - qa[2] * o.y,
+      qa[2] * o.x - qa[0] * o.z,
+      qa[0] * o.y - qa[1] * o.x
+    );
+    const uuv = new Vec3(
+      qa[1] * uv.z - qa[2] * uv.y,
+      qa[2] * uv.x - qa[0] * uv.z,
+      qa[0] * uv.y - qa[1] * uv.x
+    );
+    uv.scale(2 * qa[3]);
+    uuv.scale(2 * qa[3]);
+    this.add(uv);
+    this.add(uuv);
     return this;
   }
 
-  transformByQuatNew(q: any): Vec3 {
+  transformByQuatNew(q: QuatLike): Vec3 {
     return this.clone().transformByQuat(q);
   }
 

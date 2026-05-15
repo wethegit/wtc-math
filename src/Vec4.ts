@@ -1,6 +1,6 @@
 import { Vec2 } from "./Vec2";
 import { Vec3 } from "./Vec3";
-import type { Vec2Like, Vec3Like } from "./types";
+import type { Vec2Like, Vec3Like, Vec4Like, QuatLike } from "./types";
 
 interface V4Q {
   x: number;
@@ -14,10 +14,10 @@ interface V4Q {
   depth: number;
   area: number;
   array: number[];
-  xyzw: any;
-  yzwx: any;
-  zwxy: any;
-  wxyz: any;
+  xyzw: Vec4Like;
+  yzwx: Vec4Like;
+  zwxy: Vec4Like;
+  wxyz: Vec4Like;
   xyz: Vec3Like;
   yzx: Vec3Like;
   zxy: Vec3Like;
@@ -66,8 +66,8 @@ interface V4Q {
   scaleNew(scalar: number): V4Q;
   transformByMat4(m: any): V4Q;
   transformByMat4New(m: any): V4Q;
-  transformByQuat(q: any): V4Q;
-  transformByQuatNew(q: any): V4Q;
+  transformByQuat(q: QuatLike): V4Q;
+  transformByQuatNew(q: QuatLike): V4Q;
   negate(): V4Q;
   negateNew(): V4Q;
   inverse(): V4Q;
@@ -482,24 +482,21 @@ class Vec4 implements V4Q {
     return this.clone().transformByMat4(m);
   }
 
-  transformByQuat(q: any): V4Q {
-    if (q.array) q = q.array; // This just transforms the quaternion to an array.
-    if (q instanceof Array && q.length >= 4) {
-      const uv = new Vec4(
-        q[3] * this.x + q[1] * this.z - q[2] * this.y,
-        q[3] * this.y + q[2] * this.x - q[0] * this.z,
-        q[3] * this.z + q[0] * this.y - q[1] * this.x,
-        -q[0] * this.x - q[1] * this.y - q[2] * this.z
-      );
-
-      this.x = uv.x * q[3] + uv.w * -q[0] + uv.y * -q[2] - uv.z * -q[1];
-      this.y = uv.y * q[3] + uv.w * -q[1] + uv.z * -q[0] - uv.x * -q[2];
-      this.z = uv.z * q[3] + uv.w * -q[2] + uv.x * -q[1] - uv.y * -q[0];
-    }
+  transformByQuat(q: QuatLike): V4Q {
+    const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
+    const uv = new Vec4(
+      qa[3] * this.x + qa[1] * this.z - qa[2] * this.y,
+      qa[3] * this.y + qa[2] * this.x - qa[0] * this.z,
+      qa[3] * this.z + qa[0] * this.y - qa[1] * this.x,
+      -qa[0] * this.x - qa[1] * this.y - qa[2] * this.z
+    );
+    this.x = uv.x * qa[3] + uv.w * -qa[0] + uv.y * -qa[2] - uv.z * -qa[1];
+    this.y = uv.y * qa[3] + uv.w * -qa[1] + uv.z * -qa[0] - uv.x * -qa[2];
+    this.z = uv.z * qa[3] + uv.w * -qa[2] + uv.x * -qa[1] - uv.y * -qa[0];
     return this;
   }
 
-  transformByQuatNew(q: any): V4Q {
+  transformByQuatNew(q: QuatLike): V4Q {
     return this.clone().transformByQuat(q);
   }
 
@@ -925,53 +922,63 @@ class Vec4 implements V4Q {
    *
    * @type {Vec4}
    */
-  get xyzw(): any {
+  get xyzw(): Vec4 {
     return new Vec4(this.x, this.y, this.z, this.w);
   }
-  set xyzw(v: any) {
-    if (v instanceof Vec4) {
-      this.resetToVector(v);
-    } else if (v instanceof Array && v.length >= 4) {
-      this.reset(v[0], v[1], v[2], v[3]);
+  set xyzw(v: Vec4Like) {
+    if (Array.isArray(v)) {
+      this.x = v[0]; this.y = v[1]; this.z = v[2]; this.w = v[3];
     } else {
-      throw new Error("input should be of type Vector");
+      this.x = v.x; this.y = v.y; this.z = v.z; this.w = v.w;
     }
   }
 
   /**
-   * (getter/sette) Swizzle XYZW
+   * (getter/sette) Swizzle YZWX
    *
    * @type {Vec4}
    */
-  get yzwx(): any {
+  get yzwx(): Vec4 {
     return new Vec4(this.y, this.z, this.w, this.x);
   }
-  set yzwx(v: any) {
-    this.xyzw = Vec4.interpolate(v).yzwx;
+  set yzwx(v: Vec4Like) {
+    if (Array.isArray(v)) {
+      this.y = v[0]; this.z = v[1]; this.w = v[2]; this.x = v[3];
+    } else {
+      this.y = v.x; this.z = v.y; this.w = v.z; this.x = v.w;
+    }
   }
 
   /**
-   * (getter/sette) Swizzle XYZW
+   * (getter/sette) Swizzle ZWXY
    *
    * @type {Vec4}
    */
-  get zwxy(): any {
+  get zwxy(): Vec4 {
     return new Vec4(this.z, this.w, this.x, this.y);
   }
-  set zwxy(v: any) {
-    this.xyzw = Vec4.interpolate(v).zwxy;
+  set zwxy(v: Vec4Like) {
+    if (Array.isArray(v)) {
+      this.z = v[0]; this.w = v[1]; this.x = v[2]; this.y = v[3];
+    } else {
+      this.z = v.x; this.w = v.y; this.x = v.z; this.y = v.w;
+    }
   }
 
   /**
-   * (getter/sette) Swizzle XYZW
+   * (getter/sette) Swizzle WXYZ
    *
    * @type {Vec4}
    */
-  get wxyz(): any {
+  get wxyz(): Vec4 {
     return new Vec4(this.w, this.x, this.y, this.z);
   }
-  set wxyz(v: any) {
-    this.xyzw = Vec4.interpolate(v).wxyz;
+  set wxyz(v: Vec4Like) {
+    if (Array.isArray(v)) {
+      this.w = v[0]; this.x = v[1]; this.y = v[2]; this.z = v[3];
+    } else {
+      this.w = v.x; this.x = v.y; this.y = v.z; this.z = v.w;
+    }
   }
 
   // I'm skipping all the silly combinations of 4 here because they're largely useless
@@ -1266,12 +1273,9 @@ class Vec4 implements V4Q {
    * @param {Vec4|array|string|number} v The value to interpolate
    * @returns {Vec4} out
    */
-  static interpolate(v: any) {
-    if (!isNaN(v.x) && !isNaN(v.x) && !isNaN(v.z) && !isNaN(v.w)) {
-      return new Vec4(v.x, v.y, v.z, v.w);
-    } else if (v instanceof Array && v.length >= 4) {
-      return new Vec4(v[0], v[1], v[2], v[3]);
-    } else if (!isNaN(v)) {
+  static interpolate(v: Vec4Like | number | string): Vec4 {
+    if (typeof v === "number") {
+      if (isNaN(v)) throw new Error("The passed interpolant could not be parsed into a Vec4");
       return new Vec4(v, v, v, v);
     } else if (typeof v === "string") {
       const nv = v.split(",");
@@ -1279,13 +1283,15 @@ class Vec4 implements V4Q {
       const y: number = Number(nv[1]);
       const z: number = Number(nv[2]);
       const w: number = Number(nv[3]);
-      if (nv.length >= 3 && !isNaN(x) && !isNaN(y) && !isNaN(z) && !isNaN(w)) {
+      if (nv.length >= 4 && !isNaN(x) && !isNaN(y) && !isNaN(z) && !isNaN(w)) {
         return new Vec4(x, y, z, w);
       } else {
         throw new Error("The passed interpolant could not be parsed into a Vec4");
       }
+    } else if (Array.isArray(v)) {
+      return new Vec4(v[0], v[1], v[2], v[3]);
     } else {
-      throw new Error("The passed interpolant could not be parsed into a Vec4");
+      return new Vec4(v.x, v.y, v.z, v.w);
     }
   }
 
