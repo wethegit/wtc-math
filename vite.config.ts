@@ -16,10 +16,8 @@ export default defineConfig({
         Plane: resolve(__dirname, "src/Plane.ts"),
         Ray: resolve(__dirname, "src/Ray.ts"),
       },
-      name: "WTCMath",
-      formats: ["es", "umd"],
-      fileName: (format, entryName) =>
-        `${entryName}.${format === "es" ? "es" : "umd"}.js`,
+      formats: ["es"],
+      fileName: (_, entryName) => `${entryName}.es.js`,
     },
   },
 });
