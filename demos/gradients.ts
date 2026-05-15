@@ -1,6 +1,6 @@
 import { Vec4 } from '../src/index';
 
-// ─── Colour conversion helpers ────────────────────────────────────────────────
+// Colour conversion helpers
 
 function srgbToLinear(c: number): number {
   return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
@@ -14,7 +14,7 @@ function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
 
-// sRGB Vec4 → [L, a, b] in Oklab
+// sRGB Vec4 -> [L, a, b] in Oklab
 function vec4ToOklab(v: Vec4): [number, number, number] {
   const r = srgbToLinear(v.x);
   const g = srgbToLinear(v.y);
@@ -35,7 +35,7 @@ function vec4ToOklab(v: Vec4): [number, number, number] {
   ];
 }
 
-// [L, a, b] Oklab → sRGB Vec4
+// [L, a, b] Oklab -> sRGB Vec4
 function oklabToVec4(L: number, a: number, b: number, alpha: number): Vec4 {
   const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
   const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
@@ -57,7 +57,7 @@ function oklabToVec4(L: number, a: number, b: number, alpha: number): Vec4 {
   );
 }
 
-// sRGB Vec4 → [L, C, H] in Oklch
+// sRGB Vec4 -> [L, C, H] in Oklch
 function vec4ToOklch(v: Vec4): [number, number, number] {
   const [L, a, b] = vec4ToOklab(v);
   return [L, Math.sqrt(a * a + b * b), Math.atan2(b, a)];
@@ -71,7 +71,7 @@ function lerpHue(a: number, b: number, t: number): number {
   return a + diff * t;
 }
 
-// ─── Interpolation functions ──────────────────────────────────────────────────
+// Interpolation functions
 
 function lerpSrgb(a: Vec4, b: Vec4, t: number): Vec4 {
   return Vec4.lerp(a, b, t) as Vec4;
@@ -111,7 +111,7 @@ function lerpOklch(a: Vec4, b: Vec4, t: number): Vec4 {
   );
 }
 
-// ─── Mode definitions ─────────────────────────────────────────────────────────
+// Mode definitions
 
 interface Mode {
   name:        string;
@@ -150,22 +150,22 @@ const EASING_MODES: Mode[] = [
 const SPACE_MODES: Mode[] = [
   {
     name:        'Gamma-correct (linear light)',
-    formula:     'linearise → lerp → re-linearise',
+    formula:     'linearise -> lerp -> re-linearise',
     interpolate: lerpLinearLight,
   },
   {
     name:        'Oklab',
-    formula:     'sRGB → Oklab → lerp L,a,b → sRGB',
+    formula:     'sRGB -> Oklab -> lerp L,a,b -> sRGB',
     interpolate: lerpOklab,
   },
   {
     name:        'Oklch — hue arc',
-    formula:     'sRGB → Oklch → lerp L,C,H → sRGB',
+    formula:     'sRGB -> Oklch -> lerp L,C,H -> sRGB',
     interpolate: lerpOklch,
   },
 ];
 
-// ─── State ────────────────────────────────────────────────────────────────────
+// State
 
 function hexToVec4(hex: string): Vec4 {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -186,7 +186,7 @@ let colA = hexToVec4('#e63b5e');
 let colB = hexToVec4('#22b0f0');
 let t    = 0.5;
 
-// ─── DOM ──────────────────────────────────────────────────────────────────────
+// DOM
 
 const colorAInput  = document.getElementById('colorA')  as HTMLInputElement;
 const colorBInput  = document.getElementById('colorB')  as HTMLInputElement;
@@ -198,7 +198,7 @@ const resultSwatch = document.getElementById('result-swatch')!;
 const resultVec    = document.getElementById('result-vec')!;
 const gradPanel    = document.getElementById('grad-panel')!;
 
-// ─── Build gradient strip elements ───────────────────────────────────────────
+// Build gradient strip elements
 
 interface Strip {
   canvas: HTMLCanvasElement;
@@ -248,7 +248,7 @@ const easingStrips = buildStrips(EASING_MODES, 'Easing — in sRGB space');
 const spaceStrips  = buildStrips(SPACE_MODES,  'Colour-space interpolation');
 const allStrips    = [...easingStrips, ...spaceStrips];
 
-// ─── Render ───────────────────────────────────────────────────────────────────
+// Render
 
 function renderStrip(strip: Strip) {
   const cvs = strip.canvas;
@@ -296,7 +296,7 @@ function renderAll() {
   }
 }
 
-// ─── Controls wiring ─────────────────────────────────────────────────────────
+// Controls wiring
 
 colorAInput.addEventListener('input', () => { colA = hexToVec4(colorAInput.value); renderAll(); });
 colorBInput.addEventListener('input', () => { colB = hexToVec4(colorBInput.value); renderAll(); });

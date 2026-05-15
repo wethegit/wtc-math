@@ -1,0 +1,184 @@
+extends ./_layout
+
+block title
+  | wtc-math — Colour Gradients
+
+block head
+  style.
+    .ctrl-label { width: 16px; }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-label {
+      color: var(--text-mid);
+      width: 16px;
+    }
+
+    .color-swatch-input {
+      width: 36px;
+      height: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1px;
+      background: var(--surface-2);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .color-vec {
+      font-size: var(--fs-sm);
+      color: var(--text-dim);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-swatch {
+      width: 100%;
+      height: 32px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .result-vec {
+      font-size: var(--fs-sm);
+      color: var(--amber);
+      background: var(--amber-dim);
+      border-left: 2px solid var(--amber-border);
+      padding: 5px 8px;
+      border-radius: 0 var(--r) var(--r) 0;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+
+    .grad-panel {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 14px 20px;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    .grad-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .grad-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .grad-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .grad-formula {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .grad-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .grad-canvas {
+      flex: 1;
+      height: 28px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    .grad-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--dot-border);
+      flex-shrink: 0;
+    }
+
+    .grad-val {
+      font-size: var(--fs-sm);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .grad-section-header {
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-top: 16px;
+    }
+    .grad-section-header:first-child {
+      margin-top: 0;
+    }
+
+block header-desc
+  p.header-desc
+    a(href="./index.html") demos
+    span.breadcrumb-sep ›
+    span.breadcrumb-current Colour Gradients via Vec4
+
+block main
+  main.demo-main
+    aside.demo-controls
+
+      div.ctrl-section
+        h3 Colour A
+        div.color-row
+          span.color-label A
+          input.color-swatch-input(type="color" id="colorA" value="#e63b5e")
+          span.color-vec#vecA Vec4(0.90, 0.23, 0.37, 1.00)
+
+      div.ctrl-section
+        h3 Colour B
+        div.color-row
+          span.color-label B
+          input.color-swatch-input(type="color" id="colorB" value="#22b0f0")
+          span.color-vec#vecB Vec4(0.13, 0.69, 0.94, 1.00)
+
+      div.ctrl-section
+        h3 Position
+        div.ctrl-row
+          span.ctrl-label t
+          input.ctrl-slider(type="range" id="tSlider" min="0" max="1" step="0.01" value="0.5")
+          input.ctrl-num(type="number" id="tNum" min="0" max="1" step="0.01" value="0.5")
+
+      div.ctrl-section
+        h3 Result at t
+        div.result-swatch#result-swatch
+        div.result-vec#result-vec
+
+      div.ctrl-section.ctrl-section--fill
+        h3 How it works
+        p.info-text #[code.txt-green Vec4] stores colour as #[code.txt-amber (r, g, b, a)] in 0–1 space. #[code.txt-green Vec4.lerp(a, b, t)] blends each channel. The easing strips above apply timing curves to #[code.txt-amber t] before lerping — all still in sRGB, so the midpoint can look muddy.
+        p.info-text The colour-space strips below convert to a perceptually uniform space first. #[strong.txt-mid Gamma-correct] linearises sRGB before blending. #[strong.txt-mid Oklab] works in a space designed to match human perception — no muddy grey midpoints. #[strong.txt-mid Oklch] is Oklab in polar form, lerping hue angle via the shortest arc for natural colour wheel transitions.
+
+    div.grad-panel#grad-panel
+
+block footer-links
+  a.footer-link(href="./index.html") demos
+
+block footer-right
+  span.footer-right Vec4 colour lerp · easing + Oklab · Oklch
+
+block scripts
+  script(type="module" src="./gradients.ts")

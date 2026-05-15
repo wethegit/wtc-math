@@ -106,6 +106,36 @@ class Quat extends Vec4 implements V4Q {
     return this;
   }
 
+  dot(q: V4Q): number {
+    return this.x * q.x + this.y * q.y + this.z * q.z + this.w * q.w;
+  }
+
+  conjugate(): Quat {
+    this.x = -this.x;
+    this.y = -this.y;
+    this.z = -this.z;
+    return this;
+  }
+
+  conjugateNew(): Quat {
+    return (this.clone() as Quat).conjugate();
+  }
+
+  invert(): Quat {
+    const dot = this.dot(this);
+    if (dot === 0) return this;
+    const inv = 1 / dot;
+    this.x = -this.x * inv;
+    this.y = -this.y * inv;
+    this.z = -this.z * inv;
+    this.w = this.w * inv;
+    return this;
+  }
+
+  invertNew(): Quat {
+    return (this.clone() as Quat).invert();
+  }
+
   /**
    * Getters and setters
    */
@@ -120,6 +150,43 @@ class Quat extends Vec4 implements V4Q {
   /**
    * Static methods
    */
+
+  static identity(): Quat {
+    return new Quat(0, 0, 0, 1);
+  }
+
+  /**
+   * Spherical linear interpolation between two quaternions.
+   */
+  static slerp(q1: Quat, q2: Quat, t: number): Quat {
+    let dot = q1.dot(q2);
+
+    // Ensure shortest path by flipping q2 if dot is negative
+    let x2 = q2.x, y2 = q2.y, z2 = q2.z, w2 = q2.w;
+    if (dot < 0) {
+      dot = -dot;
+      x2 = -x2; y2 = -y2; z2 = -z2; w2 = -w2;
+    }
+
+    let scale0: number, scale1: number;
+    if (1 - dot > 1e-6) {
+      const theta = Math.acos(dot);
+      const sinTheta = Math.sin(theta);
+      scale0 = Math.sin((1 - t) * theta) / sinTheta;
+      scale1 = Math.sin(t * theta) / sinTheta;
+    } else {
+      // Quaternions are very close — linear interpolation is safe
+      scale0 = 1 - t;
+      scale1 = t;
+    }
+
+    return new Quat(
+      scale0 * q1.x + scale1 * x2,
+      scale0 * q1.y + scale1 * y2,
+      scale0 * q1.z + scale1 * z2,
+      scale0 * q1.w + scale1 * w2
+    );
+  }
 
   /**
    * Creates a quaternion from a given axis and rotation

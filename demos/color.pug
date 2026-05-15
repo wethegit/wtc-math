@@ -1,0 +1,108 @@
+extends ./_layout
+
+block title
+  | wtc-math — Colour
+
+block head
+  style.
+    .swatch {
+      height: 40px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      flex: 1;
+    }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .color-pick {
+      width: 36px;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1px;
+      background: var(--surface-2);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .color-info {
+      font-size: var(--fs-sm);
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+    .lerp-swatch {
+      width: 100%;
+      height: 32px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+    }
+    .lerp-info {
+      font-size: var(--fs-sm);
+      color: var(--amber);
+      background: var(--amber-dim);
+      border-left: 2px solid var(--amber-border);
+      padding: 5px 10px;
+      border-radius: 0 var(--r) var(--r) 0;
+      line-height: 1.8;
+    }
+    .canvas-fill {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: var(--surface);
+    }
+    #color-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+block header-desc
+  p.header-desc
+    a(href="./index.html") demos
+    span.breadcrumb-sep ›
+    span.breadcrumb-current Colour
+
+block main
+  main.demo-main
+    aside.demo-controls
+
+      div.ctrl-section
+        h3 Colour A
+        div.color-row
+          input.color-pick(type="color" id="colorA" value="#e63b5e")
+          div.swatch#swatchA
+        pre.color-info#infoA
+
+      div.ctrl-section
+        h3 Colour B
+        div.color-row
+          input.color-pick(type="color" id="colorB" value="#22aaff")
+          div.swatch#swatchB
+        pre.color-info#infoB
+
+      div.ctrl-section
+        h3 Color.lerp(a, b, t)
+        div.ctrl-row
+          span.ctrl-label t
+          input.ctrl-slider(type="range" id="tSlider" min="0" max="1" step="0.01" value="0.5")
+          input.ctrl-num(type="number" id="tNum" min="0" max="1" step="0.01" value="0.5")
+        div.lerp-swatch#lerpSwatch
+        pre.lerp-info#lerpInfo
+
+      div.ctrl-section.ctrl-section--fill
+        h3 How it works
+        p.info-text #[code.txt-green Color] stores RGBA in #[code.txt-amber 0–1] space. #[code.txt-green Color.fromHex()] parses hex strings. #[code.txt-green toHSL()] decomposes to hue (0–360°), saturation, and lightness. The canvas shows a hue wheel built entirely from #[code.txt-green Color.fromHSL(h, 0.85, 0.55)] — one colour per degree — with the lerped result in the centre and a gradient strip at the bottom.
+
+    div.canvas-fill#canvas-fill
+      canvas#color-canvas
+
+block footer-links
+  a.footer-link(href="./index.html") demos
+
+block footer-right
+  span.footer-right Color · fromHex · fromHSL · lerp
+
+block scripts
+  script(type="module" src="./color.ts")

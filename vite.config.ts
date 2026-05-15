@@ -10,10 +10,16 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        Color: resolve(__dirname, "src/Color.ts"),
+        Plane: resolve(__dirname, "src/Plane.ts"),
+        Ray: resolve(__dirname, "src/Ray.ts"),
+      },
       name: "WTCMath",
-      fileName: (format) => `index.${format === "es" ? "es" : "umd"}.js`,
       formats: ["es", "umd"],
+      fileName: (format, entryName) =>
+        `${entryName}.${format === "es" ? "es" : "umd"}.js`,
     },
   },
 });

@@ -1,0 +1,113 @@
+extends ./_layout
+
+block title
+  | wtc-math — Ray
+
+block head
+  style.
+    .result-box {
+      font-size: var(--fs-sm);
+      color: var(--amber);
+      background: var(--amber-dim);
+      border-left: 2px solid var(--amber-border);
+      padding: 6px 10px;
+      border-radius: 0 var(--r) var(--r) 0;
+      line-height: 1.8;
+      white-space: pre;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--fs-sm);
+      color: var(--text-mid);
+    }
+    .canvas-fill {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: var(--surface);
+    }
+    #ray-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+block header-desc
+  p.header-desc
+    a(href="./index.html") demos
+    span.breadcrumb-sep ›
+    span.breadcrumb-current Ray
+
+block main
+  main.demo-main
+    aside.demo-controls
+
+      div.ctrl-section
+        h3 Origin
+        div.ctrl-row
+          span.ctrl-label x
+          input.ctrl-slider(type="range" id="oxSlider" min="-4" max="4" step="0.1" value="-3")
+          input.ctrl-num(type="number" id="oxNum" min="-4" max="4" step="0.1" value="-3")
+        div.ctrl-row
+          span.ctrl-label z
+          input.ctrl-slider(type="range" id="ozSlider" min="-4" max="4" step="0.1" value="0")
+          input.ctrl-num(type="number" id="ozNum" min="-4" max="4" step="0.1" value="0")
+
+      div.ctrl-section
+        h3 Direction angle
+        div.ctrl-row
+          span.ctrl-label °
+          input.ctrl-slider(type="range" id="dirSlider" min="-180" max="180" step="1" value="15")
+          input.ctrl-num(type="number" id="dirNum" min="-180" max="180" step="1" value="15")
+
+      div.ctrl-section
+        h3 at(t)
+        div.ctrl-row
+          span.ctrl-label t
+          input.ctrl-slider(type="range" id="tSlider" min="0" max="12" step="0.1" value="3")
+          input.ctrl-num(type="number" id="tNum" min="0" max="12" step="0.1" value="3")
+
+      div.ctrl-section
+        h3 Sphere radius
+        div.ctrl-row
+          span.ctrl-label r
+          input.ctrl-slider(type="range" id="srSlider" min="0.3" max="3" step="0.1" value="1.2")
+          input.ctrl-num(type="number" id="srNum" min="0.3" max="3" step="0.1" value="1.2")
+
+      div.ctrl-section
+        h3 Intersections
+        pre.result-box#resultBox
+
+      div.ctrl-section
+        div.legend-row
+          div.legend-dot(style="background:var(--green)")
+          span ray
+        div.legend-row
+          div.legend-dot(style="background:var(--red)")
+          span sphere (intersectSphere)
+        div.legend-row
+          div.legend-dot(style="background:var(--amber)")
+          span box (intersectBox)
+        div.legend-row
+          div.legend-dot(style="background:var(--purple)")
+          span plane (intersectPlane)
+
+    div.canvas-fill#canvas-fill
+      canvas#ray-canvas
+
+block footer-links
+  a.footer-link(href="./index.html") demos
+
+block footer-right
+  span.footer-right Ray · at · intersectSphere · intersectBox · intersectPlane
+
+block scripts
+  script(type="module" src="./ray.ts")

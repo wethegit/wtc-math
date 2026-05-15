@@ -89,7 +89,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Header ──────────────────────────────────────────────────────────────── */
+/* Header */
 
 header {
   height: var(--header-h);
@@ -160,7 +160,7 @@ header {
   border-color: var(--border-hi);
 }
 
-/* ── Demos dropdown ──────────────────────────────────────────────────────── */
+/* Demos dropdown */
 
 .nav-dropdown {
   position: relative;
@@ -236,7 +236,7 @@ header {
   color: var(--text);
 }
 
-/* ── Tab Navigation ──────────────────────────────────────────────────────── */
+/* Tab Navigation */
 
 .tab-nav {
   height: var(--nav-h);
@@ -274,7 +274,7 @@ header {
   border-bottom-color: var(--green);
 }
 
-/* ── Main Layout ─────────────────────────────────────────────────────────── */
+/* Main Layout */
 
 .main {
   display: grid;
@@ -282,7 +282,7 @@ header {
   height: calc(100vh - var(--header-h) - var(--nav-h) - var(--footer-h));
 }
 
-/* ── Left Column ─────────────────────────────────────────────────────────── */
+/* Left Column */
 
 .col-left {
   display: flex;
@@ -301,7 +301,7 @@ header {
   flex-shrink: 0;
 }
 
-/* ── Examples List ───────────────────────────────────────────────────────── */
+/* Examples List */
 
 .examples {
   flex: 1;
@@ -499,7 +499,7 @@ header {
   border-color: var(--focus-ring);
 }
 
-/* ── Try It ──────────────────────────────────────────────────────────────── */
+/* Try It */
 
 .tryit {
   border-top: 1px solid var(--border);
@@ -574,7 +574,7 @@ header {
   color: var(--red);
 }
 
-/* ── Right Column / Canvas ───────────────────────────────────────────────── */
+/* Right Column / Canvas */
 
 .col-right {
   background: var(--surface);
@@ -623,7 +623,7 @@ header {
   flex-shrink: 0;
 }
 
-/* ── Intro ───────────────────────────────────────────────────────────────── */
+/* Intro */
 
 .intro {
   padding: 12px 20px;
@@ -672,7 +672,7 @@ header {
   color: var(--text-mid);
 }
 
-/* ── Footer ──────────────────────────────────────────────────────────────── */
+/* Footer */
 
 footer {
   height: var(--footer-h);
@@ -706,7 +706,7 @@ footer {
   margin-left: auto;
 }
 
-/* ── Demo pages ──────────────────────────────────────────────────────────── */
+/* Demo pages */
 
 .demo-main {
   display: grid;
@@ -824,7 +824,7 @@ footer {
 .txt-amber { color: var(--amber); }
 .txt-mid   { color: var(--text-mid); }
 
-/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+/* Scrollbar */
 
 ::-webkit-scrollbar {
   width: 4px;

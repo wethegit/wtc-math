@@ -1,0 +1,46 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title
+      block title
+        | wtc-math
+    link(rel="preconnect" href="https://fonts.googleapis.com")
+    link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
+    link(href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet")
+    link(rel="stylesheet" href="./style.css")
+    block head
+
+  body
+    header
+      div.wordmark
+        span.w-lib wtc
+        span.w-dot ·
+        span.w-mod math
+      block header-desc
+        p.header-desc Interactive playground — vectors, matrices, quaternions
+      block header-links
+        a.header-link(href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener") github ↗
+      details.nav-dropdown
+        summary demos
+        div.dropdown-menu
+          a.dropdown-item(href="./camera.html") camera to css transform
+          a.dropdown-item(href="./gradients.html") colour gradients
+          a.dropdown-item(href="./color.html") colour class
+          a.dropdown-item(href="./plane.html") plane
+          a.dropdown-item(href="./ray.html") ray
+
+    block main
+
+    footer
+      span wtc-math
+      span.footer-sep ·
+      block footer-links
+        a.footer-link(href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener") github
+        span.footer-sep ·
+        a.footer-link(href="./docs/index.html") docs
+      block footer-right
+        span.footer-right MIT licence · We The Collective
+
+    block scripts
