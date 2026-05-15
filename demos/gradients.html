@@ -9,36 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
   <style>
-    html, body { overflow: hidden; }
-
-    .demo-main {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      height: calc(100vh - var(--header-h) - var(--footer-h));
-    }
-
-    /* ── Left controls ── */
-    .demo-controls {
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 14px 18px;
-      gap: 14px;
-    }
-
-    .ctrl-section { display: flex; flex-direction: column; gap: 8px; }
-
-    .ctrl-section h3 {
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-mid);
-      padding-bottom: 5px;
-      border-bottom: 1px solid var(--border);
-    }
+    /* label width override — "t" label is very short */
+    .ctrl-label { width: 16px; }
 
     .color-row {
       display: flex;
@@ -47,7 +19,6 @@
     }
 
     .color-label {
-      font-size: 11px;
       color: var(--text-mid);
       width: 16px;
     }
@@ -64,65 +35,13 @@
     }
 
     .color-vec {
-      font-size: 10px;
+      font-size: var(--fs-sm);
       color: var(--text-dim);
       flex: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .ctrl-row {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .ctrl-label {
-      width: 14px;
-      font-size: 11px;
-      color: var(--text-mid);
-      flex-shrink: 0;
-    }
-
-    .ctrl-slider {
-      flex: 1;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 2px;
-      background: var(--border-hi);
-      border-radius: 1px;
-      outline: none;
-      cursor: pointer;
-    }
-    .ctrl-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--green);
-      cursor: pointer;
-      box-shadow: 0 0 8px var(--green-glow);
-    }
-    .ctrl-slider::-moz-range-thumb {
-      width: 10px; height: 10px;
-      border-radius: 50%; border: none;
-      background: var(--green);
-    }
-
-    .ctrl-num {
-      width: 44px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 11px;
-      padding: 2px 5px;
-      text-align: right;
-      outline: none;
-      flex-shrink: 0;
-    }
-    .ctrl-num:focus { border-color: rgba(57,255,138,0.4); }
 
     .result-swatch {
       width: 100%;
@@ -133,10 +52,10 @@
     }
 
     .result-vec {
-      font-size: 10px;
+      font-size: var(--fs-sm);
       color: var(--amber);
       background: var(--amber-dim);
-      border-left: 2px solid rgba(255,201,64,0.35);
+      border-left: 2px solid var(--amber-border);
       padding: 5px 8px;
       border-radius: 0 var(--r) var(--r) 0;
       line-height: 1.6;
@@ -167,13 +86,11 @@
     }
 
     .grad-name {
-      font-size: 11px;
       font-weight: 500;
       color: var(--text);
     }
 
     .grad-formula {
-      font-size: 10px;
       color: var(--text-dim);
       font-style: italic;
     }
@@ -196,14 +113,28 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--dot-border);
       flex-shrink: 0;
     }
 
     .grad-val {
-      font-size: 9px;
+      font-size: var(--fs-sm);
       color: var(--text-dim);
       white-space: nowrap;
+    }
+
+    .grad-section-header {
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-top: 16px;
+    }
+    .grad-section-header:first-child {
+      margin-top: 0;
     }
   </style>
 </head>
@@ -213,9 +144,9 @@
       <span class="w-lib">wtc</span><span class="w-dot">·</span><span class="w-mod">math</span>
     </div>
     <p class="header-desc">
-      <a href="./index.html" style="color:var(--text-mid);text-decoration:none">demos</a>
-      <span style="color:var(--text-dim);margin:0 4px">›</span>
-      <span style="color:var(--text);font-weight:500">Colour Gradients via Vec4</span>
+      <a href="./index.html">demos</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">Colour Gradients via Vec4</span>
     </p>
     <a class="header-link" href="https://github.com/wethegit/wtc-math" target="_blank" rel="noopener">github ↗</a>
   </header>
@@ -256,15 +187,22 @@
         <div class="result-vec" id="result-vec"></div>
       </div>
 
-      <div class="ctrl-section" style="flex:1">
+      <div class="ctrl-section ctrl-section--fill">
         <h3>How it works</h3>
-        <p style="font-size:10px;color:var(--text-dim);line-height:1.7;font-weight:300">
-          <code style="color:var(--green)">Vec4</code> stores colour as
-          <code style="color:var(--amber)">(r, g, b, a)</code> in 0–1 space.
-          <code style="color:var(--green)">Vec4.lerp(a, b, t)</code> linearly
-          interpolates each channel. Applying an easing function to
-          <code style="color:var(--amber)">t</code> before the lerp changes the
-          perceived blend curve without touching the colour math.
+        <p class="info-text">
+          <code class="txt-green">Vec4</code> stores colour as
+          <code class="txt-amber">(r, g, b, a)</code> in 0–1 space.
+          <code class="txt-green">Vec4.lerp(a, b, t)</code> blends each
+          channel. The easing strips above apply timing curves to <code class="txt-amber">t</code>
+          before lerping — all still in sRGB, so the midpoint can look muddy.
+        </p>
+        <p class="info-text">
+          The colour-space strips below convert to a perceptually uniform space first.
+          <strong class="txt-mid">Gamma-correct</strong> linearises sRGB before blending.
+          <strong class="txt-mid">Oklab</strong> works in a space designed to match human
+          perception — no muddy grey midpoints.
+          <strong class="txt-mid">Oklch</strong> is Oklab in polar form, lerping hue angle
+          via the shortest arc for natural colour wheel transitions.
         </p>
       </div>
 
@@ -279,7 +217,7 @@
     <span>wtc-math</span>
     <span class="footer-sep">·</span>
     <a class="footer-link" href="./index.html">demos</a>
-    <span class="footer-right">Vec4 colour lerp · multiple easing modes</span>
+    <span class="footer-right">Vec4 colour lerp · easing + Oklab · Oklch</span>
   </footer>
 
   <script type="module" src="./gradients.ts"></script>

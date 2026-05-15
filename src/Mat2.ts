@@ -259,7 +259,7 @@ class Mat2 {
   }
 
   get determinant(): number {
-    return this.a11 * this.a21 - this.a21 * this.a12;
+    return this.a11 * this.a22 - this.a12 * this.a21;
   }
 
   /**

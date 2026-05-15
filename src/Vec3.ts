@@ -37,7 +37,7 @@ class Vec3 {
    * @param {number} z 				The z coord
    */
   reset(...args: number[]): Vec3 {
-    let [x, y, z, w] = args;
+    let [x, y, z] = args;
     if (isNaN(x)) x = 0;
     if (isNaN(y)) y = 0;
     if (isNaN(z)) z = 0;
@@ -300,17 +300,11 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const ty = translated.y;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.y = rotated.y * c - rotated.z * s;
-    rotated.z = rotated.y * s + rotated.z * c;
-
-    // Translate back
-    this.y = rotated.y + origin.y;
-    this.z = rotated.z + origin.z;
+    this.y = ty * c - translated.z * s + origin.y;
+    this.z = ty * s + translated.z * c + origin.z;
 
     return this;
   }
@@ -323,22 +317,16 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.z * s + rotated.z * c;
-    rotated.z = rotated.z * c - rotated.x * s;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.z = rotated.z + origin.z;
+    this.x = tx * c + translated.z * s + origin.x;
+    this.z = translated.z * c - tx * s + origin.z;
 
     return this;
   }
 
-  rotateyNew(origin: Vec3, radian: number): Vec3 {
+  rotateYNew(origin: Vec3, radian: number): Vec3 {
     return this.clone().rotateY(origin, radian);
   }
 
@@ -346,17 +334,11 @@ class Vec3 {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.x * c - rotated.y * s;
-    rotated.y = rotated.x * s + rotated.y * c;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.y = rotated.y + origin.y;
+    this.x = tx * c - translated.y * s + origin.x;
+    this.y = tx * s + translated.y * c + origin.y;
 
     return this;
   }
@@ -406,7 +388,7 @@ class Vec3 {
       qa[0] * uv.y - qa[1] * uv.x
     );
     uv.scale(2 * qa[3]);
-    uuv.scale(2 * qa[3]);
+    uuv.scale(2);
     this.add(uv);
     this.add(uuv);
     return this;
@@ -664,7 +646,7 @@ class Vec3 {
     if (typeof z == "number") {
       this.#z = z;
     } else {
-      throw new TypeError("Y should be a number");
+      throw new TypeError("Z should be a number");
     }
   }
   get z(): number {
@@ -1006,22 +988,13 @@ class Vec3 {
   }
 
   static getAngle(a: Vec3, b: Vec3) {
-    const _a = a.xy,
-      _b = b.xy;
+    let len1 = a.lengthSquared;
+    if (len1 > 0) len1 = 1 / Math.sqrt(len1);
 
-    let len1 = _a.lengthSquared;
-    if (len1 > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len1 = 1 / Math.sqrt(len1);
-    }
+    let len2 = b.lengthSquared;
+    if (len2 > 0) len2 = 1 / Math.sqrt(len2);
 
-    let len2 = _b.lengthSquared;
-    if (len2 > 0) {
-      //TODO: evaluate use of glm_invsqrt here?
-      len2 = 1 / Math.sqrt(len2);
-    }
-
-    let cosine = (_a.x * _b.x + _a.y * _b.y) * len1 * len2;
+    const cosine = (a.x * b.x + a.y * b.y + a.z * b.z) * len1 * len2;
 
     if (cosine > 1.0) {
       return 0;
@@ -1032,7 +1005,7 @@ class Vec3 {
     }
   }
 
-  static fromRotationMatrix(m: Mat4Like, order: String = "YXZ"): Vec3 {
+  static fromRotationMatrix(m: Mat4Like, order: string = "YXZ"): Vec3 {
     const ma = Array.isArray(m) ? m : m.array;
     const v = new Vec3();
     if (order === "XYZ") {

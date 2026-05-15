@@ -525,7 +525,7 @@ class Vec2 {
   }
 
   det(vector: Vec2): number {
-    return this.x * vector.y + this.y * vector.x;
+    return this.x * vector.y - this.y * vector.x;
   }
 
   slopeBetween(vector: Vec2): number {
@@ -546,7 +546,7 @@ class Vec2 {
    * @return {number}        The cross product of the two vectors
    */
   cross(vector: Vec2): number {
-    return this.x * vector.x - this.y * vector.y;
+    return this.x * vector.y - this.y * vector.x;
   }
 
   ceil(): Vec2 {

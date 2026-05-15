@@ -560,7 +560,7 @@ class Mat3 {
     let s = Math.sin(r);
     let c = Math.cos(r);
 
-    return new Mat3(c, -s, 0, s, c, 0, 0, 0, 0);
+    return new Mat3(c, -s, 0, s, c, 0, 0, 0, 1);
   }
 
   static fromScalingVec2(v: Vec2Like): Mat3 {

@@ -1,32 +1,167 @@
 import { Vec4 } from '../src/index';
 
-// ─── Easing modes ─────────────────────────────────────────────────────────────
+// ─── Colour conversion helpers ────────────────────────────────────────────────
 
-const MODES: Array<{ name: string; formula: string; ease: (t: number) => number }> = [
+function srgbToLinear(c: number): number {
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+function linearToSrgb(c: number): number {
+  return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+}
+
+function clamp01(v: number): number {
+  return Math.max(0, Math.min(1, v));
+}
+
+// sRGB Vec4 → [L, a, b] in Oklab
+function vec4ToOklab(v: Vec4): [number, number, number] {
+  const r = srgbToLinear(v.x);
+  const g = srgbToLinear(v.y);
+  const b = srgbToLinear(v.z);
+
+  const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+  const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+  const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+  const l_ = Math.cbrt(l);
+  const m_ = Math.cbrt(m);
+  const s_ = Math.cbrt(s);
+
+  return [
+    0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+    1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+    0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_,
+  ];
+}
+
+// [L, a, b] Oklab → sRGB Vec4
+function oklabToVec4(L: number, a: number, b: number, alpha: number): Vec4 {
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+
+  const linR =  4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const linG = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const linB = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+
+  return new Vec4(
+    clamp01(linearToSrgb(Math.max(0, linR))),
+    clamp01(linearToSrgb(Math.max(0, linG))),
+    clamp01(linearToSrgb(Math.max(0, linB))),
+    alpha,
+  );
+}
+
+// sRGB Vec4 → [L, C, H] in Oklch
+function vec4ToOklch(v: Vec4): [number, number, number] {
+  const [L, a, b] = vec4ToOklab(v);
+  return [L, Math.sqrt(a * a + b * b), Math.atan2(b, a)];
+}
+
+// Lerp hue angle via shortest arc
+function lerpHue(a: number, b: number, t: number): number {
+  let diff = b - a;
+  if (diff > Math.PI)  diff -= 2 * Math.PI;
+  if (diff < -Math.PI) diff += 2 * Math.PI;
+  return a + diff * t;
+}
+
+// ─── Interpolation functions ──────────────────────────────────────────────────
+
+function lerpSrgb(a: Vec4, b: Vec4, t: number): Vec4 {
+  return Vec4.lerp(a, b, t) as Vec4;
+}
+
+function lerpLinearLight(a: Vec4, b: Vec4, t: number): Vec4 {
+  const aL = new Vec4(srgbToLinear(a.x), srgbToLinear(a.y), srgbToLinear(a.z), a.w);
+  const bL = new Vec4(srgbToLinear(b.x), srgbToLinear(b.y), srgbToLinear(b.z), b.w);
+  const mixed = Vec4.lerp(aL, bL, t) as Vec4;
+  return new Vec4(
+    clamp01(linearToSrgb(mixed.x)),
+    clamp01(linearToSrgb(mixed.y)),
+    clamp01(linearToSrgb(mixed.z)),
+    mixed.w,
+  );
+}
+
+function lerpOklab(a: Vec4, b: Vec4, t: number): Vec4 {
+  const [La, aa, ba] = vec4ToOklab(a);
+  const [Lb, ab, bb] = vec4ToOklab(b);
+  return oklabToVec4(
+    La + (Lb - La) * t,
+    aa + (ab - aa) * t,
+    ba + (bb - ba) * t,
+    a.w + (b.w - a.w) * t,
+  );
+}
+
+function lerpOklch(a: Vec4, b: Vec4, t: number): Vec4 {
+  const [La, Ca, Ha] = vec4ToOklch(a);
+  const [Lb, Cb, Hb] = vec4ToOklch(b);
+  return oklabToVec4(
+    La + (Lb - La) * t,
+    (Ca + (Cb - Ca) * t) * Math.cos(lerpHue(Ha, Hb, t)),
+    (Ca + (Cb - Ca) * t) * Math.sin(lerpHue(Ha, Hb, t)),
+    a.w + (b.w - a.w) * t,
+  );
+}
+
+// ─── Mode definitions ─────────────────────────────────────────────────────────
+
+interface Mode {
+  name:        string;
+  formula:     string;
+  interpolate: (a: Vec4, b: Vec4, t: number) => Vec4;
+}
+
+const EASING_MODES: Mode[] = [
   {
-    name:    'Linear',
-    formula: 'Vec4.lerp(a, b, t)',
-    ease:    t => t,
+    name:        'Linear',
+    formula:     'Vec4.lerp(a, b, t)',
+    interpolate: (a, b, t) => lerpSrgb(a, b, t),
   },
   {
-    name:    'Smoothstep',
-    formula: 'Vec4.lerp(a, b, t*t*(3 - 2*t))',
-    ease:    t => t * t * (3 - 2 * t),
+    name:        'Smoothstep',
+    formula:     'Vec4.lerp(a, b, t²(3−2t))',
+    interpolate: (a, b, t) => lerpSrgb(a, b, t * t * (3 - 2 * t)),
   },
   {
-    name:    'Ease In — cubic',
-    formula: 'Vec4.lerp(a, b, t*t*t)',
-    ease:    t => t * t * t,
+    name:        'Ease In — cubic',
+    formula:     'Vec4.lerp(a, b, t³)',
+    interpolate: (a, b, t) => lerpSrgb(a, b, t * t * t),
   },
   {
-    name:    'Ease Out — cubic',
-    formula: 'Vec4.lerp(a, b, 1-(1-t)³)',
-    ease:    t => 1 - (1 - t) ** 3,
+    name:        'Ease Out — cubic',
+    formula:     'Vec4.lerp(a, b, 1−(1−t)³)',
+    interpolate: (a, b, t) => lerpSrgb(a, b, 1 - (1 - t) ** 3),
   },
   {
-    name:    'Ease In-Out — sine',
-    formula: 'Vec4.lerp(a, b, -(cos(πt)-1)/2)',
-    ease:    t => -(Math.cos(Math.PI * t) - 1) / 2,
+    name:        'Ease In-Out — sine',
+    formula:     'Vec4.lerp(a, b, −(cos(πt)−1)/2)',
+    interpolate: (a, b, t) => lerpSrgb(a, b, -(Math.cos(Math.PI * t) - 1) / 2),
+  },
+];
+
+const SPACE_MODES: Mode[] = [
+  {
+    name:        'Gamma-correct (linear light)',
+    formula:     'linearise → lerp → re-linearise',
+    interpolate: lerpLinearLight,
+  },
+  {
+    name:        'Oklab',
+    formula:     'sRGB → Oklab → lerp L,a,b → sRGB',
+    interpolate: lerpOklab,
+  },
+  {
+    name:        'Oklch — hue arc',
+    formula:     'sRGB → Oklch → lerp L,C,H → sRGB',
+    interpolate: lerpOklch,
   },
 ];
 
@@ -67,44 +202,55 @@ const gradPanel    = document.getElementById('grad-panel')!;
 
 interface Strip {
   canvas: HTMLCanvasElement;
-  dot: HTMLDivElement;
-  val: HTMLSpanElement;
+  dot:    HTMLDivElement;
+  val:    HTMLSpanElement;
+  mode:   Mode;
 }
 
-const strips: Strip[] = MODES.map((mode, i) => {
-  const container = document.createElement('div');
-  container.className = 'grad-strip';
+function buildStrips(modes: Mode[], sectionTitle: string): Strip[] {
+  const sectionEl = document.createElement('div');
+  sectionEl.className = 'grad-section-header';
+  sectionEl.textContent = sectionTitle;
+  gradPanel.appendChild(sectionEl);
 
-  const header = document.createElement('div');
-  header.className = 'grad-header';
-  header.innerHTML = `<span class="grad-name">${mode.name}</span><span class="grad-formula">${mode.formula}</span>`;
+  return modes.map(mode => {
+    const container = document.createElement('div');
+    container.className = 'grad-strip';
 
-  const row = document.createElement('div');
-  row.className = 'grad-row';
+    const header = document.createElement('div');
+    header.className = 'grad-header';
+    header.innerHTML = `<span class="grad-name">${mode.name}</span><span class="grad-formula">${mode.formula}</span>`;
 
-  const cvs = document.createElement('canvas');
-  cvs.className = 'grad-canvas';
-  cvs.id = `grad-${i}`;
+    const row = document.createElement('div');
+    row.className = 'grad-row';
 
-  const dot = document.createElement('div');
-  dot.className = 'grad-dot';
+    const cvs = document.createElement('canvas');
+    cvs.className = 'grad-canvas';
 
-  const val = document.createElement('span');
-  val.className = 'grad-val';
+    const dot = document.createElement('div');
+    dot.className = 'grad-dot';
 
-  row.appendChild(cvs);
-  row.appendChild(dot);
-  container.appendChild(header);
-  container.appendChild(row);
-  container.appendChild(val);
-  gradPanel.appendChild(container);
+    const val = document.createElement('span');
+    val.className = 'grad-val';
 
-  return { canvas: cvs, dot, val };
-});
+    row.appendChild(cvs);
+    row.appendChild(dot);
+    container.appendChild(header);
+    container.appendChild(row);
+    container.appendChild(val);
+    gradPanel.appendChild(container);
+
+    return { canvas: cvs, dot, val, mode };
+  });
+}
+
+const easingStrips = buildStrips(EASING_MODES, 'Easing — in sRGB space');
+const spaceStrips  = buildStrips(SPACE_MODES,  'Colour-space interpolation');
+const allStrips    = [...easingStrips, ...spaceStrips];
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 
-function renderStrip(strip: Strip, ease: (t: number) => number) {
+function renderStrip(strip: Strip) {
   const cvs = strip.canvas;
   const W = cvs.clientWidth;
   const H = cvs.clientHeight;
@@ -117,16 +263,14 @@ function renderStrip(strip: Strip, ease: (t: number) => number) {
   const ctx = cvs.getContext('2d')!;
   ctx.scale(dpr, dpr);
 
-  // Draw gradient as discrete strips
   for (let px = 0; px < W; px++) {
-    const pxT    = px / (W - 1);
-    const mapped = ease(pxT);
-    const col    = Vec4.lerp(colA, colB, mapped);
+    const pxT = px / (W - 1);
+    const col  = strip.mode.interpolate(colA, colB, pxT);
     ctx.fillStyle = vec4ToCss(col);
     ctx.fillRect(px, 0, 1, H);
   }
 
-  // Draw t marker
+  // t marker line
   const markerX = t * (W - 1);
   ctx.strokeStyle = 'rgba(255,255,255,0.85)';
   ctx.lineWidth   = 1.5;
@@ -137,37 +281,25 @@ function renderStrip(strip: Strip, ease: (t: number) => number) {
 }
 
 function renderAll() {
-  // Update colour labels
   vecAEl.textContent = fmtVec4(colA);
   vecBEl.textContent = fmtVec4(colB);
 
-  // Linear result used as the global "result at t" swatch
-  const linearCol = Vec4.lerp(colA, colB, t);
+  const linearCol = Vec4.lerp(colA, colB, t) as Vec4;
   resultSwatch.style.background = vec4ToCss(linearCol);
   resultVec.textContent = fmtVec4(linearCol);
 
-  MODES.forEach((mode, i) => {
-    const strip = strips[i];
-    renderStrip(strip, mode.ease);
-
-    const mapped  = mode.ease(t);
-    const col     = Vec4.lerp(colA, colB, mapped);
+  for (const strip of allStrips) {
+    renderStrip(strip);
+    const col = strip.mode.interpolate(colA, colB, t);
     strip.dot.style.background = vec4ToCss(col);
     strip.val.textContent = fmtVec4(col);
-  });
+  }
 }
 
 // ─── Controls wiring ─────────────────────────────────────────────────────────
 
-colorAInput.addEventListener('input', () => {
-  colA = hexToVec4(colorAInput.value);
-  renderAll();
-});
-
-colorBInput.addEventListener('input', () => {
-  colB = hexToVec4(colorBInput.value);
-  renderAll();
-});
+colorAInput.addEventListener('input', () => { colA = hexToVec4(colorAInput.value); renderAll(); });
+colorBInput.addEventListener('input', () => { colB = hexToVec4(colorBInput.value); renderAll(); });
 
 tSlider.addEventListener('input', () => {
   t = parseFloat(tSlider.value);

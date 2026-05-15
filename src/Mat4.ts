@@ -326,11 +326,10 @@ class Mat4 {
    */
   transform(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
-    const [x, y, z] = va;
 
-    this.a14 += x;
-    this.a24 += y;
-    this.a34 += z;
+    this.a41 += va[0];
+    this.a42 += va[1];
+    this.a43 += va[2];
 
     return this;
   }
@@ -342,16 +341,15 @@ class Mat4 {
   /**
    * Transforms the mat4 to a given position
    *
-   * @param {Vec3} v The amount to add to the matrixes transformation properties
+   * @param {Vec3} v The position to set on the matrix
    * @returns {mat4} output
    */
   transformTo(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
-    const [x, y, z] = va;
 
-    this.a14 = x;
-    this.a24 = y;
-    this.a34 = z;
+    this.a41 = va[0];
+    this.a42 = va[1];
+    this.a43 = va[2];
 
     return this;
   }
@@ -415,9 +413,9 @@ class Mat4 {
     if (l < EPSILON) return this;
 
     l = 1 / l;
-    const x = aa[0] / l,
-      y = aa[1] / l,
-      z = aa[2] / l,
+    const x = aa[0] * l,
+      y = aa[1] * l,
+      z = aa[2] * l,
       s = Math.sin(r),
       c = Math.cos(r),
       t = 1 - c,

@@ -401,17 +401,11 @@ class Vec4 implements V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const ty = translated.y;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.y = rotated.y * c - rotated.z * s;
-    rotated.z = rotated.y * s + rotated.z * c;
-
-    // Translate back
-    this.y = rotated.y + origin.y;
-    this.z = rotated.z + origin.z;
+    this.y = ty * c - translated.z * s + origin.y;
+    this.z = ty * s + translated.z * c + origin.z;
 
     return this;
   }
@@ -424,17 +418,11 @@ class Vec4 implements V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.z * s + rotated.z * c;
-    rotated.z = rotated.z * c - rotated.x * s;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.z = rotated.z + origin.z;
+    this.x = tx * c + translated.z * s + origin.x;
+    this.z = translated.z * c - tx * s + origin.z;
 
     return this;
   }
@@ -447,17 +435,11 @@ class Vec4 implements V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
 
-    // Translate to the origin
     const translated = this.subtractNew(origin);
+    const tx = translated.x;
 
-    // Rotate
-    const rotated = translated.clone();
-    rotated.x = rotated.x * c - rotated.y * s;
-    rotated.y = rotated.x * s + rotated.y * c;
-
-    // Translate back
-    this.x = rotated.x + origin.x;
-    this.y = rotated.y + origin.y;
+    this.x = tx * c - translated.y * s + origin.x;
+    this.y = tx * s + translated.y * c + origin.y;
 
     return this;
   }
@@ -469,10 +451,10 @@ class Vec4 implements V4Q {
   transformByMat4(m: Mat4Like): V4Q {
     const ma = Array.isArray(m) ? m : m.array;
     const o = this.clone();
-    this.x = (ma[0] * o.x + ma[4] * o.y + ma[8] * o.z + ma[12]) / this.w;
-    this.y = (ma[1] * o.x + ma[5] * o.y + ma[9] * o.z + ma[13]) / this.w;
-    this.z = (ma[2] * o.x + ma[6] * o.y + ma[10] * o.z + ma[14]) / this.w;
-    this.w = (ma[3] * o.x + ma[7] * o.y + ma[11] * o.z + ma[15]) / this.w;
+    this.x = ma[0] * o.x + ma[4] * o.y + ma[8]  * o.z + ma[12] * o.w;
+    this.y = ma[1] * o.x + ma[5] * o.y + ma[9]  * o.z + ma[13] * o.w;
+    this.z = ma[2] * o.x + ma[6] * o.y + ma[10] * o.z + ma[14] * o.w;
+    this.w = ma[3] * o.x + ma[7] * o.y + ma[11] * o.z + ma[15] * o.w;
     return this;
   }
 
@@ -790,7 +772,7 @@ class Vec4 implements V4Q {
     if (typeof z == "number") {
       this._z = z;
     } else {
-      throw new TypeError("Y should be a number");
+      throw new TypeError("Z should be a number");
     }
   }
   get z() {
@@ -1093,7 +1075,7 @@ class Vec4 implements V4Q {
   set xw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
-    this.z = v.y;
+    this.w = v.y;
   }
 
   /**
