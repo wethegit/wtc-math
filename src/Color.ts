@@ -11,6 +11,10 @@ function linearToSrgb(c: number): number {
   return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
 }
 
+// Below this OKLCH chroma a colour is treated as grey. Greys come out of the
+// conversion at ~1e-8, and an 8-bit colour one step off grey is ~1e-3.
+const ACHROMATIC_CHROMA = 1e-4;
+
 function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
@@ -250,8 +254,12 @@ class Color {
   }
 
   static lerpOklch(c1: Color, c2: Color, t: number): Color {
-    const [L1, C1, H1] = c1.toOklch();
-    const [L2, C2, H2] = c2.toOklch();
+    const [L1, C1, h1] = c1.toOklch();
+    const [L2, C2, h2] = c2.toOklch();
+    // An achromatic colour's hue is meaningless (just float noise), so take
+    // the other endpoint's hue rather than sweeping through unrelated hues
+    const H1 = C1 < ACHROMATIC_CHROMA ? h2 : h1;
+    const H2 = C2 < ACHROMATIC_CHROMA ? h1 : h2;
     let dH = H2 - H1;
     if (dH > 180) dH -= 360;
     if (dH < -180) dH += 360;

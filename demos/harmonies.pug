@@ -22,6 +22,11 @@ block head
       width: 100%;
       height: 100%;
     }
+    /* Inset, since the canvas area clips overflow */
+    #harm-canvas:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: -2px;
+    }
     .harm-toggles {
       flex-shrink: 0;
       display: flex;
@@ -75,7 +80,7 @@ block header-desc
 block main
   main.harm-main
     div.harm-canvas-area#harm-canvas-area
-      canvas#harm-canvas
+      canvas#harm-canvas(tabindex="0" role="slider" aria-label="Base hue" aria-valuemin="0" aria-valuemax="359")
     div.harm-toggles
       button.harm-chip.active(type="button" data-key="triadic"    style="--accent: var(--amber)")
         span.harm-dot

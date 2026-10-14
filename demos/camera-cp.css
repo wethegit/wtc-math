@@ -127,7 +127,7 @@ body {
   border: 1px solid rgba(100, 40, 40, 0.12);
   border-radius: 6px;
   padding: 7px 11px;
-  font-family: var(--font-mono);
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   line-height: 1.7;
   pointer-events: auto;

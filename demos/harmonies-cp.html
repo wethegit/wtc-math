@@ -10,7 +10,9 @@
 
 <div class="harm-wrap">
   <div class="harm-canvas-area" id="harm-canvas-area">
-    <canvas id="harm-canvas"></canvas>
+    <canvas id="harm-canvas" tabindex="0" role="application" aria-label="Colour wheel" aria-describedby="harm-keys"></canvas>
+    <p id="harm-keys" class="visually-hidden">Left and right arrows change the hue, up and down change the lightness, Page Up and Page Down change the chroma. Hold Shift for bigger steps.</p>
+    <p id="harm-status" class="visually-hidden" aria-live="polite"></p>
   </div>
   <div class="harm-toggles">
     <button class="harm-chip active" type="button" data-key="triadic"    style="--accent:var(--amber)"><span class="harm-dot"></span><span>Triadic</span></button>
@@ -243,12 +245,13 @@ function draw() {
 
   // ── Tooltips ──
   function drawTooltip(tx, ty, tw, th, borderColor, lines) {
-    ctx.fillStyle = "rgba(10,12,20,0.92)";
+    // Fresh path, or the fill would also cover the last dot drawn
+    ctx.beginPath();
     ctx.roundRect(tx, ty, tw, th, 5);
+    ctx.fillStyle = "rgba(10,12,20,0.92)";
     ctx.fill();
     ctx.strokeStyle = borderColor;
     ctx.lineWidth   = 1;
-    ctx.roundRect(tx, ty, tw, th, 5);
     ctx.stroke();
     ctx.textAlign = "left";
     lines.forEach(([text, style, oy]) => {
@@ -420,6 +423,24 @@ canvas.addEventListener("touchmove", e => {
 }, { passive: false });
 
 canvas.addEventListener("touchend", () => { isDragging = false; dragMode = null; });
+
+// Keyboard: arrows for hue (left/right) and lightness (up/down), Page keys for chroma
+const status = document.getElementById("harm-status");
+canvas.addEventListener("keydown", e => {
+  const big = e.shiftKey;
+  switch (e.key) {
+    case "ArrowRight": baseHue = normHue(baseHue + (big ? 15 : 1)); innerCache = null; break;
+    case "ArrowLeft":  baseHue = normHue(baseHue - (big ? 15 : 1)); innerCache = null; break;
+    case "ArrowUp":    baseL = Math.min(1, baseL + (big ? 0.05 : 0.01)); break;
+    case "ArrowDown":  baseL = Math.max(0, baseL - (big ? 0.05 : 0.01)); break;
+    case "PageUp":     baseC = Math.min(MAX_C, baseC + (big ? 0.04 : 0.01)); break;
+    case "PageDown":   baseC = Math.max(0, baseC - (big ? 0.04 : 0.01)); break;
+    default: return;
+  }
+  e.preventDefault();
+  status.textContent = `Hue ${Math.round(baseHue)}°, lightness ${baseL.toFixed(2)}, chroma ${baseC.toFixed(2)}`;
+  scheduleDraw();
+});
 
 document.querySelectorAll(".harm-chip").forEach(btn => {
   btn.addEventListener("click", () => {

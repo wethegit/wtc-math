@@ -41,6 +41,19 @@ describe("Color", () => {
     }
   });
 
+  it("keeps the chromatic endpoint's hue when lerping OKLCH from a grey", () => {
+    const blue = new Color(0, 0, 1);
+    const blueHue = blue.toOklch()[2];
+    for (const grey of [new Color(1, 1, 1), new Color(0.5, 0.5, 0.5), new Color(0, 0, 0)]) {
+      for (const t of [0.25, 0.5, 0.75]) {
+        // Both directions, so either endpoint can be the grey. Clamping
+        // out-of-gamut light blues to sRGB shifts the hue by a few degrees.
+        expect(Math.abs(Color.lerpOklch(grey, blue, t).toOklch()[2] - blueHue)).toBeLessThan(5);
+        expect(Math.abs(Color.lerpOklch(blue, grey, t).toOklch()[2] - blueHue)).toBeLessThan(5);
+      }
+    }
+  });
+
   it("lerps with the endpoints at t = 0 and t = 1", () => {
     const a = new Color(1, 0, 0);
     const b = new Color(0, 0, 1);

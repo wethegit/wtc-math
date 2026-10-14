@@ -139,7 +139,7 @@ function render() {
     `// { x:${fmt3(forward.x)}, y:${fmt3(forward.y)}, z:${fmt3(forward.z)} }`,
     ``,
     `const view = Mat4.lookAt(eye, target, [0,1,0]);`,
-    `scene.style.transform = \`matrix3d(\${view.join(',')})\`;`,
+    `scene.style.transform = \`matrix3d(\${view.array.join(',')})\`;`,
   ].join("\n");
 }
 

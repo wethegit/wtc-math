@@ -89,6 +89,10 @@ function draw() {
   const stripW  = W - stripX - PAD;
   const STRIP_H = Math.max(40, Math.min(64, (H * 0.38) / STRIPS.length - 14));
   const STRIP_GAP = 12;
+  // The lerp strips leave room on the right for the result dots
+  const DOT_R   = 10;
+  const DOT_GAP = 10;
+  const lerpW   = stripW - DOT_GAP - DOT_R * 2;
 
   // ── Section 1: Lerp comparison ───────────────────────────────────────────
 
@@ -115,21 +119,21 @@ function draw() {
     ctx.textAlign = "left";
 
     // Gradient strip — one pixel column at a time
-    for (let i = 0; i <= stripW; i++) {
-      ctx.fillStyle = strip.fn(colorA, colorB, i / stripW).toCSS();
+    for (let i = 0; i <= lerpW; i++) {
+      ctx.fillStyle = strip.fn(colorA, colorB, i / lerpW).toCSS();
       ctx.fillRect(stripX + i, y, 1, STRIP_H);
     }
 
     // Border
     ctx.strokeStyle = border;
     ctx.lineWidth = 1;
-    ctx.strokeRect(stripX, y, stripW, STRIP_H);
+    ctx.strokeRect(stripX, y, lerpW, STRIP_H);
 
     y += STRIP_H + STRIP_GAP;
   }
 
   // t indicator across all strips
-  const tX = stripX + t * stripW;
+  const tX = stripX + t * lerpW;
   ctx.save();
   ctx.strokeStyle = "rgba(255,255,255,0.75)";
   ctx.lineWidth   = 1.5;
@@ -150,11 +154,10 @@ function draw() {
   // Lerped colour dots at current t, right of strips
   for (let i = 0; i < STRIPS.length; i++) {
     const c   = STRIPS[i].fn(colorA, colorB, t);
-    const dot = 10;
-    const dx  = stripX + stripW + 10;
+    const dx  = stripX + lerpW + DOT_GAP + DOT_R;
     const dy  = stripTops[i] + STRIP_H / 2;
     ctx.beginPath();
-    ctx.arc(dx + dot, dy, dot, 0, Math.PI * 2);
+    ctx.arc(dx, dy, DOT_R, 0, Math.PI * 2);
     ctx.fillStyle = c.toCSS();
     ctx.fill();
   }

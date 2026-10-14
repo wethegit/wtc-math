@@ -52,6 +52,9 @@ function normHue(h: number): number {
 // ── Draw ──────────────────────────────────────────────────────────────────────
 
 function draw() {
+  canvas.setAttribute("aria-valuenow", String(Math.round(baseHue) % 360));
+  canvas.setAttribute("aria-valuetext", `${Math.round(baseHue) % 360}°`);
+
   const W = container.clientWidth;
   const H = container.clientHeight;
   if (!W || !H) return;
@@ -207,12 +210,13 @@ function draw() {
     if (tx + tw > W - 8) tx = d.x - gap - tw;
     ty = Math.max(8, Math.min(ty, H - th - 8));
 
-    ctx.fillStyle = "rgba(0,0,0,0.84)";
+    // Fresh path, or the fill would also cover the last dot drawn
+    ctx.beginPath();
     (ctx as any).roundRect(tx, ty, tw, th, 4);
+    ctx.fillStyle = "rgba(0,0,0,0.84)";
     ctx.fill();
     ctx.strokeStyle = d.accent + "40";
     ctx.lineWidth   = 1;
-    (ctx as any).roundRect(tx, ty, tw, th, 4);
     ctx.stroke();
 
     ctx.textAlign = "left";
@@ -305,6 +309,26 @@ canvas.addEventListener("touchmove", e => {
 }, { passive: false });
 
 canvas.addEventListener("touchend", () => { isDragging = false; });
+
+// Keyboard — the canvas is a role="slider" for the base hue
+const HUE_KEYS: Record<string, (h: number, big: boolean) => number> = {
+  ArrowRight: (h, big) => h + (big ? 15 : 1),
+  ArrowUp:    (h, big) => h + (big ? 15 : 1),
+  ArrowLeft:  (h, big) => h - (big ? 15 : 1),
+  ArrowDown:  (h, big) => h - (big ? 15 : 1),
+  PageUp:     h => h + 30,
+  PageDown:   h => h - 30,
+  Home:       () => 0,
+  End:        () => 359,
+};
+
+canvas.addEventListener("keydown", e => {
+  const step = HUE_KEYS[e.key];
+  if (!step) return;
+  e.preventDefault();
+  baseHue = normHue(Math.round(step(baseHue, e.shiftKey)));
+  draw();
+});
 
 // ── Toggle chips ──────────────────────────────────────────────────────────────
 

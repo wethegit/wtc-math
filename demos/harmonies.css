@@ -47,6 +47,21 @@ html, body {
   height: 100%;
 }
 
+/* Inset, since the canvas area clips overflow */
+#harm-canvas:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .harm-toggles {
   flex-shrink: 0;
   display: flex;
