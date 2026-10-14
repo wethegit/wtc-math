@@ -31,13 +31,13 @@ interface Tab {
 // Palette
 
 const P = {
-  green:  '#39ff8a',
-  purple: '#8866ff',
-  amber:  '#ffc940',
-  dim:    'rgba(255,255,255,0.07)',
-  axis:   'rgba(255,255,255,0.14)',
-  grid:   'rgba(255,255,255,0.04)',
-  bg:     '#07080c',
+  green:  '#0d8040',
+  purple: '#5533cc',
+  amber:  '#a07000',
+  dim:    'rgba(0,0,0,0.07)',
+  axis:   'rgba(0,0,0,0.14)',
+  grid:   'rgba(0,0,0,0.04)',
+  bg:     '#f0f2f8',
 };
 
 // Canvas Utilities
@@ -81,7 +81,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, size: number) {
   ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, size); ctx.stroke();
 
   // axis labels
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
   ctx.font = '9px "IBM Plex Mono"';
   ctx.textAlign = 'right';
   ctx.fillText('+x', size - 3, cy - 4);
@@ -172,9 +172,9 @@ function drawIso(ctx: CanvasRenderingContext2D, size: number, vectors: IsoVector
   // Axis lines
   const axLen = 3.2;
   [
-    { v: [axLen, 0, 0] as [number,number,number], c: 'rgba(255,255,255,0.12)', t: 'x' },
-    { v: [0, axLen, 0] as [number,number,number], c: 'rgba(255,255,255,0.12)', t: 'y' },
-    { v: [0, 0, axLen] as [number,number,number], c: 'rgba(255,255,255,0.12)', t: 'z' },
+    { v: [axLen, 0, 0] as [number,number,number], c: 'rgba(0,0,0,0.12)', t: 'x' },
+    { v: [0, axLen, 0] as [number,number,number], c: 'rgba(0,0,0,0.12)', t: 'y' },
+    { v: [0, 0, axLen] as [number,number,number], c: 'rgba(0,0,0,0.12)', t: 'z' },
   ].forEach(({ v, c, t }) => {
     const [sx, sy] = toIso(...v, scale);
     ctx.strokeStyle = c;
@@ -183,7 +183,7 @@ function drawIso(ctx: CanvasRenderingContext2D, size: number, vectors: IsoVector
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + sx, cy + sy);
     ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
     ctx.font = '9px "IBM Plex Mono"';
     ctx.fillText(t, cx + sx + 4, cy + sy + 4);
   });
@@ -225,21 +225,21 @@ function drawMatrixGrid(
       // Background
       const alpha = Math.min(Math.abs(t) * 0.18, 0.18);
       ctx.fillStyle = t > 0
-        ? `rgba(57,255,138,${alpha})`
+        ? `rgba(13,128,64,${alpha})`
         : t < 0
-        ? `rgba(136,102,255,${alpha})`
-        : 'rgba(255,255,255,0.02)';
+        ? `rgba(85,51,204,${alpha})`
+        : 'rgba(0,0,0,0.02)';
       ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
 
       // Border
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.07)';
       ctx.lineWidth   = 1;
       ctx.strokeRect(x + 0.5, y + 0.5, cellW - 1, cellH - 1);
 
       // Value
       const isZero = Math.abs(v) < 0.0001;
       ctx.fillStyle = isZero
-        ? 'rgba(255,255,255,0.2)'
+        ? 'rgba(0,0,0,0.2)'
         : t > 0
         ? P.green
         : P.purple;
@@ -317,7 +317,7 @@ const TABS: Tab[] = [
 
           // Parallelogram ghost lines
           ctx.setLineDash([3, 4]);
-          ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
           ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(cx + v.ax*u, cy - v.ay*u); ctx.lineTo(cx + rx*u, cy - ry*u); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(cx + v.bx*u, cy - v.by*u); ctx.lineTo(cx + rx*u, cy - ry*u); ctx.stroke();
@@ -424,7 +424,7 @@ const TABS: Tab[] = [
           const ang0 = Math.atan2(-v.y, v.x);
           const ang1 = ang0 - v.deg * Math.PI / 180;
           ctx.save();
-          ctx.strokeStyle = 'rgba(255,201,64,0.3)';
+          ctx.strokeStyle = 'rgba(160,112,0,0.3)';
           ctx.lineWidth   = 1;
           ctx.setLineDash([3, 4]);
           ctx.beginPath();
@@ -463,7 +463,7 @@ const TABS: Tab[] = [
           const r = Vec2.lerp(new Vec2(v.ax, v.ay), new Vec2(v.bx, v.by), v.t);
 
           ctx.setLineDash([4, 5]);
-          ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(cx + v.ax*u, cy - v.ay*u);

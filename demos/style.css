@@ -1,21 +1,23 @@
 :root {
-  --bg: #07080c;
-  --surface: #0c0e15;
-  --surface-2: #10131c;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hi: rgba(255, 255, 255, 0.13);
-  --text: #c4c8db;
-  --text-mid: #8892a4;
-  --text-dim: #4a5268;
+  color-scheme: light;
 
-  --green: #39ff8a;
-  --green-dim: rgba(57, 255, 138, 0.08);
-  --green-glow: rgba(57, 255, 138, 0.25);
-  --purple: #8866ff;
-  --purple-dim: rgba(136, 102, 255, 0.08);
-  --amber: #ffc940;
-  --amber-dim: rgba(255, 201, 64, 0.08);
-  --red: #ff5566;
+  --bg: #f0f2f8;
+  --surface: #ffffff;
+  --surface-2: #e8eaf2;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hi: rgba(0, 0, 0, 0.15);
+  --text: #111827;
+  --text-mid: #4b5570;
+  --text-dim: #7880a0;
+
+  --green: #0d8040;
+  --green-dim: rgba(13, 128, 64, 0.10);
+  --green-glow: rgba(13, 128, 64, 0.30);
+  --purple: #5533cc;
+  --purple-dim: rgba(85, 51, 204, 0.10);
+  --amber: #a07000;
+  --amber-dim: rgba(160, 112, 0, 0.10);
+  --red: #cc2233;
 
   --font: "IBM Plex Mono", monospace;
   --r: 3px;
@@ -30,43 +32,13 @@
   --nav-h: 40px;
   --footer-h: 36px;
 
-  --surface-hover:     rgba(255, 255, 255, 0.04);
-  --surface-hover-dim: rgba(255, 255, 255, 0.015);
-  --focus-ring:        rgba(57, 255, 138, 0.40);
-  --green-border:      rgba(57, 255, 138, 0.30);
-  --amber-border:      rgba(255, 201, 64, 0.40);
-  --label-bg:          rgba(7, 8, 12, 0.72);
-  --dot-border:        rgba(255, 255, 255, 0.12);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg:        #f0f2f8;
-    --surface:   #ffffff;
-    --surface-2: #e8eaf2;
-    --border:    rgba(0, 0, 0, 0.08);
-    --border-hi: rgba(0, 0, 0, 0.15);
-    --text:      #111827;
-    --text-mid:  #4b5570;
-    --text-dim:  #7880a0;
-
-    --green:      #0d8040;
-    --green-dim:  rgba(13, 128, 64, 0.10);
-    --green-glow: rgba(13, 128, 64, 0.30);
-    --purple:     #5533cc;
-    --purple-dim: rgba(85, 51, 204, 0.10);
-    --amber:      #a07000;
-    --amber-dim:  rgba(160, 112, 0, 0.10);
-    --red:        #cc2233;
-
-    --surface-hover:     rgba(0, 0, 0, 0.04);
-    --surface-hover-dim: rgba(0, 0, 0, 0.02);
-    --focus-ring:        rgba(13, 128, 64, 0.45);
-    --green-border:      rgba(13, 128, 64, 0.35);
-    --amber-border:      rgba(160, 112, 0, 0.40);
-    --label-bg:          rgba(250, 251, 255, 0.88);
-    --dot-border:        rgba(0, 0, 0, 0.12);
-  }
+  --surface-hover:     rgba(0, 0, 0, 0.04);
+  --surface-hover-dim: rgba(0, 0, 0, 0.02);
+  --focus-ring:        rgba(13, 128, 64, 0.45);
+  --green-border:      rgba(13, 128, 64, 0.35);
+  --amber-border:      rgba(160, 112, 0, 0.40);
+  --label-bg:          rgba(250, 251, 255, 0.88);
+  --dot-border:        rgba(0, 0, 0, 0.12);
 }
 
 *,
