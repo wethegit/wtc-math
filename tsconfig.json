@@ -9,7 +9,7 @@
     "declaration": true,
     "declarationDir": "./dist"
   },
-  "include": ["src", "vite.config.ts", "vite.site.config.ts"],
+  "include": ["src", "test", "vite.config.ts", "vite.site.config.ts"],
   "exclude": ["dist", "dist-site", "node_modules", "demos"],
   "typedocOptions": {
     "out": "documentation",

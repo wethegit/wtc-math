@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  pull_request:
+    # Not `edited`: changing the PR title or description doesn't need a run
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+# A newer run for the same branch replaces one still in progress
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Type-check, test and build
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check
+        run: npm run check
