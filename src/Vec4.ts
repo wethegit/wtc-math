@@ -109,8 +109,7 @@ class Vec4 implements V4Q {
    * The Vector Class constructor
    *
    * @constructor
-   * @param {number} x 				The x coord
-   * @param {number} y 				The y coord
+   * @param args The x, y, z and w coordinates
    */
   constructor(...args: number[]) {
     this.reset(...args);
@@ -121,10 +120,7 @@ class Vec4 implements V4Q {
    *
    * @public
    * @chainable
-   * @param {number} x 	The x coord
-   * @param {number} y 	The y coord
-   * @param {number} z 	The z coord
-   * @param {number} w 	The w coord
+   * @param args The x, y, z and w coordinates
    */
   reset(...args: number[]): V4Q {
     let [x, y, z, w] = args;
@@ -353,7 +349,7 @@ class Vec4 implements V4Q {
    *
    * @public
    * @chainable
-   * @param  {Vec4}  vector The vector to multiply the clone by
+   * @param  {Vec4}  q The vector to multiply the clone by
    * @return {Vec4}					Returns the clone of itself, modified
    */
   multiplyNew(q: V4Q): V4Q {
@@ -385,13 +381,13 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
+   * Alias of {@link multiplyScalar}
    */
   scale(scalar: number): V4Q {
     return this.multiplyScalar(scalar);
   }
   /**
-   * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
+   * Alias of {@link multiplyScalarNew}
    */
   scaleNew(scalar: number): V4Q {
     return this.multiplyScalarNew(scalar);
@@ -644,7 +640,8 @@ class Vec4 implements V4Q {
    * // returns 2
    * new Vector(2, -4).cross(new Vector(-3, 2))
    *
-   * @param  {Vec4} vector The vector object against which to calculate the cross product
+   * @param  {Vec4} v The first other vector
+   * @param  {Vec4} w The second other vector
    * @return {Vec4}        The cross product of the two vectors
    */
   cross(v: V4Q, w: V4Q): V4Q {
@@ -840,7 +837,7 @@ class Vec4 implements V4Q {
 
   /**
    * (getter/setter) Vector width.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link x}
    *
    * @type {number}
    */
@@ -853,7 +850,7 @@ class Vec4 implements V4Q {
 
   /**
    * (getter/setter) Vector height.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link y}
    *
    * @type {number}
    */
@@ -865,8 +862,8 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * (getter/setter) Vector height.
-   * Alias of {@link Vector#x x}
+   * (getter/setter) Vector depth.
+   * Alias of {@link z}
    *
    * @type {number}
    */

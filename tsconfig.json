@@ -14,6 +14,12 @@
   "typedocOptions": {
     "out": "documentation",
     "entryPoints": "src/index.ts",
-    "exclude": ["dist/*+.ts*"]
+    "exclude": ["dist/*+.ts*"],
+    "intentionallyNotExported": [
+      "V4Q",
+      "Mat3DeterminantFunction",
+      "Mat4DeterminantFunction",
+      "src/Mat3.ts:Mat4"
+    ]
   }
 }
