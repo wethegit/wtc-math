@@ -1,5 +1,5 @@
-import { Vec2 } from "./Vec2";
-import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types";
+import { Vec2 } from "./Vec2.js";
+import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types.js";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form

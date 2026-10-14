@@ -1,6 +1,6 @@
-import { Vec3 } from "./Vec3";
-import { Quat } from "./Quat";
-import type { QuatLike, Vec3Like } from "./types";
+import { Vec3 } from "./Vec3.js";
+import { Quat } from "./Quat.js";
+import type { QuatLike, Vec3Like } from "./types.js";
 
 type Mat4DeterminantFunction = {
   f: {

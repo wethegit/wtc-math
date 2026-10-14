@@ -1,5 +1,5 @@
-import { Vec2 } from "./Vec2";
-import type { Vec2Like, QuatLike } from "./types";
+import { Vec2 } from "./Vec2.js";
+import type { Vec2Like, QuatLike } from "./types.js";
 
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 

@@ -1,6 +1,6 @@
-import { Vec2 } from "./Vec2";
-import { Vec3 } from "./Vec3";
-import type { Vec2Like, Vec3Like, Vec4Like, QuatLike, Mat4Like } from "./types";
+import { Vec2 } from "./Vec2.js";
+import { Vec3 } from "./Vec3.js";
+import type { Vec2Like, Vec3Like, Vec4Like, QuatLike, Mat4Like } from "./types.js";
 
 interface V4Q {
   x: number;

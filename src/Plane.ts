@@ -1,5 +1,5 @@
-import { Vec3 } from "./Vec3";
-import type { Vec3Like } from "./types";
+import { Vec3 } from "./Vec3.js";
+import type { Vec3Like } from "./types.js";
 
 class Plane {
   normal: Vec3;

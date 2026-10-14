@@ -1,5 +1,5 @@
-import { radianToDegrees, degreesToRadian } from "./common";
-import type { Vec2Like, Mat2Like, Mat3Like } from "./types";
+import { radianToDegrees, degreesToRadian } from "./common.js";
+import type { Vec2Like, Mat2Like, Mat3Like } from "./types.js";
 
 /**
  * A basic 2D Vector class that provides simple algebraic functionality in the form
