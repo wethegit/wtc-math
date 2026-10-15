@@ -83,7 +83,7 @@ function render() {
   for (let i = -Math.ceil(H / 2 / SCALE) - 1; i <= Math.ceil(H / 2 / SCALE) + 1; i++) {
     ctx.beginPath(); ctx.moveTo(0, cy + i * SCALE); ctx.lineTo(W, cy + i * SCALE); ctx.stroke();
   }
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.strokeStyle = "rgba(0,0,0,0.12)";
   ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
@@ -164,7 +164,7 @@ function render() {
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.font = `500 11px var(--font)`;
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
   ctx.fillText(`t=${t}`, atx + 7, aty - 4);
 
   // Intersection dots

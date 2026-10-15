@@ -1,0 +1,110 @@
+extends ./_layout
+
+block title
+  | wtc-math — Colour Spaces
+
+block head
+  style.
+    .color-pick {
+      width: 36px;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1px;
+      background: var(--surface-2);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .swatch-inline {
+      flex: 1;
+      height: 26px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+    }
+    .anim-btn {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text-mid);
+      font-family: var(--font);
+      font-size: var(--fs-sm);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s, background 0.1s;
+    }
+    .anim-btn:hover { color: var(--text); border-color: var(--border-hi); }
+    .anim-btn.active {
+      color: var(--green);
+      border-color: var(--green-border);
+      background: var(--green-dim);
+    }
+    .canvas-fill {
+      flex: 1;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    #cs-canvas { display: block; width: 100%; height: 100%; }
+
+block header-desc
+  p.header-desc
+    a(href="./index.html") demos
+    span.breadcrumb-sep ›
+    span.breadcrumb-current Colour Spaces
+
+block main
+  main.demo-main
+    aside.demo-controls
+
+      div.ctrl-section
+        h3 Colour A
+        div.ctrl-row
+          input.color-pick(type="color" id="colorA" value="#e83868")
+          div.swatch-inline#swatchA
+
+      div.ctrl-section
+        h3 Colour B
+        div.ctrl-row
+          input.color-pick(type="color" id="colorB" value="#1ab8ff")
+          div.swatch-inline#swatchB
+
+      div.ctrl-section
+        h3 Blend
+        div.ctrl-row
+          button.anim-btn#animBtn animate
+        div.ctrl-row
+          span.ctrl-label t
+          input.ctrl-slider(type="range" id="tSlider" min="0" max="1" step="0.001" value="0.5")
+          input.ctrl-num(type="number" id="tNum" min="0" max="1" step="0.001" value="0.500")
+
+      div.ctrl-section
+        h3 Palette (Oklch)
+        div.ctrl-row
+          span.ctrl-label n
+          input.ctrl-slider(type="range" id="palN" min="3" max="16" step="1" value="8")
+          input.ctrl-num(type="number" id="palNn" min="3" max="16" step="1" value="8")
+        div.ctrl-row
+          span.ctrl-label L
+          input.ctrl-slider(type="range" id="palL" min="0.3" max="0.85" step="0.01" value="0.65")
+          input.ctrl-num(type="number" id="palLn" min="0.3" max="0.85" step="0.01" value="0.65")
+        div.ctrl-row
+          span.ctrl-label C
+          input.ctrl-slider(type="range" id="palC" min="0.05" max="0.32" step="0.01" value="0.16")
+          input.ctrl-num(type="number" id="palCn" min="0.05" max="0.32" step="0.01" value="0.16")
+
+      div.ctrl-section.ctrl-section--fill
+        h3 How it works
+        p.info-text #[strong.txt-mid sRGB] blends raw channel values — reds and blues through muddy grey. #[strong.txt-mid Oklab] works in a perceptually uniform space, preserving brightness. #[strong.txt-mid Oklch] takes the shortest arc through hue, keeping colours vivid all the way across.
+        p.info-text The palette uses #[code.txt-green Color.fromOklch(L, C, H)] at evenly spaced hues — equal lightness and chroma means every swatch looks equally "loud".
+
+    div.canvas-fill#canvas-fill
+      canvas#cs-canvas
+
+block footer-links
+  a.footer-link(href="./index.html") demos
+
+block footer-right
+  span.footer-right Color · sRGB · Oklab · Oklch
+
+block scripts
+  script(type="module" src="./colorspaces.ts")

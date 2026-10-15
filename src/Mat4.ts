@@ -1,6 +1,6 @@
-import { Vec3 } from "./Vec3";
-import { Quat } from "./Quat";
-import type { QuatLike, Vec3Like } from "./types";
+import { Vec3 } from "./Vec3.js";
+import { Quat } from "./Quat.js";
+import type { QuatLike, Vec3Like } from "./types.js";
 
 type Mat4DeterminantFunction = {
   f: {
@@ -1268,7 +1268,6 @@ class Mat4 {
    * Generates a look-at matrix with the given eye position, focal point, and up axis.
    * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
    *
-   * @param {mat4} out mat4 frustum matrix will be written into
    * @param {vec3} eye Position of the viewer
    * @param {vec3} center Point the viewer is looking at
    * @param {vec3} up vec3 pointing up
@@ -1353,7 +1352,7 @@ class Mat4 {
    * Generates a matrix that makes something look at something else.
    *
    * @param {vec3} eye Position of the viewer
-   * @param {vec3} center Point the viewer is looking at
+   * @param {vec3} target Point the viewer is looking at
    * @param {vec3} up vec3 pointing up
    * @returns {mat4} out
    */

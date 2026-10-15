@@ -131,7 +131,7 @@ function drawCanvas(colorA: Color, colorB: Color, t: number) {
   ctx.lineTo(mx - 5, stripY - 11);
   ctx.lineTo(mx + 5, stripY - 11);
   ctx.closePath();
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillStyle = "rgba(0,0,0,0.75)";
   ctx.fill();
 }
 

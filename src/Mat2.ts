@@ -1,4 +1,4 @@
-import type { Vec2Like } from "./types";
+import type { Vec2Like } from "./types.js";
 
 const identity = [1, 0, 0, 1];
 

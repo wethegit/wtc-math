@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colour Harmonies</title>
+  <link rel="stylesheet" href="./harmonies.css">
+</head>
+<body>
+
+<div class="harm-wrap">
+  <div class="harm-canvas-area" id="harm-canvas-area">
+    <canvas id="harm-canvas" tabindex="0" role="application" aria-label="Colour wheel" aria-describedby="harm-keys"></canvas>
+    <p id="harm-keys" class="visually-hidden">Left and right arrows change the hue, up and down change the lightness, Page Up and Page Down change the chroma. Hold Shift for bigger steps.</p>
+    <p id="harm-status" class="visually-hidden" aria-live="polite"></p>
+  </div>
+  <div class="harm-toggles">
+    <button class="harm-chip active" type="button" data-key="triadic"    style="--accent:var(--amber)"><span class="harm-dot"></span><span>Triadic</span></button>
+    <button class="harm-chip active" type="button" data-key="analogous"  style="--accent:var(--green)"><span class="harm-dot"></span><span>Analogous</span></button>
+    <button class="harm-chip active" type="button" data-key="split-comp" style="--accent:var(--purple)"><span class="harm-dot"></span><span>Split-comp</span></button>
+    <button class="harm-chip active" type="button" data-key="tetradic"   style="--accent:var(--red)"><span class="harm-dot"></span><span>Tetradic</span></button>
+  </div>
+</div>
+
+<script type="module">
+import { Color } from "https://esm.sh/wtc-math@1.3.0/color";
+
+const canvas    = document.getElementById("harm-canvas");
+const container = document.getElementById("harm-canvas-area");
+
+const HARMONIES = [
+  { key: "triadic",    offsets: [120, 240],         label: "Triadic",    cssVar: "--amber"  },
+  { key: "analogous",  offsets: [-30, -15, 15, 30], label: "Analogous",  cssVar: "--green"  },
+  { key: "split-comp", offsets: [150, 210],          label: "Split-comp", cssVar: "--purple" },
+  { key: "tetradic",   offsets: [90, 180, 270],      label: "Tetradic",   cssVar: "--red"    },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let baseHue = 200, baseL = 0.70, baseC = 0.13;
+const MAX_C = 0.40;
+
+let isDragging = false;
+let dragMode   = null; // 'hue' | 'lc'
+const enabled  = new Set(HARMONIES.map(h => h.key));
+
+let dots             = [];
+let hoveredIdx       = -1;
+let hoveredKey       = null;
+let hoveredCrosshair = false;
+
+// ── Geometry (kept in sync with each draw call) ────────────────────────────────
+let gCx = 0, gCy = 0, gInnerR = 0, gOuterR = 0, gRingMid = 0;
+
+// ── Inner L×C gradient cache ──────────────────────────────────────────────────
+let innerCache    = null;
+let innerCacheKey = '';
+
+// ── Fast OKLCH → sRGB for per-pixel rendering ─────────────────────────────────
+function gamma255(c) {
+  if (c <= 0) return 0;
+  if (c >= 1) return 255;
+  return Math.round((c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055) * 255);
+}
+
+function buildInnerCache() {
+  const size = Math.max(4, Math.ceil(gInnerR * 2));
+  const off  = document.createElement("canvas");
+  off.width = off.height = size;
+  const offCtx = off.getContext("2d");
+  const img    = offCtx.createImageData(size, size);
+  const d      = img.data;
+  const r2     = (size / 2) * (size / 2);
+  const cosH   = Math.cos((baseHue * Math.PI) / 180);
+  const sinH   = Math.sin((baseHue * Math.PI) / 180);
+
+  for (let py = 0; py < size; py++) {
+    const L = 1 - py / size;
+    for (let px = 0; px < size; px++) {
+      const dx = px - size / 2, dy = py - size / 2;
+      if (dx * dx + dy * dy > r2) continue;
+
+      const C  = (px / size) * MAX_C;
+      const a_ = C * cosH, b_ = C * sinH;
+      const l_ = (L + 0.3963377774 * a_ + 0.2158037573 * b_) ** 3;
+      const m_ = (L - 0.1055613458 * a_ - 0.0638541728 * b_) ** 3;
+      const s_ = (L - 0.0894841775 * a_ - 1.2914855480 * b_) ** 3;
+
+      const i = (py * size + px) * 4;
+      d[i]   = gamma255( 4.0767416621 * l_ - 3.3077115913 * m_ + 0.2309699292 * s_);
+      d[i+1] = gamma255(-1.2684380046 * l_ + 2.6097574011 * m_ - 0.3413193965 * s_);
+      d[i+2] = gamma255(-0.0041960863 * l_ - 0.7034186147 * m_ + 1.7076147010 * s_);
+      d[i+3] = 255;
+    }
+  }
+  offCtx.putImageData(img, 0, 0);
+  innerCache    = off;
+  innerCacheKey = `${baseHue.toFixed(2)}-${size}`;
+}
+
+// ── Geometry helpers ──────────────────────────────────────────────────────────
+function hue2angle(hue) { return (hue / 360) * Math.PI * 2 - Math.PI / 2; }
+function angle2hue(a)   { return (((a + Math.PI / 2) / (Math.PI * 2)) * 360 + 360) % 360; }
+function normHue(h)     { return ((h % 360) + 360) % 360; }
+
+function crosshairPos() {
+  return [
+    gCx + (baseC / MAX_C * 2 - 1) * gInnerR,
+    gCy + (1 - 2 * baseL) * gInnerR,
+  ];
+}
+
+// ── Draw ──────────────────────────────────────────────────────────────────────
+function draw() {
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+  if (!W || !H) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = `${W}px`;
+  canvas.style.height = `${H}px`;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  gCx      = W / 2;
+  gCy      = H / 2;
+  const minDim = Math.min(W, H);
+  gOuterR  = minDim * 0.43;
+  gInnerR  = minDim * 0.295;
+  gRingMid = (gOuterR + gInnerR) / 2;
+
+  const cs       = getComputedStyle(document.documentElement);
+  const bg       = cs.getPropertyValue("--surface").trim();
+  const borderHi = cs.getPropertyValue("--border-hi").trim();
+  const accentMap = {};
+  for (const h of HARMONIES) accentMap[h.key] = cs.getPropertyValue(h.cssVar).trim();
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Hue ring (rendered at current baseL / baseC) ──
+  const SLICES = 720;
+  for (let i = 0; i < SLICES; i++) {
+    const a1 = (i / SLICES) * Math.PI * 2 - Math.PI / 2;
+    const a2 = ((i + 1) / SLICES) * Math.PI * 2 - Math.PI / 2;
+    ctx.fillStyle = Color.fromOklch(baseL, baseC, (i / SLICES) * 360).toCSS();
+    ctx.beginPath();
+    ctx.arc(gCx, gCy, gOuterR, a1, a2);
+    ctx.arc(gCx, gCy, gInnerR, a2, a1, true);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // ── Inner L×C picker ──
+  const cacheKey = `${baseHue.toFixed(2)}-${Math.ceil(gInnerR * 2)}`;
+  if (innerCacheKey !== cacheKey) buildInnerCache();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(gCx, gCy, gInnerR - 0.5, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(innerCache, gCx - gInnerR, gCy - gInnerR, gInnerR * 2, gInnerR * 2);
+  ctx.restore();
+
+  ctx.strokeStyle = borderHi;
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.arc(gCx, gCy, gInnerR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // ── Crosshair ──
+  const baseColor        = Color.fromOklch(baseL, baseC, baseHue);
+  const [crossX, crossY] = crosshairPos();
+  const crossActive      = hoveredCrosshair || dragMode === "lc";
+
+  if (crossActive) { ctx.shadowColor = baseColor.toCSS(); ctx.shadowBlur = 20; }
+  ctx.beginPath();
+  ctx.arc(crossX, crossY, crossActive ? 10 : 8, 0, Math.PI * 2);
+  ctx.fillStyle = baseColor.toCSS();
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(255,255,255,0.85)";
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+
+  // ── Ring dots ──
+  function dotPos(hue) {
+    const a = hue2angle(hue);
+    return [gCx + Math.cos(a) * gRingMid, gCy + Math.sin(a) * gRingMid];
+  }
+
+  const newDots = [];
+  for (const h of HARMONIES) {
+    if (!enabled.has(h.key)) continue;
+    for (const offset of h.offsets) {
+      const hue     = normHue(baseHue + offset);
+      const [x, y]  = dotPos(hue);
+      newDots.push({ x, y, hue, color: Color.fromOklch(baseL, baseC, hue), key: h.key, accent: accentMap[h.key], offset, label: h.label, r: 9 });
+    }
+  }
+  const [bx, by] = dotPos(baseHue);
+  newDots.push({ x: bx, y: by, hue: baseHue, color: baseColor, key: null, accent: "rgba(255,255,255,0.85)", offset: 0, label: "Base", r: 12 });
+  dots = newDots;
+
+  // Connection lines
+  for (const dot of dots) {
+    if (!dot.key) continue;
+    const lit = dot.key === hoveredKey;
+    ctx.strokeStyle = dot.accent + (lit ? "55" : "18");
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(gCx, gCy);
+    ctx.lineTo(dot.x, dot.y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Dots
+  let tooltipDot = null;
+  for (let i = 0; i < dots.length; i++) {
+    const dot   = dots[i];
+    const isHov = i === hoveredIdx;
+    const isSib = !!(dot.key && dot.key === hoveredKey && !isHov);
+    const r     = isHov ? dot.r * 1.5 : isSib ? dot.r * 1.15 : dot.r;
+
+    if (isHov) { ctx.shadowColor = dot.accent; ctx.shadowBlur = 18; }
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = dot.color.toCSS();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = dot.accent;
+    ctx.lineWidth   = isHov ? 2.5 : 1.5;
+    ctx.beginPath();
+    ctx.arc(dot.x, dot.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (isHov) tooltipDot = dot;
+  }
+
+  // ── Tooltips ──
+  function drawTooltip(tx, ty, tw, th, borderColor, lines) {
+    // Fresh path, or the fill would also cover the last dot drawn
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, tw, th, 5);
+    ctx.fillStyle = "rgba(10,12,20,0.92)";
+    ctx.fill();
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+    ctx.textAlign = "left";
+    lines.forEach(([text, style, oy]) => {
+      ctx.fillStyle = style;
+      ctx.font      = oy < 20 ? `600 11px 'Inter', sans-serif` : `400 10px 'Inter', sans-serif`;
+      ctx.fillText(text, tx + 10, ty + oy);
+    });
+  }
+
+  function tooltipBox(ax, ay, dotR, line1, line2) {
+    ctx.font = `500 11px 'Inter', sans-serif`;
+    const tw  = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width) + 20;
+    const th  = 40;
+    const gap = dotR + 12;
+    let tx = ax + gap, ty = ay - th / 2;
+    if (tx + tw > W - 8) tx = ax - gap - tw;
+    ty = Math.max(8, Math.min(ty, H - th - 8));
+    return { tx, ty, tw, th };
+  }
+
+  if (crossActive) {
+    const hex  = baseColor.toHex();
+    const info = `oklch(${baseL.toFixed(2)}  ${baseC.toFixed(3)}  ${Math.round(baseHue)}°)`;
+    const { tx, ty, tw, th } = tooltipBox(crossX, crossY, 10, hex, info);
+    drawTooltip(tx, ty, tw, th, "rgba(255,255,255,0.15)", [
+      [hex,  "rgba(255,255,255,0.85)", 15],
+      [info, "rgba(255,255,255,0.35)", 30],
+    ]);
+  }
+
+  if (tooltipDot && !crossActive) {
+    const d     = tooltipDot;
+    const sign  = d.offset > 0 ? "+" : "";
+    const line1 = d.color.toHex();
+    const line2 = d.key ? `${d.label}  ${sign}${d.offset}°` : `Base  ${Math.round(d.hue)}°`;
+    const { tx, ty, tw, th } = tooltipBox(d.x, d.y, d.r * 1.5, line1, line2);
+    drawTooltip(tx, ty, tw, th, d.accent + "44", [
+      [line1, d.accent,                  15],
+      [line2, "rgba(255,255,255,0.32)", 30],
+    ]);
+  }
+}
+
+// ── Interaction ───────────────────────────────────────────────────────────────
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return [e.clientX - r.left, e.clientY - r.top];
+}
+function angleFrom(mx, my) { return Math.atan2(my - gCy, mx - gCx); }
+
+function updateLC(mx, my) {
+  const dx   = mx - gCx, dy = my - gCy;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const clDx = dist > gInnerR ? dx / dist * gInnerR : dx;
+  const clDy = dist > gInnerR ? dy / dist * gInnerR : dy;
+  baseC = Math.max(0, Math.min(MAX_C, ((clDx + gInnerR) / (2 * gInnerR)) * MAX_C));
+  baseL = Math.max(0, Math.min(1,  1 - ((clDy + gInnerR) / (2 * gInnerR))));
+}
+
+function hitTestDots(mx, my) {
+  let best = -1, bestDist = Infinity;
+  for (let i = 0; i < dots.length; i++) {
+    const d = dots[i], dx = mx - d.x, dy = my - d.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const hitR = d.key === null ? d.r * 2.5 : d.r * 2.2;
+    if (dist < hitR && dist < bestDist) { best = i; bestDist = dist; }
+  }
+  return best;
+}
+
+function inInnerCircle(mx, my) {
+  const dx = mx - gCx, dy = my - gCy;
+  return dx * dx + dy * dy < gInnerR * gInnerR;
+}
+
+function nearCrosshair(mx, my) {
+  const [cx2, cy2] = crosshairPos();
+  const dx = mx - cx2, dy = my - cy2;
+  return dx * dx + dy * dy < 14 * 14;
+}
+
+let rafPending = false;
+function scheduleDraw() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; draw(); });
+}
+
+canvas.addEventListener("mousedown", e => {
+  const [mx, my] = canvasPos(e);
+  const hit = hitTestDots(mx, my);
+  hoveredIdx = -1; hoveredKey = null;
+
+  if (hit >= 0 && dots[hit].key !== null) {
+    baseHue = dots[hit].hue;
+    innerCache = null;
+    scheduleDraw();
+    return;
+  }
+  if (inInnerCircle(mx, my)) {
+    dragMode = "lc"; isDragging = true;
+    canvas.style.cursor = "none";
+    updateLC(mx, my);
+  } else {
+    dragMode = "hue"; isDragging = true;
+    canvas.style.cursor = "grabbing";
+    baseHue = angle2hue(angleFrom(mx, my));
+    innerCache = null;
+  }
+  scheduleDraw();
+});
+
+window.addEventListener("mousemove", e => {
+  const [mx, my] = canvasPos(e);
+  if (isDragging) {
+    if (dragMode === "lc") { updateLC(mx, my); }
+    else { baseHue = angle2hue(angleFrom(mx, my)); innerCache = null; }
+    scheduleDraw();
+    return;
+  }
+
+  let needRedraw = false;
+  const nc = nearCrosshair(mx, my);
+  if (nc !== hoveredCrosshair) { hoveredCrosshair = nc; needRedraw = true; }
+
+  let best = -1, bestDist = Infinity, bestKey = null;
+  if (!nc) {
+    for (let i = 0; i < dots.length; i++) {
+      const d = dots[i], dx = mx - d.x, dy = my - d.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const hitR = d.key === null ? d.r * 2.5 : d.r * 2.2;
+      if (dist < hitR && dist < bestDist) { best = i; bestDist = dist; bestKey = d.key; }
+    }
+  }
+  if (best !== hoveredIdx || bestKey !== hoveredKey) { hoveredIdx = best; hoveredKey = bestKey; needRedraw = true; }
+
+  canvas.style.cursor = (nc || inInnerCircle(mx, my)) ? "crosshair" : best >= 0 ? "pointer" : "grab";
+  if (needRedraw) scheduleDraw();
+});
+
+window.addEventListener("mouseup", () => {
+  if (!isDragging) return;
+  isDragging = false; dragMode = null;
+  canvas.style.cursor = "grab";
+});
+
+function touchPos(t) {
+  const r = canvas.getBoundingClientRect();
+  return [t.clientX - r.left, t.clientY - r.top];
+}
+
+canvas.addEventListener("touchstart", e => {
+  e.preventDefault();
+  const [mx, my] = touchPos(e.touches[0]);
+  const hit = hitTestDots(mx, my);
+  if (hit >= 0 && dots[hit].key !== null) { baseHue = dots[hit].hue; innerCache = null; scheduleDraw(); return; }
+  isDragging = true;
+  if (inInnerCircle(mx, my)) { dragMode = "lc"; updateLC(mx, my); }
+  else { dragMode = "hue"; baseHue = angle2hue(angleFrom(mx, my)); innerCache = null; }
+  scheduleDraw();
+}, { passive: false });
+
+canvas.addEventListener("touchmove", e => {
+  e.preventDefault();
+  const [mx, my] = touchPos(e.touches[0]);
+  if (dragMode === "lc") { updateLC(mx, my); }
+  else { baseHue = angle2hue(angleFrom(mx, my)); innerCache = null; }
+  scheduleDraw();
+}, { passive: false });
+
+canvas.addEventListener("touchend", () => { isDragging = false; dragMode = null; });
+
+// Keyboard: arrows for hue (left/right) and lightness (up/down), Page keys for chroma
+const status = document.getElementById("harm-status");
+canvas.addEventListener("keydown", e => {
+  const big = e.shiftKey;
+  switch (e.key) {
+    case "ArrowRight": baseHue = normHue(baseHue + (big ? 15 : 1)); innerCache = null; break;
+    case "ArrowLeft":  baseHue = normHue(baseHue - (big ? 15 : 1)); innerCache = null; break;
+    case "ArrowUp":    baseL = Math.min(1, baseL + (big ? 0.05 : 0.01)); break;
+    case "ArrowDown":  baseL = Math.max(0, baseL - (big ? 0.05 : 0.01)); break;
+    case "PageUp":     baseC = Math.min(MAX_C, baseC + (big ? 0.04 : 0.01)); break;
+    case "PageDown":   baseC = Math.max(0, baseC - (big ? 0.04 : 0.01)); break;
+    default: return;
+  }
+  e.preventDefault();
+  status.textContent = `Hue ${Math.round(baseHue)}°, lightness ${baseL.toFixed(2)}, chroma ${baseC.toFixed(2)}`;
+  scheduleDraw();
+});
+
+document.querySelectorAll(".harm-chip").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.key;
+    if (enabled.has(key)) { enabled.delete(key); btn.classList.remove("active"); }
+    else                  { enabled.add(key);    btn.classList.add("active"); }
+    if (hoveredKey === key) { hoveredIdx = -1; hoveredKey = null; }
+    scheduleDraw();
+  });
+});
+
+window.addEventListener("resize", () => { innerCache = null; scheduleDraw(); });
+canvas.style.cursor = "grab";
+draw();
+</script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [
     dts({
       include: ["src/**/*.ts"],
+      entryRoot: "src",
     }),
   ],
   build: {

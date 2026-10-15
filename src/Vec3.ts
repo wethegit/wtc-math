@@ -1,5 +1,5 @@
-import { Vec2 } from "./Vec2";
-import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types";
+import { Vec2 } from "./Vec2.js";
+import type { Vec2Like, Vec3Like, QuatLike, Mat3Like, Mat4Like } from "./types.js";
 
 /**
  * A basic 3D Vector class that provides simple algebraic functionality in the form
@@ -18,9 +18,7 @@ class Vec3 {
    * The Vector Class constructor
    *
    * @constructor
-   * @param {number} x 				The x coord
-   * @param {number} y 				The y coord
-   * @param {number} z 				The z coord
+   * @param args The x, y and z coordinates
    */
   constructor(...args: number[]) {
     this.reset(...args);
@@ -31,9 +29,7 @@ class Vec3 {
    *
    * @public
    * @chainable
-   * @param {number} x 				The x coord
-   * @param {number} y 				The y coord
-   * @param {number} z 				The z coord
+   * @param args The x, y and z coordinates
    */
   reset(...args: number[]): Vec3 {
     let [x, y, z] = args;
@@ -283,13 +279,13 @@ class Vec3 {
   }
 
   /**
-   * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
+   * Alias of {@link multiplyScalar}
    */
   scale(scalar: number): Vec3 {
     return this.multiplyScalar(scalar);
   }
   /**
-   * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
+   * Alias of {@link multiplyScalarNew}
    */
   scaleNew(scalar: number): Vec3 {
     return this.multiplyScalarNew(scalar);
@@ -693,7 +689,7 @@ class Vec3 {
 
   /**
    * (getter/setter) Spherical radius. For using a vec3 as spherical coordinates.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link x}
    *
    * @type {number}
    */
@@ -706,7 +702,7 @@ class Vec3 {
 
   /**
    * (getter/setter) Spherical phi. For using a vec3 as spherical coordinates.
-   * Alias of {@link Vector#y y}
+   * Alias of {@link y}
    *
    * @type {number}
    */
@@ -719,7 +715,7 @@ class Vec3 {
 
   /**
    * (getter/setter) Spherical theta. For using a vec3 as spherical coordinates.
-   * Alias of {@link Vector#z z}
+   * Alias of {@link z}
    *
    * @type {number}
    */
@@ -732,7 +728,7 @@ class Vec3 {
 
   /**
    * (getter/setter) Vector width.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link x}
    *
    * @type {number}
    */
@@ -745,7 +741,7 @@ class Vec3 {
 
   /**
    * (getter/setter) Vector height.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link y}
    *
    * @type {number}
    */
@@ -757,8 +753,8 @@ class Vec3 {
   }
 
   /**
-   * (getter/setter) Vector height.
-   * Alias of {@link Vector#x x}
+   * (getter/setter) Vector depth.
+   * Alias of {@link z}
    *
    * @type {number}
    */

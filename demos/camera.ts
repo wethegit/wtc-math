@@ -275,8 +275,5 @@ wireSliderNum("radius", (v) => {
 });
 
 window.addEventListener("resize", render);
-window
-  .matchMedia("(prefers-color-scheme: light)")
-  .addEventListener("change", render);
 
 render();

@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    env:
+      HUSKY: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: https://registry.npmjs.org
+          cache: 'npm'
+
+      # npm 11.5.1+ (bundled with Node 24) exchanges the OIDC token for
+      # trusted publishing itself, so no NPM_TOKEN secret is needed
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check
+        run: npm run check
+
+      - name: Create release pull request or publish
+        uses: changesets/action@v2
+        with:
+          github-token: ${{ github.token }}
+          version-script: npm run version-packages
+          publish-script: npm run release
+          commit-message: 'chore: release packages'
+          pr-title: 'chore: release packages'
+          create-github-releases: true
+          push-git-tags: true
+        env:
+          # Read by @changesets/changelog-github to link PRs and authors
+          GITHUB_TOKEN: ${{ github.token }}
