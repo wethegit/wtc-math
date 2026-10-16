@@ -1,7 +1,7 @@
-import { Mat3 } from "./Mat3";
-import { Vec3 } from "./Vec3";
-import { Vec4, V4Q } from "./Vec4";
-import type { Vec3Like } from "./types";
+import { Mat3 } from "./Mat3.js";
+import { Vec3 } from "./Vec3.js";
+import { Vec4, V4Q } from "./Vec4.js";
+import type { Vec3Like } from "./types.js";
 
 const identity: number[] = [0, 0, 0, 1];
 

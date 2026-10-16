@@ -1,5 +1,5 @@
-import { radianToDegrees, degreesToRadian } from "./common";
-import type { Vec2Like, Mat2Like, Mat3Like } from "./types";
+import { radianToDegrees, degreesToRadian } from "./common.js";
+import type { Vec2Like, Mat2Like, Mat3Like } from "./types.js";
 
 /**
  * A basic 2D Vector class that provides simple algebraic functionality in the form
@@ -19,8 +19,7 @@ class Vec2 {
    *
    * @constructor
    * @chainable
-   * @param {number} x 				The x coord
-   * @param {number} y 				The y coord
+   * @param args The x and y coordinates
    */
   constructor(...args: number[]) {
     this.reset(...args);
@@ -31,8 +30,7 @@ class Vec2 {
    *
    * @public
    * @chainable
-   * @param {number|Array} x 	The x coord, OR the array to reset to
-   * @param {number} y 				The y coord
+   * @param args The x and y coordinates
    */
   reset(...args: number[]): Vec2 {
     let [x, y] = args;
@@ -270,13 +268,13 @@ class Vec2 {
   }
 
   /**
-   * Alias of {@link Vector#multiplyScalar__anchor multiplyScalar}
+   * Alias of {@link multiplyScalar}
    */
   scale(scalar: number): Vec2 {
     return this.multiplyScalar(scalar);
   }
   /**
-   * Alias of {@link Vector#multiplyScalarNew__anchor multiplyScalarNew}
+   * Alias of {@link multiplyScalarNew}
    */
   scaleNew(scalar: number): Vec2 {
     return this.multiplyScalarNew(scalar);
@@ -336,26 +334,26 @@ class Vec2 {
   }
 
   /**
-   * Alias of {@link Vector#rotate__anchor rotate}
+   * Alias of {@link rotate}
    */
   rotateBy(radian: number): Vec2 {
     return this.rotate(radian);
   }
   /**
-   * Alias of {@link Vector#rotateNew__anchor rotateNew}
+   * Alias of {@link rotateNew}
    */
   rotateByNew(radian: number): Vec2 {
     return this.rotateNew(radian);
   }
 
   /**
-   * Alias of {@link Vector#rotateDeg__anchor rotateDeg}
+   * Alias of {@link rotateDeg}
    */
   rotateDegBy(degrees: number): Vec2 {
     return this.rotateDeg(degrees);
   }
   /**
-   * Alias of {@link Vector#rotateDegNew__anchor rotateDegNew}
+   * Alias of {@link rotateDegNew}
    */
   rotateDegByNew(radian: number): Vec2 {
     return this.rotateDegNew(radian);
@@ -738,7 +736,7 @@ class Vec2 {
 
   /**
    * (getter/setter) Vector width.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link x}
    *
    * @type {number}
    */
@@ -751,7 +749,7 @@ class Vec2 {
 
   /**
    * (getter/setter) Vector height.
-   * Alias of {@link Vector#x x}
+   * Alias of {@link y}
    *
    * @type {number}
    */

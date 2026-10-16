@@ -1,6 +1,6 @@
 {
   "name": "wtc-math",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "type": "module",
   "description": "A math library that provides discrete components for common math operations. Includes vectors, matrices and quaternions.",
   "repository": {
@@ -25,39 +25,45 @@
   "module": "dist/index.es.js",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.es.js"
-      }
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "default": "./dist/index.es.js"
     },
     "./color": {
-      "import": {
-        "types": "./dist/Color.d.ts",
-        "default": "./dist/Color.es.js"
-      }
+      "types": "./dist/Color.d.ts",
+      "import": "./dist/Color.es.js",
+      "default": "./dist/Color.es.js"
     },
     "./plane": {
-      "import": {
-        "types": "./dist/Plane.d.ts",
-        "default": "./dist/Plane.es.js"
-      }
+      "types": "./dist/Plane.d.ts",
+      "import": "./dist/Plane.es.js",
+      "default": "./dist/Plane.es.js"
     },
     "./ray": {
-      "import": {
-        "types": "./dist/Ray.d.ts",
-        "default": "./dist/Ray.es.js"
-      }
+      "types": "./dist/Ray.d.ts",
+      "import": "./dist/Ray.es.js",
+      "default": "./dist/Ray.es.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rm -rf dist && vite build",
     "build:site": "npm run document && vite build --config vite.site.config.ts && cp -r documentation dist-site/docs",
     "dev": "vite --config vite.site.config.ts",
     "preview": "vite preview --config vite.site.config.ts",
     "prepare": "husky install; npm run build",
-    "document": "npx typedoc src/index.ts"
+    "document": "npx typedoc src/index.ts",
+    "test": "vitest run",
+    "check": "tsc --noEmit -p tsconfig.json && npm test && npm run build",
+    "changeset": "changeset",
+    "version-packages": "changeset version && npm install --package-lock-only",
+    "release": "npm run build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.3",
     "@types/markdown-it": "~14.1.1",
     "@types/node": "^25.7.0",
     "@types/pug": "^2.0.10",
@@ -65,7 +71,8 @@
     "pug": "^3.0.4",
     "typedoc": "^0.28.19",
     "vite": "^8.0.13",
-    "vite-plugin-dts": "^5.0.0"
+    "vite-plugin-dts": "^5.0.0",
+    "vitest": "^5.0.4"
   },
   "dependencies": {
     "typescript": "^6.0.3"
