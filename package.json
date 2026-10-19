@@ -64,7 +64,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
-    "@types/markdown-it": "~14.1.1",
+    "@types/markdown-it": "~14.2.0",
     "@types/node": "^25.7.0",
     "@types/pug": "^2.0.10",
     "husky": "^9.0.11",
