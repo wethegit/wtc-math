@@ -10,12 +10,40 @@ const orDefault = function (v: any, ident: string): number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 };
 
+/**
+ * A 2×2 matrix, stored column-major as WebGL expects.
+ *
+ * Elements are named `aCR`, column first: `a11` and `a12` are rows 1 and 2 of
+ * the first column, `a21` and `a22` rows 1 and 2 of the second. The
+ * constructor, {@link Mat2.reset} and {@link Mat2.array} all use this order,
+ * so `array` can be passed straight to `uniformMatrix2fv`.
+ *
+ * Most operations come in two forms: `multiply` changes this matrix in place
+ * and returns it, while `multiplyNew` returns a new matrix and leaves this one
+ * unchanged.
+ */
 class Mat2 {
+  /**
+   * Create a matrix from up to four elements in column-major order
+   * (`a11`, `a12`, `a21`, `a22`). Missing or non-numeric elements take their
+   * identity value, so `new Mat2()` is the identity matrix.
+   *
+   * @param args The elements, in column-major order.
+   */
   constructor(...args: number[]) {
     const [a11, a12, a21, a22] = args;
     this.reset(a11, a12, a21, a22);
   }
 
+  /**
+   * Set every element, in place. Any element that is missing or not a number
+   * takes its identity value. Returns this matrix, for chaining.
+   *
+   * @param a11 Column 1, row 1.
+   * @param a12 Column 1, row 2.
+   * @param a21 Column 2, row 1.
+   * @param a22 Column 2, row 2.
+   */
   reset(a11: number, a12: number, a21: number, a22: number): Mat2 {
     this.a11 = orDefault(a11, "a11");
     this.a12 = orDefault(a12, "a12");
@@ -24,6 +52,12 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Copy every element of `m` into this matrix, in place. Returns this matrix,
+   * for chaining.
+   *
+   * @param m The matrix to copy from.
+   */
   resetToMat2(m: Mat2): Mat2 {
     this.a11 = m.a11;
     this.a12 = m.a12;
@@ -32,10 +66,15 @@ class Mat2 {
     return this;
   }
 
+  /** Returns a new matrix with the same elements as this one. */
   clone(): Mat2 {
     return new Mat2(this.a11, this.a12, this.a21, this.a22);
   }
 
+  /**
+   * Transpose this matrix (swap rows and columns), in place. Returns this
+   * matrix, for chaining.
+   */
   transpose(): Mat2 {
     const a12 = this.a12;
     this.a12 = this.a21;
@@ -43,10 +82,20 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.transpose}, but returns a new matrix and leaves this one
+   * unchanged.
+   */
   transposeNew(): Mat2 {
     return this.clone().transpose();
   }
 
+  /**
+   * Add `m` to this matrix element by element, in place. Returns this matrix,
+   * for chaining.
+   *
+   * @param m The matrix to add.
+   */
   add(m: Mat2): Mat2 {
     this.a11 += m.a11;
     this.a12 += m.a12;
@@ -55,12 +104,24 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.add}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to add.
+   */
   addNew(m: Mat2): Mat2 {
     return this.clone().add(m);
   }
 
   // @TODO: We might want to generalise this and allow any sort of matrix on these operations
 
+  /**
+   * Subtract `m` from this matrix element by element, in place. Returns this
+   * matrix, for chaining.
+   *
+   * @param m The matrix to subtract.
+   */
   subtract(m: Mat2): Mat2 {
     this.a11 -= m.a11;
     this.a12 -= m.a12;
@@ -69,10 +130,22 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.subtract}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to subtract.
+   */
   subtractNew(m: Mat2): Mat2 {
     return this.clone().subtract(m);
   }
 
+  /**
+   * Multiply this matrix by `m` (this × m), in place, so `m` is applied to a
+   * vector first. Returns this matrix, for chaining.
+   *
+   * @param m The matrix to multiply by, on the right.
+   */
   multiply(m: Mat2): Mat2 {
     const o = this.clone();
     this.a11 = o.a11 * m.a11 + o.a21 * m.a12;
@@ -82,10 +155,22 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.multiply}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to multiply by, on the right.
+   */
   multiplyNew(m: Mat2): Mat2 {
     return this.clone().multiply(m);
   }
 
+  /**
+   * Multiply every element by `s`, in place. Returns this matrix, for
+   * chaining.
+   *
+   * @param s The scalar to multiply by.
+   */
   multiplyScalar(s: number): Mat2 {
     this.a11 *= s;
     this.a12 *= s;
@@ -94,18 +179,43 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.multiplyScalar}, but returns a new matrix and leaves this
+   * one unchanged.
+   *
+   * @param s The scalar to multiply by.
+   */
   multiplyScalarNew(s: number): Mat2 {
     return this.clone().multiplyScalar(s);
   }
 
+  /**
+   * Multiply every element by `s`, in place. The same as
+   * {@link Mat2.multiplyScalar}. Returns this matrix, for chaining.
+   *
+   * @param s The scalar to multiply by.
+   */
   scale(s: number): Mat2 {
     return this.multiplyScalar(s);
   }
 
+  /**
+   * Like {@link Mat2.scale}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param s The scalar to multiply by.
+   */
   scaleNew(s: number): Mat2 {
     return this.multiplyScalarNew(s);
   }
 
+  /**
+   * Scale the first column by `v.x` and the second by `v.y`, in place. This
+   * is this × a scaling matrix, so the scale is applied to a vector before
+   * this matrix. Returns this matrix, for chaining.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   scaleByVec2(v: Vec2Like): Mat2 {
     const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
     this.a11 *= arr[0];
@@ -115,10 +225,23 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.scaleByVec2}, but returns a new matrix and leaves this
+   * one unchanged.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   scaleByVec2New(v: Vec2Like): Mat2 {
     return this.clone().scaleByVec2(v);
   }
 
+  /**
+   * Rotate this matrix anticlockwise by `r` radians, in place. This is
+   * this × a rotation matrix, so the rotation is applied to a vector before
+   * this matrix. Returns this matrix, for chaining.
+   *
+   * @param r The angle, in radians.
+   */
   rotate(r: number): Mat2 {
     const o = this.clone();
     const s = Math.sin(r);
@@ -130,10 +253,21 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.rotate}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param r The angle, in radians.
+   */
   rotateNew(r: number): Mat2 {
     return this.clone().rotate(r);
   }
 
+  /**
+   * Invert this matrix, in place. If the matrix is singular (its determinant
+   * is 0) it is left unchanged; this method never returns null. Returns this
+   * matrix, for chaining.
+   */
   invert(): Mat2 {
     const c = this.clone();
 
@@ -152,14 +286,17 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.invert}, but returns a new matrix and leaves this one
+   * unchanged. A singular matrix gives an unchanged copy.
+   */
   invertNew(): Mat2 {
     return this.clone().invert();
   }
 
   /**
-   * Calculates the adjugate of a mat2
-   *
-   * @returns {mat2} out
+   * Replace this matrix with its adjugate, in place. Returns this matrix, for
+   * chaining.
    */
   adjoint(): Mat2 {
     const a11 = this.a11;
@@ -171,10 +308,15 @@ class Mat2 {
     return this;
   }
 
+  /**
+   * Like {@link Mat2.adjoint}, but returns a new matrix and leaves this one
+   * unchanged.
+   */
   adjointNew(): Mat2 {
     return this.clone().adjoint();
   }
 
+  /** Returns the elements as a string, one column per line. */
   toString(): string {
     return `
       ${this.a11}, ${this.a12},
@@ -182,17 +324,13 @@ class Mat2 {
     `;
   }
 
-  /**
-   * Getters and setters
-   */
+  // Getters and setters
 
-  /**
-   * (getter/setter) The a11 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a11: number = 0;
+  /**
+   * Set the element at column 1, row 1. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a11(v) {
     if (typeof v == "number") {
       this.#a11 = v;
@@ -200,17 +338,20 @@ class Mat2 {
       throw new TypeError("a11 should be a number");
     }
   }
+  /**
+   * The element at column 1, row 1. A stored `NaN` reads as 0.
+   *
+   * @default 1
+   */
   get a11() {
     return this.#a11 || 0;
   }
 
-  /**
-   * (getter/setter) The a12 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a12: number = 0;
+  /**
+   * Set the element at column 1, row 2. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a12(v) {
     if (typeof v == "number") {
       this.#a12 = v;
@@ -218,17 +359,20 @@ class Mat2 {
       throw new TypeError("a12 should be a number");
     }
   }
+  /**
+   * The element at column 1, row 2. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a12() {
     return this.#a12 || 0;
   }
 
-  /**
-   * (getter/setter) The a21 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a21: number = 0;
+  /**
+   * Set the element at column 2, row 1. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a21(v) {
     if (typeof v == "number") {
       this.#a21 = v;
@@ -236,17 +380,20 @@ class Mat2 {
       throw new TypeError("a21 should be a number");
     }
   }
+  /**
+   * The element at column 2, row 1. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a21() {
     return this.#a21 || 0;
   }
 
-  /**
-   * (getter/setter) The a22 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a22: number = 0;
+  /**
+   * Set the element at column 2, row 2. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a22(v) {
     if (typeof v == "number") {
       this.#a22 = v;
@@ -254,35 +401,47 @@ class Mat2 {
       throw new TypeError("a22 should be a number");
     }
   }
+  /**
+   * The element at column 2, row 2. A stored `NaN` reads as 0.
+   *
+   * @default 1
+   */
   get a22() {
     return this.#a22 || 0;
   }
 
+  /** The determinant of the matrix. */
   get determinant(): number {
     return this.a11 * this.a22 - this.a12 * this.a21;
   }
 
   /**
-   * (getter) Returns the basic array representation of this matrix.
-   * @readonly
-   *
-   * @type {array}
+   * A new array of the elements in column-major order
+   * (`[a11, a12, a21, a22]`), ready for `uniformMatrix2fv`.
    */
   get array(): number[] {
     return [this.a11, this.a12, this.a21, this.a22];
   }
 
   /**
-   * (getter) Returns the basic array representation of this matrix.
-   * this returns the array in column-major form.
-   * @readonly
-   *
-   * @type {array}
+   * A new array of the elements in row-major order (`[a11, a21, a12, a22]`),
+   * which is the transpose of {@link Mat2.array}. Despite the name, this is
+   * not the column-major order WebGL expects; use `array` for that.
    */
   get columnArray(): number[] {
     return [this.a11, this.a21, this.a12, this.a22];
   }
 
+  /**
+   * Create a rotation matrix from an angle in radians.
+   *
+   * Note: the result is `[cos r, -sin r, sin r, cos r]` in column-major
+   * order, which rotates clockwise by `r`. This is the opposite direction to
+   * {@link Mat2.rotate}, so `Mat2.fromAngle(r)` equals
+   * `Mat2.identity().rotate(-r)`.
+   *
+   * @param r The angle, in radians.
+   */
   static fromAngle(r: number): Mat2 {
     let s = Math.sin(r);
     let c = Math.cos(r);
@@ -290,32 +449,24 @@ class Mat2 {
     return new Mat2(c, -s, s, c);
   }
 
+  /**
+   * Create a scaling matrix, with `v.x` and `v.y` on the diagonal.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   static fromScalingVec2(v: Vec2Like): Mat2 {
     const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
     return new Mat2(arr[0], 0, 0, arr[1]);
   }
 
+  /** Returns a new identity matrix. */
   static identity(): Mat2 {
     return new Mat2(...identity);
   }
-  
-  /**
-   * Adds iteration to the object, allowing it 
-   * to be destructured and iterated upon in 
-   * various useful ways.
-  */
-  [Symbol.iterator]() {
-    let values = this.array;
-    let index = 0;
-    return {
-      next() {
-        if (index < values.length) {
-          let value = values[index];
-          index++;
-          return { value, done: false };
-        } else return { done: true }
-      }
-    }
+
+  /** Iterate over the elements in column-major order, so the matrix can be spread: `[...m]`. */
+  [Symbol.iterator](): Iterator<number> {
+    return this.array[Symbol.iterator]();
   }
 }
 

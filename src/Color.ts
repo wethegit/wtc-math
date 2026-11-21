@@ -1,5 +1,31 @@
+/**
+ * An RGBA colour in 0–1 space, with conversions to and from hex, HSL, HSV,
+ * OKLab and OKLCH. Imported separately from the rest of wtc-math:
+ *
+ * ```ts
+ * import { Color } from 'wtc-math/color'
+ * ```
+ *
+ * @module wtc-math/color
+ */
+
+/**
+ * Anything {@link Color.interpolate} can turn into a {@link Color}: an object
+ * with 0–1 `r`, `g`, `b` and optional `a`, an `[r, g, b, a?]` array in 0–1,
+ * or a hex string (`"#rgb"` or `"#rrggbb"`, `#` optional). Alpha defaults
+ * to 1.
+ */
 export type ColorLike =
-  | { r: number; g: number; b: number; a?: number }
+  | {
+      /** Red, 0–1. */
+      r: number;
+      /** Green, 0–1. */
+      g: number;
+      /** Blue, 0–1. */
+      b: number;
+      /** Alpha, 0–1. Defaults to 1. */
+      a?: number;
+    }
   | [number, number, number, number?]
   | string;
 
@@ -43,12 +69,35 @@ function oklabToColor(L: number, a: number, b: number, alpha: number): Color {
   );
 }
 
+/**
+ * An RGBA colour with each channel in 0–1. Channels are gamma-encoded sRGB,
+ * as used by CSS.
+ *
+ * Methods without the `New` suffix modify the colour and return it; the
+ * `New` variants return a new colour and leave this one unchanged. The
+ * constructor does not clamp, so channels can hold values outside 0–1.
+ *
+ * For perceptually even blends use {@link Color.lerpOklab} or
+ * {@link Color.lerpOklch} instead of {@link Color.lerp}.
+ */
 class Color {
+  /** Red, 0–1. */
   r: number;
+  /** Green, 0–1. */
   g: number;
+  /** Blue, 0–1. */
   b: number;
+  /** Alpha (opacity), 0–1. */
   a: number;
 
+  /**
+   * Creates a colour from 0–1 channels. Values are stored as given.
+   *
+   * @param r Red, 0–1. Defaults to 0.
+   * @param g Green, 0–1. Defaults to 0.
+   * @param b Blue, 0–1. Defaults to 0.
+   * @param a Alpha, 0–1. Defaults to 1.
+   */
   constructor(r = 0, g = 0, b = 0, a = 1) {
     this.r = r;
     this.g = g;
@@ -56,10 +105,22 @@ class Color {
     this.a = a;
   }
 
+  /**
+   * Copies this colour.
+   *
+   * @returns A new colour with the same channels.
+   */
   clone(): Color {
     return new Color(this.r, this.g, this.b, this.a);
   }
 
+  /**
+   * Adds another colour channel by channel, including alpha, capping each
+   * channel at 1. Modifies this colour.
+   *
+   * @param c The colour to add.
+   * @returns This colour.
+   */
   add(c: Color): Color {
     this.r = Math.min(1, this.r + c.r);
     this.g = Math.min(1, this.g + c.g);
@@ -68,10 +129,24 @@ class Color {
     return this;
   }
 
+  /**
+   * Adds another colour channel by channel, as {@link Color.add}, without
+   * modifying this one.
+   *
+   * @param c The colour to add.
+   * @returns A new colour.
+   */
   addNew(c: Color): Color {
     return this.clone().add(c);
   }
 
+  /**
+   * Multiplies by another colour channel by channel, including alpha.
+   * Modifies this colour.
+   *
+   * @param c The colour to multiply by.
+   * @returns This colour.
+   */
   multiply(c: Color): Color {
     this.r *= c.r;
     this.g *= c.g;
@@ -80,10 +155,24 @@ class Color {
     return this;
   }
 
+  /**
+   * Multiplies by another colour channel by channel, as
+   * {@link Color.multiply}, without modifying this one.
+   *
+   * @param c The colour to multiply by.
+   * @returns A new colour.
+   */
   multiplyNew(c: Color): Color {
     return this.clone().multiply(c);
   }
 
+  /**
+   * Scales red, green and blue by a number, capping each at 1. Alpha is left
+   * unchanged. Modifies this colour.
+   *
+   * @param s The scale factor.
+   * @returns This colour.
+   */
   multiplyScalar(s: number): Color {
     this.r = Math.min(1, this.r * s);
     this.g = Math.min(1, this.g * s);
@@ -91,10 +180,25 @@ class Color {
     return this;
   }
 
+  /**
+   * Scales red, green and blue by a number, as {@link Color.multiplyScalar},
+   * without modifying this colour.
+   *
+   * @param s The scale factor.
+   * @returns A new colour.
+   */
   multiplyScalarNew(s: number): Color {
     return this.clone().multiplyScalar(s);
   }
 
+  /**
+   * Linearly interpolates every channel, including alpha, towards another
+   * colour in sRGB space. `t` is not clamped. Modifies this colour.
+   *
+   * @param c The target colour.
+   * @param t The interpolation factor: 0 keeps this colour, 1 gives `c`.
+   * @returns This colour.
+   */
   lerp(c: Color, t: number): Color {
     this.r += (c.r - this.r) * t;
     this.g += (c.g - this.g) * t;
@@ -103,10 +207,25 @@ class Color {
     return this;
   }
 
+  /**
+   * Linearly interpolates towards another colour, as {@link Color.lerp},
+   * without modifying this one.
+   *
+   * @param c The target colour.
+   * @param t The interpolation factor: 0 gives this colour, 1 gives `c`.
+   * @returns A new colour.
+   */
   lerpNew(c: Color, t: number): Color {
     return this.clone().lerp(c, t);
   }
 
+  /**
+   * Formats the colour as a CSS colour string, with red, green and blue
+   * rounded to 0–255.
+   *
+   * @returns `"rgb(r, g, b)"` when alpha is exactly 1, otherwise
+   * `"rgba(r, g, b, a)"`.
+   */
   toCSS(): string {
     const r = Math.round(this.r * 255);
     const g = Math.round(this.g * 255);
@@ -115,11 +234,22 @@ class Color {
     return `rgba(${r}, ${g}, ${b}, ${this.a})`;
   }
 
+  /**
+   * Formats the colour as a 6-digit lowercase hex string. Alpha is dropped.
+   *
+   * @returns A string such as `"#ff8000"`.
+   */
   toHex(): string {
     const ch = (v: number) => Math.round(v * 255).toString(16).padStart(2, "0");
     return `#${ch(this.r)}${ch(this.g)}${ch(this.b)}`;
   }
 
+  /**
+   * Converts to HSL. Alpha is ignored.
+   *
+   * @returns `[h, s, l]` with hue in degrees (0–360) and saturation and
+   * lightness in 0–1. Greys have a hue of 0.
+   */
   toHSL(): [number, number, number] {
     const { r, g, b } = this;
     const max = Math.max(r, g, b);
@@ -135,7 +265,12 @@ class Color {
     return [h * 360, s, l];
   }
 
-  // h: 0–360, s: 0–1, v: 0–1
+  /**
+   * Converts to HSV (also called HSB). Alpha is ignored.
+   *
+   * @returns `[h, s, v]` with hue in degrees (0–360) and saturation and
+   * value in 0–1. Greys have a hue of 0.
+   */
   toHSV(): [number, number, number] {
     const { r, g, b } = this;
     const max = Math.max(r, g, b);
@@ -150,12 +285,22 @@ class Color {
     return [h * 360, s, max];
   }
 
-  // L: 0–1, a/b: approx –0.5–0.5
+  /**
+   * Converts to OKLab, a perceptual colour space. Alpha is ignored.
+   *
+   * @returns `[L, a, b]` with lightness in 0–1 and `a` and `b` roughly
+   * between −0.5 and 0.5.
+   */
   toOklab(): [number, number, number] {
     return colorToOklab(this.r, this.g, this.b);
   }
 
-  // L: 0–1, C: 0–0.4 approx, H: 0–360°
+  /**
+   * Converts to OKLCH, the polar form of OKLab. Alpha is ignored.
+   *
+   * @returns `[L, C, H]` with lightness in 0–1, chroma roughly 0–0.4 and hue
+   * in degrees (0–360). The hue of a grey is not meaningful.
+   */
   toOklch(): [number, number, number] {
     const [L, a, b] = colorToOklab(this.r, this.g, this.b);
     const C = Math.sqrt(a * a + b * b);
@@ -163,14 +308,31 @@ class Color {
     return [L, C, H];
   }
 
+  /**
+   * The channels as an array.
+   *
+   * @returns A new `[r, g, b, a]` array.
+   */
   get array(): [number, number, number, number] {
     return [this.r, this.g, this.b, this.a];
   }
 
+  /**
+   * Formats the colour as a CSS string, the same as {@link Color.toCSS}.
+   *
+   * @returns `"rgb(…)"` or `"rgba(…)"`.
+   */
   toString(): string {
     return this.toCSS();
   }
 
+  /**
+   * Creates a colour from a 3- or 6-digit hex string, with or without a
+   * leading `#` (`"#f80"`, `"ff8800"`). Alpha is always 1.
+   *
+   * @param hex The hex string.
+   * @returns A new colour.
+   */
   static fromHex(hex: string): Color {
     const clean = hex.replace("#", "");
     const full =
@@ -188,6 +350,15 @@ class Color {
     );
   }
 
+  /**
+   * Creates a colour from HSL values.
+   *
+   * @param h Hue in degrees (0–360).
+   * @param s Saturation, 0–1.
+   * @param l Lightness, 0–1.
+   * @param a Alpha, 0–1. Defaults to 1.
+   * @returns A new colour.
+   */
   static fromHSL(h: number, s: number, l: number, a = 1): Color {
     const hNorm = h / 360;
     if (s === 0) return new Color(l, l, l, a);
@@ -209,11 +380,28 @@ class Color {
     );
   }
 
+  /**
+   * Creates a colour from 0–255 channels, dividing each by 255.
+   *
+   * @param r Red, 0–255.
+   * @param g Green, 0–255.
+   * @param b Blue, 0–255.
+   * @param a Alpha, 0–255. Defaults to 255.
+   * @returns A new colour.
+   */
   static fromRGB255(r: number, g: number, b: number, a = 255): Color {
     return new Color(r / 255, g / 255, b / 255, a / 255);
   }
 
-  // h: 0–360, s: 0–1, v: 0–1
+  /**
+   * Creates a colour from HSV (HSB) values.
+   *
+   * @param h Hue in degrees, 0 or more (0–360).
+   * @param s Saturation, 0–1.
+   * @param v Value (brightness), 0–1.
+   * @param a Alpha, 0–1. Defaults to 1.
+   * @returns A new colour.
+   */
   static fromHSV(h: number, s: number, v: number, a = 1): Color {
     const i = Math.floor((h / 360) * 6);
     const f = (h / 360) * 6 - i;
@@ -228,20 +416,57 @@ class Color {
     return new Color(r, g, b, a);
   }
 
+  /**
+   * Creates a colour from OKLab values. Results outside the sRGB gamut are
+   * clamped to 0–1 per channel.
+   *
+   * @param L Lightness, 0–1.
+   * @param a Green–red axis, roughly −0.5 to 0.5.
+   * @param b Blue–yellow axis, roughly −0.5 to 0.5.
+   * @param alpha Alpha, 0–1. Defaults to 1.
+   * @returns A new colour.
+   */
   static fromOklab(L: number, a: number, b: number, alpha = 1): Color {
     return oklabToColor(L, a, b, alpha);
   }
 
-  // H in degrees (0–360)
+  /**
+   * Creates a colour from OKLCH values. Results outside the sRGB gamut are
+   * clamped to 0–1 per channel.
+   *
+   * @param L Lightness, 0–1.
+   * @param C Chroma, roughly 0–0.4.
+   * @param H Hue in degrees (0–360).
+   * @param alpha Alpha, 0–1. Defaults to 1.
+   * @returns A new colour.
+   */
   static fromOklch(L: number, C: number, H: number, alpha = 1): Color {
     const hRad = (H * Math.PI) / 180;
     return oklabToColor(L, C * Math.cos(hRad), C * Math.sin(hRad), alpha);
   }
 
+  /**
+   * Linearly interpolates every channel, including alpha, between two colours
+   * in sRGB space. `t` is not clamped.
+   *
+   * @param c1 The colour at `t = 0`.
+   * @param c2 The colour at `t = 1`.
+   * @param t The interpolation factor.
+   * @returns A new colour.
+   */
   static lerp(c1: Color, c2: Color, t: number): Color {
     return c1.clone().lerp(c2, t);
   }
 
+  /**
+   * Interpolates between two colours in OKLab space, which gives more even
+   * perceived steps than {@link Color.lerp}. Alpha is interpolated linearly.
+   *
+   * @param c1 The colour at `t = 0`.
+   * @param c2 The colour at `t = 1`.
+   * @param t The interpolation factor.
+   * @returns A new colour, clamped to 0–1 per channel.
+   */
   static lerpOklab(c1: Color, c2: Color, t: number): Color {
     const [L1, a1, b1] = colorToOklab(c1.r, c1.g, c1.b);
     const [L2, a2, b2] = colorToOklab(c2.r, c2.g, c2.b);
@@ -253,6 +478,17 @@ class Color {
     );
   }
 
+  /**
+   * Interpolates between two colours in OKLCH space, taking the shorter way
+   * round the hue circle. If one end is grey, the other end's hue is used
+   * throughout so the blend does not pass through unrelated hues. Alpha is
+   * interpolated linearly.
+   *
+   * @param c1 The colour at `t = 0`.
+   * @param c2 The colour at `t = 1`.
+   * @param t The interpolation factor.
+   * @returns A new colour, clamped to 0–1 per channel.
+   */
   static lerpOklch(c1: Color, c2: Color, t: number): Color {
     const [L1, C1, h1] = c1.toOklch();
     const [L2, C2, h2] = c2.toOklch();
@@ -271,6 +507,14 @@ class Color {
     );
   }
 
+  /**
+   * Creates a colour from any {@link ColorLike}: a hex string (see
+   * {@link Color.fromHex}), an `[r, g, b, a?]` array or an `{ r, g, b, a? }`
+   * object, both in 0–1. Missing alpha defaults to 1.
+   *
+   * @param v The value to convert.
+   * @returns A new colour.
+   */
   static interpolate(v: ColorLike): Color {
     if (typeof v === "string") return Color.fromHex(v);
     if (Array.isArray(v)) return new Color(v[0], v[1], v[2], v[3] ?? 1);

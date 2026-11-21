@@ -49,11 +49,33 @@ const orDefault = function (v: any, ident: string): number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 };
 
+/**
+ * A 4×4 matrix, used for 3D transforms, camera views and projections.
+ *
+ * Elements are stored column-major, as WebGL expects. Each element is named
+ * `aCR`, for column C and row R: `a11`–`a14` are the first column and
+ * `a41`–`a43` hold the translation. {@link Mat4.array} returns the elements in
+ * that order, ready to pass to `uniformMatrix4fv`.
+ *
+ * Most operations change the matrix in place and return it, for chaining. Each
+ * has a `…New` variant that returns a new matrix and leaves this one unchanged.
+ */
 class Mat4 {
+  /**
+   * Create a matrix. With no arguments, this is the identity matrix.
+   *
+   * @param args Up to 16 elements in column-major order. Any missing or `NaN` element takes its value from the identity matrix.
+   */
   constructor(...args: number[]) {
     this.reset(...args);
   }
 
+  /**
+   * Set every element in place. Any missing or `NaN` element takes its value from the identity matrix, so `reset()` with no arguments sets this to the identity.
+   *
+   * @param args Up to 16 elements in column-major order.
+   * @returns This matrix, for chaining.
+   */
   reset(...args: number[]): Mat4 {
     const [
       a11,
@@ -95,6 +117,12 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Copy every element of another matrix into this one.
+   *
+   * @param m The matrix to copy.
+   * @returns This matrix, for chaining.
+   */
   resetToMat4(m: Mat4): Mat4 {
     this.a11 = m.a11;
     this.a12 = m.a12;
@@ -119,6 +147,11 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Create a copy of this matrix.
+   *
+   * @returns A new matrix with the same elements.
+   */
   clone(): Mat4 {
     return new Mat4(
       this.a11,
@@ -140,6 +173,11 @@ class Mat4 {
     );
   }
 
+  /**
+   * Transpose the matrix in place, swapping rows and columns.
+   *
+   * @returns This matrix, for chaining.
+   */
   transpose(): Mat4 {
     const a12 = this.a12,
       a13 = this.a13,
@@ -167,10 +205,21 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.transpose}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @returns A new, transposed matrix.
+   */
   transposeNew(): Mat4 {
     return this.clone().transpose();
   }
 
+  /**
+   * Add another matrix to this one in place, element by element.
+   *
+   * @param m The matrix to add.
+   * @returns This matrix, for chaining.
+   */
   add(m: Mat4): Mat4 {
     this.a11 += m.a11;
     this.a12 += m.a12;
@@ -194,12 +243,24 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.add}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param m The matrix to add.
+   * @returns A new matrix holding the sum.
+   */
   addNew(m: Mat4): Mat4 {
     return this.clone().add(m);
   }
 
   // @TODO: We might want to generalise this and allow any sort of matrix on these operations
 
+  /**
+   * Subtract another matrix from this one in place, element by element.
+   *
+   * @param m The matrix to subtract.
+   * @returns This matrix, for chaining.
+   */
   subtract(m: Mat4): Mat4 {
     this.a11 -= m.a11;
     this.a12 -= m.a12;
@@ -223,10 +284,24 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.subtract}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param m The matrix to subtract.
+   * @returns A new matrix holding the difference.
+   */
   subtractNew(m: Mat4): Mat4 {
     return this.clone().subtract(m);
   }
 
+  /**
+   * Multiply this matrix by another in place, so this becomes `this × m`.
+   * Applied to a vector, the result transforms by `m` first, then by the
+   * original matrix.
+   *
+   * @param m The matrix to multiply by, on the right.
+   * @returns This matrix, for chaining.
+   */
   multiply(m: Mat4): Mat4 {
     const o = this.clone();
 
@@ -252,10 +327,22 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.multiply}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param m The matrix to multiply by, on the right.
+   * @returns A new matrix holding `this × m`.
+   */
   multiplyNew(m: Mat4): Mat4 {
     return this.clone().multiply(m);
   }
 
+  /**
+   * Multiply every element, including the translation and `a44`, by a number in place.
+   *
+   * @param s The number to multiply by.
+   * @returns This matrix, for chaining.
+   */
   multiplyScalar(s: number): Mat4 {
     this.a11 *= s;
     this.a12 *= s;
@@ -280,18 +367,46 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.multiplyScalar}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param s The number to multiply by.
+   * @returns A new, scaled matrix.
+   */
   multiplyScalarNew(s: number): Mat4 {
     return this.clone().multiplyScalar(s);
   }
 
+  /**
+   * An alias of {@link Mat4.multiplyScalar}: multiplies all 16 elements in
+   * place. This is not a uniform scale transform, since it also scales the
+   * translation and `a44`; use {@link Mat4.scaleByVec3} for that.
+   *
+   * @param s The number to multiply by.
+   * @returns This matrix, for chaining.
+   */
   scale(s: number): Mat4 {
     return this.multiplyScalar(s);
   }
 
+  /**
+   * Like {@link Mat4.scale}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param s The number to multiply by.
+   * @returns A new, scaled matrix.
+   */
   scaleNew(s: number): Mat4 {
     return this.multiplyScalarNew(s);
   }
 
+  /**
+   * Scale the matrix in place by a per-axis amount, multiplying the first,
+   * second and third columns by `x`, `y` and `z`. This is `this × S`, so the
+   * scale applies in the matrix's local space. The translation is unchanged.
+   *
+   * @param v The x, y and z scale factors.
+   * @returns This matrix, for chaining.
+   */
   scaleByVec3(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
     const [x, y, z] = va;
@@ -314,15 +429,22 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.scaleByVec3}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param v The x, y and z scale factors.
+   * @returns A new, scaled matrix.
+   */
   scaleByVec3New(v: Vec3Like): Mat4 {
     return this.clone().scaleByVec3(v);
   }
 
   /**
-   * Transforms the mat4 by a given amount
+   * Add a vector to the translation (`a41`–`a43`) in place. Unlike
+   * {@link Mat4.translate}, the offset is not rotated or scaled by the matrix.
    *
-   * @param {Vec3} v The amount to add to the matrixes transformation properties
-   * @returns {mat4} output
+   * @param v The amount to add to the translation.
+   * @returns This matrix, for chaining.
    */
   transform(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
@@ -334,15 +456,21 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.transform}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param v The amount to add to the translation.
+   * @returns A new matrix with the offset translation.
+   */
   transformNew(v: Vec3Like): Mat4 {
     return this.clone().transform(v);
   }
 
   /**
-   * Transforms the mat4 to a given position
+   * Set the translation (`a41`–`a43`) in place, leaving the other elements unchanged.
    *
-   * @param {Vec3} v The position to set on the matrix
-   * @returns {mat4} output
+   * @param v The new translation.
+   * @returns This matrix, for chaining.
    */
   transformTo(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
@@ -353,15 +481,25 @@ class Mat4 {
 
     return this;
   }
+  /**
+   * Meant to be like {@link Mat4.transformTo}, returning a new matrix and
+   * leaving this one unchanged. It currently calls {@link Mat4.transform}, so
+   * it adds `v` to the translation rather than setting it.
+   *
+   * @param v The translation.
+   * @returns A new matrix.
+   */
   transformToNew(v: Vec3Like): Mat4 {
     return this.clone().transform(v);
   }
 
   /**
-   * Translates the mat4 to a given position
+   * Translate the matrix in place by `v` in its local space, so this becomes
+   * `this × T(v)`. The offset is rotated and scaled by the existing matrix;
+   * use {@link Mat4.transform} to offset in world space instead.
    *
-   * @param {Vec3} v The amount to add to the matrixes translation properties
-   * @returns {mat4} output
+   * @param v The amount to translate by.
+   * @returns This matrix, for chaining.
    */
   translate(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
@@ -396,16 +534,24 @@ class Mat4 {
 
     return this;
   }
+  /**
+   * Like {@link Mat4.translate}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param v The amount to translate by.
+   * @returns A new, translated matrix.
+   */
   translateNew(v: Vec3Like): Mat4 {
     return this.clone().translate(v);
   }
 
   /**
-   * Rotates a mat4 by the given angle around the given axis
+   * Rotate the matrix in place around an axis, so this becomes `this × R`. The
+   * rotation is right-handed (counter-clockwise when looking down the axis
+   * towards the origin) and the translation is unchanged.
    *
-   * @param {Number} r the angle to rotate the matrix by
-   * @param {vec3} axis the axis to rotate around
-   * @returns {mat4} output
+   * @param r The angle, in radians.
+   * @param axis The axis to rotate around. It is normalised for you; if its length is close to zero the matrix is left unchanged.
+   * @returns This matrix, for chaining.
    */
   rotate(r: number, axis: Vec3Like): Mat4 {
     const aa = Array.isArray(axis) ? axis : [axis.x, axis.y, axis.z];
@@ -454,10 +600,23 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.rotate}, but returns a new matrix and leaves this one unchanged.
+   *
+   * @param r The angle, in radians.
+   * @param axis The axis to rotate around.
+   * @returns A new, rotated matrix.
+   */
   rotateNew(r: number, axis: Vec3Like): Mat4 {
     return this.clone().rotate(r, axis);
   }
 
+  /**
+   * Invert the matrix in place. If the matrix is singular (its determinant is
+   * 0) it cannot be inverted, and is left unchanged; this never returns `null`.
+   *
+   * @returns This matrix, for chaining.
+   */
   invert(): Mat4 {
     const c = this.clone();
 
@@ -491,10 +650,22 @@ class Mat4 {
     return this;
   }
 
+  /**
+   * Like {@link Mat4.invert}, but returns a new matrix and leaves this one
+   * unchanged. A singular matrix gives an unchanged copy.
+   *
+   * @returns A new, inverted matrix.
+   */
   invertNew(): Mat4 {
     return this.clone().invert();
   }
 
+  /**
+   * A readable string of the elements, one column per line in column-major
+   * order, with surrounding newlines and indentation.
+   *
+   * @returns The elements as a string.
+   */
   toString(): string {
     return `
       ${this.a11}, ${this.a12}, ${this.a13}, ${this.a14},
@@ -504,17 +675,10 @@ class Mat4 {
     `;
   }
 
-  /**
-   * Getters and setters
-   */
+  // Element accessors. aCR is column C, row R.
 
-  /**
-   * (getter/setter) The a11 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a11: number = 0;
+  /** Set the element in column 1, row 1. Throws a `TypeError` if `v` is not a number. */
   set a11(v: number) {
     if (typeof v == "number") {
       this.#a11 = v;
@@ -522,17 +686,13 @@ class Mat4 {
       throw new TypeError("a11 should be a number");
     }
   }
+  /** The element in column 1, row 1. Reads as 0 if the stored value is `NaN`. */
   get a11() {
     return this.#a11 || 0;
   }
 
-  /**
-   * (getter/setter) The a12 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a12: number = 0;
+  /** Set the element in column 1, row 2. Throws a `TypeError` if `v` is not a number. */
   set a12(v: number) {
     if (typeof v == "number") {
       this.#a12 = v;
@@ -540,17 +700,13 @@ class Mat4 {
       throw new TypeError("a12 should be a number");
     }
   }
+  /** The element in column 1, row 2. Reads as 0 if the stored value is `NaN`. */
   get a12() {
     return this.#a12 || 0;
   }
 
-  /**
-   * (getter/setter) The a13 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a13: number = 0;
+  /** Set the element in column 1, row 3. Throws a `TypeError` if `v` is not a number. */
   set a13(v: number) {
     if (typeof v == "number") {
       this.#a13 = v;
@@ -558,17 +714,13 @@ class Mat4 {
       throw new TypeError("a13 should be a number");
     }
   }
+  /** The element in column 1, row 3. Reads as 0 if the stored value is `NaN`. */
   get a13() {
     return this.#a13 || 0;
   }
 
-  /**
-   * (getter/setter) The a14 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a14: number = 0;
+  /** Set the element in column 1, row 4. Throws a `TypeError` if `v` is not a number. */
   set a14(v: number) {
     if (typeof v == "number") {
       this.#a14 = v;
@@ -576,17 +728,13 @@ class Mat4 {
       throw new TypeError("a14 should be a number");
     }
   }
+  /** The element in column 1, row 4. Reads as 0 if the stored value is `NaN`. */
   get a14() {
     return this.#a14 || 0;
   }
 
-  /**
-   * (getter/setter) The a21 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a21: number = 0;
+  /** Set the element in column 2, row 1. Throws a `TypeError` if `v` is not a number. */
   set a21(v: number) {
     if (typeof v == "number") {
       this.#a21 = v;
@@ -594,17 +742,13 @@ class Mat4 {
       throw new TypeError("a21 should be a number");
     }
   }
+  /** The element in column 2, row 1. Reads as 0 if the stored value is `NaN`. */
   get a21() {
     return this.#a21 || 0;
   }
 
-  /**
-   * (getter/setter) The a22 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a22: number = 0;
+  /** Set the element in column 2, row 2. Throws a `TypeError` if `v` is not a number. */
   set a22(v: number) {
     if (typeof v == "number") {
       this.#a22 = v;
@@ -612,17 +756,13 @@ class Mat4 {
       throw new TypeError("a22 should be a number");
     }
   }
+  /** The element in column 2, row 2. Reads as 0 if the stored value is `NaN`. */
   get a22() {
     return this.#a22 || 0;
   }
 
-  /**
-   * (getter/setter) The a23 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a23: number = 0;
+  /** Set the element in column 2, row 3. Throws a `TypeError` if `v` is not a number. */
   set a23(v: number) {
     if (typeof v == "number") {
       this.#a23 = v;
@@ -630,17 +770,13 @@ class Mat4 {
       throw new TypeError("a23 should be a number");
     }
   }
+  /** The element in column 2, row 3. Reads as 0 if the stored value is `NaN`. */
   get a23() {
     return this.#a23 || 0;
   }
 
-  /**
-   * (getter/setter) The a24 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a24: number = 0;
+  /** Set the element in column 2, row 4. Throws a `TypeError` if `v` is not a number. */
   set a24(v: number) {
     if (typeof v == "number") {
       this.#a24 = v;
@@ -648,17 +784,13 @@ class Mat4 {
       throw new TypeError("a24 should be a number");
     }
   }
+  /** The element in column 2, row 4. Reads as 0 if the stored value is `NaN`. */
   get a24() {
     return this.#a24 || 0;
   }
 
-  /**
-   * (getter/setter) The a31 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a31: number = 0;
+  /** Set the element in column 3, row 1. Throws a `TypeError` if `v` is not a number. */
   set a31(v: number) {
     if (typeof v == "number") {
       this.#a31 = v;
@@ -666,17 +798,13 @@ class Mat4 {
       throw new TypeError("a31 should be a number");
     }
   }
+  /** The element in column 3, row 1. Reads as 0 if the stored value is `NaN`. */
   get a31() {
     return this.#a31 || 0;
   }
 
-  /**
-   * (getter/setter) The a32 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a32: number = 0;
+  /** Set the element in column 3, row 2. Throws a `TypeError` if `v` is not a number. */
   set a32(v: number) {
     if (typeof v == "number") {
       this.#a32 = v;
@@ -684,17 +812,13 @@ class Mat4 {
       throw new TypeError("a32 should be a number");
     }
   }
+  /** The element in column 3, row 2. Reads as 0 if the stored value is `NaN`. */
   get a32() {
     return this.#a32 || 0;
   }
 
-  /**
-   * (getter/setter) The a33 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a33: number = 0;
+  /** Set the element in column 3, row 3. Throws a `TypeError` if `v` is not a number. */
   set a33(v: number) {
     if (typeof v == "number") {
       this.#a33 = v;
@@ -702,17 +826,13 @@ class Mat4 {
       throw new TypeError("a33 should be a number");
     }
   }
+  /** The element in column 3, row 3. Reads as 0 if the stored value is `NaN`. */
   get a33() {
     return this.#a33 || 0;
   }
 
-  /**
-   * (getter/setter) The a34 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a34: number = 0;
+  /** Set the element in column 3, row 4. Throws a `TypeError` if `v` is not a number. */
   set a34(v: number) {
     if (typeof v == "number") {
       this.#a34 = v;
@@ -720,17 +840,13 @@ class Mat4 {
       throw new TypeError("a34 should be a number");
     }
   }
+  /** The element in column 3, row 4. Reads as 0 if the stored value is `NaN`. */
   get a34() {
     return this.#a34 || 0;
   }
 
-  /**
-   * (getter/setter) The a41 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a41: number = 0;
+  /** Set the element in column 4, row 1. The x translation. Throws a `TypeError` if `v` is not a number. */
   set a41(v: number) {
     if (typeof v == "number") {
       this.#a41 = v;
@@ -738,17 +854,13 @@ class Mat4 {
       throw new TypeError("a41 should be a number");
     }
   }
+  /** The element in column 4, row 1. The x translation. Reads as 0 if the stored value is `NaN`. */
   get a41() {
     return this.#a41 || 0;
   }
 
-  /**
-   * (getter/setter) The a42 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a42: number = 0;
+  /** Set the element in column 4, row 2. The y translation. Throws a `TypeError` if `v` is not a number. */
   set a42(v: number) {
     if (typeof v == "number") {
       this.#a42 = v;
@@ -756,17 +868,13 @@ class Mat4 {
       throw new TypeError("a42 should be a number");
     }
   }
+  /** The element in column 4, row 2. The y translation. Reads as 0 if the stored value is `NaN`. */
   get a42() {
     return this.#a42 || 0;
   }
 
-  /**
-   * (getter/setter) The a43 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a43: number = 0;
+  /** Set the element in column 4, row 3. The z translation. Throws a `TypeError` if `v` is not a number. */
   set a43(v: number) {
     if (typeof v == "number") {
       this.#a43 = v;
@@ -774,17 +882,13 @@ class Mat4 {
       throw new TypeError("a43 should be a number");
     }
   }
+  /** The element in column 4, row 3. The z translation. Reads as 0 if the stored value is `NaN`. */
   get a43() {
     return this.#a43 || 0;
   }
 
-  /**
-   * (getter/setter) The a44 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a44: number = 0;
+  /** Set the element in column 4, row 4. Throws a `TypeError` if `v` is not a number. */
   set a44(v: number) {
     if (typeof v == "number") {
       this.#a44 = v;
@@ -792,18 +896,26 @@ class Mat4 {
       throw new TypeError("a44 should be a number");
     }
   }
+  /** The element in column 4, row 4. Reads as 0 if the stored value is `NaN`. */
   get a44() {
     return this.#a44 || 0;
   }
 
+  /** The Frobenius norm: the square root of the sum of the squares of all 16 elements. */
   get frobeniusnorm(): number {
     return Math.hypot(...this.array);
   }
 
+  /** The translation (`a41`, `a42`, `a43`), as a new {@link Vec3}. */
   get translation(): Vec3 {
     return new Vec3(this.a41, this.a42, this.a43);
   }
 
+  /**
+   * The scale along each axis, as a new {@link Vec3}: the lengths of the first,
+   * second and third columns. Assumes there is no shear; values are always
+   * positive, so a negative scale (a mirror) is not recovered.
+   */
   get scaling(): Vec3 {
     return new Vec3(
       Math.hypot(this.a11, this.a12, this.a13),
@@ -812,6 +924,10 @@ class Mat4 {
     );
   }
 
+  /**
+   * The rotation, as a new {@link Quat}, found by removing {@link Mat4.scaling}
+   * from the upper 3×3 part. Only reliable when the scale is uniform.
+   */
   get rotation(): Quat {
     const scale = this.scaling.inverse();
 
@@ -866,9 +982,9 @@ class Mat4 {
   }
 
   /**
-   * Calculates the determinant function the mat4
-   *
-   * @returns {Number} determinant of a
+   * The determinant of the matrix, along with the twelve 2×2 sub-determinants
+   * (`b00`–`b11`) that {@link Mat4.invert} reuses. Prefer {@link Mat4.determinant}
+   * unless you need the intermediate values.
    */
   get determinantFunction(): Mat4DeterminantFunction {
     let b00 = this.a11 * this.a22 - this.a12 * this.a21;
@@ -891,21 +1007,12 @@ class Mat4 {
     };
   }
 
-  /**
-   * Calculates the determinant of the mat4
-   *
-   * @returns {Number} determinant of a
-   */
+  /** The determinant of the matrix. */
   get determinant(): number {
     return this.determinantFunction.determinant;
   }
 
-  /**
-   * (getter) Returns the basic array representation of this matrix.
-   * @readonly
-   *
-   * @type {array}
-   */
+  /** The 16 elements as a new array, in column-major order, ready to pass to WebGL. */
   get array(): number[] {
     return [
       this.a11,
@@ -927,10 +1034,23 @@ class Mat4 {
     ];
   }
 
+  /**
+   * Create a rotation matrix around an axis. See {@link Mat4.rotate}.
+   *
+   * @param r The angle, in radians.
+   * @param axis The axis to rotate around, as a {@link Vec3Like}. It is normalised for you; if its length is close to zero you get the identity matrix.
+   * @returns A new matrix.
+   */
   static fromRotation(r: number, axis: any) {
     return new Mat4().rotate(r, axis);
   }
 
+  /**
+   * Create a matrix that rotates around the x axis (right-handed).
+   *
+   * @param r The angle, in radians.
+   * @returns A new matrix.
+   */
   static fromXRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
@@ -938,6 +1058,12 @@ class Mat4 {
     return new Mat4(1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
   }
 
+  /**
+   * Create a matrix that rotates around the y axis (right-handed).
+   *
+   * @param r The angle, in radians.
+   * @returns A new matrix.
+   */
   static fromYRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
@@ -945,6 +1071,12 @@ class Mat4 {
     return new Mat4(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
   }
 
+  /**
+   * Create a matrix that rotates around the z axis (right-handed).
+   *
+   * @param r The angle, in radians.
+   * @returns A new matrix.
+   */
   static fromZRotation(r: number) {
     const s = Math.sin(r),
       c = Math.cos(r);
@@ -952,22 +1084,34 @@ class Mat4 {
     return new Mat4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
+  /**
+   * Create a scale matrix.
+   *
+   * @param v The x, y and z scale factors.
+   * @returns A new matrix.
+   */
   static fromScalingVec3(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
     return new Mat4(va[0], 0, 0, 0, 0, va[1], 0, 0, 0, 0, va[2], 0, 0, 0, 0, 1);
   }
 
+  /**
+   * Create a translation matrix.
+   *
+   * @param v The translation.
+   * @returns A new matrix.
+   */
   static fromTranslatingVec3(v: Vec3Like): Mat4 {
     const va = Array.isArray(v) ? v : [v.x, v.y, v.z];
     return new Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, va[0], va[1], va[2], 1);
   }
 
   /**
-   * Calculates a 4x4 matrix from the given quaternion
+   * Create a rotation matrix from a quaternion. The quaternion should be
+   * normalised; it is not normalised for you.
    *
-   * @param {quat} q Quaternion to create matrix from
-   *
-   * @returns {mat4} out
+   * @param q The rotation, ordered x, y, z, w.
+   * @returns A new matrix.
    */
   static fromQuat(q: QuatLike): Mat4 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
@@ -1005,20 +1149,20 @@ class Mat4 {
   }
 
   /**
-   * Creates a matrix from a quaternion rotation, vector translation and vector scale
-   * This is equivalent to (but much faster than):
+   * Create a matrix from a rotation, translation and scale. The result is
+   * `T × R × S`: points are scaled, then rotated, then translated. It gives the
+   * same result as the following, but faster:
    *
-   *     mat4.identity(dest);
-   *     mat4.translate(dest, vec);
-   *     let quatMat = mat4.create();
-   *     quat4.toMat4(quat, quatMat);
-   *     mat4.multiply(dest, quatMat);
-   *     mat4.scale(dest, scale)
+   * ```ts
+   * Mat4.fromTranslatingVec3(v)
+   *   .multiply(Mat4.fromQuat(q))
+   *   .scaleByVec3(s);
+   * ```
    *
-   * @param {quat4} q Rotation quaternion
-   * @param {vec3} v Translation vector
-   * @param {vec3} s Scaling vector
-   * @returns {mat4} out
+   * @param q The rotation, as a normalised quaternion ordered x, y, z, w.
+   * @param v The translation.
+   * @param s The x, y and z scale factors.
+   * @returns A new matrix.
    */
   static fromRotationTranslationScale(q: QuatLike, v: Vec3Like, s: Vec3Like): Mat4 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
@@ -1063,23 +1207,15 @@ class Mat4 {
   }
 
   /**
-   * Creates a matrix from a quaternion rotation, vector translation and vector scale, rotating and scaling around the given origin
-   * This is equivalent to (but much faster than):
+   * Like {@link Mat4.fromRotationTranslationScale}, but rotates and scales
+   * around the point `o` rather than the origin. The result is
+   * `T(v) × T(o) × R × S × T(-o)`.
    *
-   *     mat4.identity(dest);
-   *     mat4.translate(dest, vec);
-   *     mat4.translate(dest, origin);
-   *     let quatMat = mat4.create();
-   *     quat4.toMat4(quat, quatMat);
-   *     mat4.multiply(dest, quatMat);
-   *     mat4.scale(dest, scale)
-   *     mat4.translate(dest, negativeOrigin);
-   *
-   * @param {quat4} q Rotation quaternion
-   * @param {vec3} v Translation vector
-   * @param {vec3} s Scaling vector
-   * @param {vec3} o The origin vector around which to scale and rotate
-   * @returns {mat4} out
+   * @param q The rotation, as a normalised quaternion ordered x, y, z, w.
+   * @param v The translation.
+   * @param s The x, y and z scale factors.
+   * @param o The point to rotate and scale around.
+   * @returns A new matrix.
    */
   static fromRotationTranslationScaleOrigin(q: QuatLike, v: Vec3Like, s: Vec3Like, o: Vec3Like): Mat4 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
@@ -1138,15 +1274,17 @@ class Mat4 {
   }
 
   /**
-   * Generates a frustum matrix with the given bounds
+   * Create a perspective projection matrix from the bounds of a frustum, as
+   * `glFrustum` does. Right-handed: the camera looks down -z. Maps depth to
+   * WebGL clip space, where z runs from -1 (near) to 1 (far).
    *
-   * @param {Number} left Left bound of the frustum
-   * @param {Number} right Right bound of the frustum
-   * @param {Number} bottom Bottom bound of the frustum
-   * @param {Number} top Top bound of the frustum
-   * @param {Number} near Near bound of the frustum
-   * @param {Number} far Far bound of the frustum
-   * @returns {mat4} out
+   * @param left The left edge of the near plane.
+   * @param right The right edge of the near plane.
+   * @param bottom The bottom edge of the near plane.
+   * @param top The top edge of the near plane.
+   * @param near The distance to the near plane. Must be positive.
+   * @param far The distance to the far plane.
+   * @returns A new matrix.
    */
   static frustum(left: number, right: number, bottom: number, top: number, near: number, far: number) {
     const rl = 1 / (right - left),
@@ -1177,14 +1315,15 @@ class Mat4 {
   }
 
   /**
-   * Generates a perspective projection matrix with the given bounds.
-   * Passing null/undefined/no value for far will generate infinite projection matrix.
+   * Create a perspective projection matrix. Right-handed: the camera looks
+   * down -z. Maps depth to WebGL clip space, where z runs from -1 (near) to
+   * 1 (far).
    *
-   * @param {number} fovy Vertical field of view in radians
-   * @param {number} aspect Aspect ratio. typically viewport width/height
-   * @param {number} near Near bound of the frustum
-   * @param {number} far Far bound of the frustum, can be null or Infinity
-   * @returns {mat4} out
+   * @param fovy The vertical field of view, in radians.
+   * @param aspect The aspect ratio, usually the viewport width divided by its height.
+   * @param near The distance to the near plane. Must be positive.
+   * @param far The distance to the far plane. Pass `Infinity` for an infinite far plane.
+   * @returns A new matrix.
    */
   static perspective(fovy: number, aspect: number, near: number, far: number) {
     const f = 1.0 / Math.tan(fovy / 2);
@@ -1226,15 +1365,17 @@ class Mat4 {
   }
 
   /**
-   * Generates a orthogonal projection matrix with the given bounds
+   * Create an orthographic projection matrix, as `glOrtho` does. Right-handed:
+   * the camera looks down -z. Maps the box to WebGL clip space, where x, y and
+   * z all run from -1 to 1.
    *
-   * @param {number} left Left bound of the frustum
-   * @param {number} right Right bound of the frustum
-   * @param {number} bottom Bottom bound of the frustum
-   * @param {number} top Top bound of the frustum
-   * @param {number} near Near bound of the frustum
-   * @param {number} far Far bound of the frustum
-   * @returns {mat4} out
+   * @param left The left edge of the view box.
+   * @param right The right edge of the view box.
+   * @param bottom The bottom edge of the view box.
+   * @param top The top edge of the view box.
+   * @param near The distance to the near plane.
+   * @param far The distance to the far plane.
+   * @returns A new matrix.
    */
   static ortho(left: number, right: number, bottom: number, top: number, near: number, far: number) {
     const lr = 1 / (left - right),
@@ -1265,13 +1406,19 @@ class Mat4 {
   }
 
   /**
-   * Generates a look-at matrix with the given eye position, focal point, and up axis.
-   * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
+   * Create a view matrix for a camera at `eye` looking at `center`. This is
+   * the inverse of the camera's world transform, for use as a view matrix;
+   * the camera looks down its -z axis. To point an object at a target, use
+   * {@link Mat4.targetTo} instead.
    *
-   * @param {vec3} eye Position of the viewer
-   * @param {vec3} center Point the viewer is looking at
-   * @param {vec3} up vec3 pointing up
-   * @returns {mat4} out
+   * If `eye` and `center` are (almost) the same point, returns the identity
+   * matrix. If `up` is parallel to the view direction, the x and y axes of the
+   * result are zero.
+   *
+   * @param eye The position of the camera.
+   * @param center The point the camera looks at.
+   * @param up The up direction. Does not need to be normalised.
+   * @returns A new matrix.
    */
   static lookAt(eye: Vec3Like, center: Vec3Like, up: Vec3Like) {
     const ea = Array.isArray(eye) ? eye : [eye.x, eye.y, eye.z];
@@ -1349,12 +1496,18 @@ class Mat4 {
   }
 
   /**
-   * Generates a matrix that makes something look at something else.
+   * Create a world transform that places an object at `eye` with its -z axis
+   * pointing at `target` and its y axis towards `up`. This is the inverse of
+   * {@link Mat4.lookAt}.
    *
-   * @param {vec3} eye Position of the viewer
-   * @param {vec3} target Point the viewer is looking at
-   * @param {vec3} up vec3 pointing up
-   * @returns {mat4} out
+   * If `eye` and `target` are the same point, the object faces down -z. If
+   * `up` is parallel to the view direction, it is nudged slightly so the
+   * result is still valid.
+   *
+   * @param eye The position of the object.
+   * @param target The point the object faces.
+   * @param up The up direction. Does not need to be normalised.
+   * @returns A new matrix.
    */
   static targetTo(eye: Vec3Like, target: Vec3Like, up: Vec3Like) {
     const ea = Array.isArray(eye) ? eye : [eye.x, eye.y, eye.z];
@@ -1420,24 +1573,10 @@ class Mat4 {
       1
     );
   }
-  
-  /**
-   * Adds iteration to the object, allowing it 
-   * to be destructured and iterated upon in 
-   * various useful ways.
-  */
-  [Symbol.iterator]() {
-    let values = this.array;
-    let index = 0;
-    return {
-      next() {
-        if (index < values.length) {
-          let value = values[index];
-          index++;
-          return { value, done: false };
-        } else return { done: true }
-      }
-    }
+
+  /** Iterate over the elements in column-major order, so the matrix can be spread: `[...m]`. */
+  [Symbol.iterator](): Iterator<number> {
+    return this.array[Symbol.iterator]();
   }
 }
 

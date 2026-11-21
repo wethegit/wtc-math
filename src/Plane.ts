@@ -1,19 +1,57 @@
+/**
+ * An infinite plane in 3D space, stored as a normal and a constant so that
+ * points on the plane satisfy `normal · p + constant = 0`. Imported
+ * separately from the rest of wtc-math:
+ *
+ * ```ts
+ * import { Plane } from 'wtc-math/plane'
+ * ```
+ *
+ * @module wtc-math/plane
+ */
 import { Vec3 } from "./Vec3.js";
 import type { Vec3Like } from "./types.js";
 
+/**
+ * An infinite plane defined by `normal · p + constant = 0`.
+ *
+ * Distances are only true distances when `normal` is unit length. The
+ * constructor does not normalise it; {@link Plane.fromNormalAndPoint} and
+ * {@link Plane.fromPoints} do, and {@link Plane.normalize} fixes an existing
+ * plane.
+ */
 class Plane {
+  /** The plane's normal. Points on its side have a positive signed distance. */
   normal: Vec3;
+  /** The plane constant: the signed distance from the plane to the world origin, for a unit normal. */
   constant: number;
 
+  /**
+   * Creates a plane from a normal and constant. Neither is normalised.
+   *
+   * @param normal The plane normal. Defaults to `(0, 1, 0)`.
+   * @param constant The plane constant. Defaults to `0`, a plane through the origin.
+   */
   constructor(normal: Vec3Like = new Vec3(0, 1, 0), constant = 0) {
     this.normal = Vec3.interpolate(normal);
     this.constant = constant;
   }
 
+  /**
+   * Copies this plane.
+   *
+   * @returns A new plane with a copy of the normal and the same constant.
+   */
   clone(): Plane {
     return new Plane(this.normal.clone(), this.constant);
   }
 
+  /**
+   * Scales the normal to unit length and the constant by the same factor, so
+   * the plane stays in place. Modifies this plane.
+   *
+   * @returns This plane.
+   */
   normalize(): Plane {
     const inv = 1 / this.normal.length;
     this.normal.multiplyScalar(inv);
@@ -21,25 +59,52 @@ class Plane {
     return this;
   }
 
+  /**
+   * Flips the plane to face the other way by negating the normal and the
+   * constant. Modifies this plane.
+   *
+   * @returns This plane.
+   */
   negate(): Plane {
     this.normal.negate();
     this.constant = -this.constant;
     return this;
   }
 
-  // Signed distance — positive on the normal side, negative on the other
+  /**
+   * Signed distance from the plane to a point: positive on the normal side,
+   * negative on the other, zero on the plane. Scaled by the normal's length if
+   * it is not unit length.
+   *
+   * @param point The point to measure.
+   * @returns `normal · point + constant`.
+   */
   distanceTo(point: Vec3Like): number {
     const p = Vec3.interpolate(point);
     return this.normal.dot(p) + this.constant;
   }
 
-  // Projects a point onto the plane surface
+  /**
+   * Projects a point onto the plane surface along the normal. Assumes a unit
+   * normal.
+   *
+   * @param point The point to project.
+   * @returns A new {@link Vec3} on the plane.
+   */
   projectPoint(point: Vec3Like): Vec3 {
     const p = Vec3.interpolate(point);
     return p.subtractNew(this.normal.multiplyScalarNew(this.distanceTo(p)));
   }
 
-  // Returns intersection point along the line segment [start, end], or null if none
+  /**
+   * Finds where the line segment from `start` to `end` crosses the plane.
+   * Only hits within the segment count.
+   *
+   * @param start The start of the segment.
+   * @param end The end of the segment.
+   * @returns A new {@link Vec3} at the crossing, or `null` if the segment does
+   * not reach the plane or runs parallel to it.
+   */
   intersectLine(start: Vec3Like, end: Vec3Like): Vec3 | null {
     const s = Vec3.interpolate(start);
     const e = Vec3.interpolate(end);
@@ -51,12 +116,30 @@ class Plane {
     return s.addNew(d.multiplyScalar(t));
   }
 
+  /**
+   * Creates a plane with the given normal passing through a point. The normal
+   * is normalised.
+   *
+   * @param normal The plane normal.
+   * @param point Any point on the plane.
+   * @returns A new plane.
+   */
   static fromNormalAndPoint(normal: Vec3Like, point: Vec3Like): Plane {
     const n = Vec3.interpolate(normal).normalise();
     const p = Vec3.interpolate(point);
     return new Plane(n, -n.dot(p));
   }
 
+  /**
+   * Creates the plane through three points. The unit normal is
+   * `(b − a) × (c − a)`, so it faces the side from which `a`, `b`, `c` run
+   * anticlockwise.
+   *
+   * @param a The first point.
+   * @param b The second point.
+   * @param c The third point.
+   * @returns A new plane.
+   */
   static fromPoints(a: Vec3Like, b: Vec3Like, c: Vec3Like): Plane {
     const va = Vec3.interpolate(a);
     const vb = Vec3.interpolate(b);

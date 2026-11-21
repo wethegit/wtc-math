@@ -34,3 +34,7 @@ jobs:
 
       - name: Check
         run: npm run check
+
+      # TypeDoc fails on an undocumented export, and VitePress on a dead link
+      - name: Build docs
+        run: npm run docs:build

@@ -1,12 +1,34 @@
+/**
+ * A ray in 3D space, with intersection tests against planes, spheres and
+ * axis-aligned boxes. Imported separately from the rest of wtc-math:
+ *
+ * ```ts
+ * import { Ray } from 'wtc-math/ray'
+ * ```
+ *
+ * @module wtc-math/ray
+ */
 import { Vec3 } from "./Vec3.js";
 import type { Vec3Like } from "./types.js";
 import { Plane } from "./Plane.js";
 
+/**
+ * A half-line starting at `origin` and extending forever along `direction`.
+ * Intersection methods return the nearest hit point in front of the origin,
+ * or `null` if there is none.
+ */
 class Ray {
+  /** The point the ray starts from. */
   origin: Vec3;
+  /** The unit direction the ray travels in. */
   direction: Vec3;
 
-  // direction is normalized on construction
+  /**
+   * Creates a ray. The direction is normalised on construction.
+   *
+   * @param origin The start point. Defaults to `(0, 0, 0)`.
+   * @param direction The direction of travel. Defaults to `(0, 0, -1)`.
+   */
   constructor(
     origin: Vec3Like = new Vec3(0, 0, 0),
     direction: Vec3Like = new Vec3(0, 0, -1)
@@ -15,16 +37,32 @@ class Ray {
     this.direction = Vec3.interpolate(direction).normalise();
   }
 
+  /**
+   * Copies this ray.
+   *
+   * @returns A new ray with copies of the origin and direction.
+   */
   clone(): Ray {
     return new Ray(this.origin.clone(), this.direction.clone());
   }
 
-  // Point along the ray at parameter t
+  /**
+   * Gets the point at distance `t` along the ray.
+   *
+   * @param t Distance from the origin. Negative values give points behind it.
+   * @returns A new {@link Vec3}: `origin + direction * t`.
+   */
   at(t: number): Vec3 {
     return this.origin.addNew(this.direction.multiplyScalarNew(t));
   }
 
-  // Shortest distance from the ray to a point
+  /**
+   * Shortest distance from the ray to a point. Points behind the origin are
+   * measured to the origin.
+   *
+   * @param point The point to measure.
+   * @returns The distance.
+   */
   distanceTo(point: Vec3Like): number {
     const p = Vec3.interpolate(point);
     const diff = p.subtractNew(this.origin);
@@ -32,13 +70,26 @@ class Ray {
     return diff.subtractNew(this.direction.multiplyScalarNew(t)).length;
   }
 
-  // Closest point on the ray to a given point
+  /**
+   * Closest point on the ray to a given point. For points behind the origin
+   * this is the origin.
+   *
+   * @param point The point to test.
+   * @returns A new {@link Vec3} on the ray.
+   */
   closestPoint(point: Vec3Like): Vec3 {
     const p = Vec3.interpolate(point);
     const t = Math.max(0, p.subtractNew(this.origin).dot(this.direction));
     return this.at(t);
   }
 
+  /**
+   * Intersects the ray with a plane.
+   *
+   * @param plane The plane to test.
+   * @returns A new {@link Vec3} where the ray meets the plane, or `null` if
+   * the ray is parallel to the plane or the plane is behind the origin.
+   */
   intersectPlane(plane: Plane): Vec3 | null {
     const denom = plane.normal.dot(this.direction);
     if (Math.abs(denom) < 1e-6) return null;
@@ -47,6 +98,15 @@ class Ray {
     return this.at(t);
   }
 
+  /**
+   * Intersects the ray with a sphere. If the origin is inside the sphere,
+   * returns the exit point.
+   *
+   * @param center The centre of the sphere.
+   * @param radius The radius of the sphere.
+   * @returns A new {@link Vec3} at the nearest hit in front of the origin, or
+   * `null` if the ray misses or the sphere is behind it.
+   */
   intersectSphere(center: Vec3Like, radius: number): Vec3 | null {
     const c = Vec3.interpolate(center);
     const oc = this.origin.subtractNew(c);
@@ -60,7 +120,15 @@ class Ray {
     return this.at(t);
   }
 
-  // AABB intersection via the slab method — Infinity arithmetic handles axis-aligned rays correctly
+  /**
+   * Intersects the ray with an axis-aligned box using the slab method.
+   * Rays parallel to an axis are handled through `Infinity` arithmetic.
+   *
+   * @param min The box corner with the smallest x, y and z.
+   * @param max The box corner with the largest x, y and z.
+   * @returns A new {@link Vec3} where the ray enters the box, or `null` if it
+   * misses, the box is behind it, or the origin is inside the box.
+   */
   intersectBox(min: Vec3Like, max: Vec3Like): Vec3 | null {
     const lo = Vec3.interpolate(min);
     const hi = Vec3.interpolate(max);
