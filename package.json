@@ -50,11 +50,11 @@
   ],
   "scripts": {
     "build": "rm -rf dist && vite build",
-    "build:site": "npm run document && vite build --config vite.site.config.ts && cp -r documentation dist-site/docs",
-    "dev": "vite --config vite.site.config.ts",
-    "preview": "vite preview --config vite.site.config.ts",
+    "docs:api": "typedoc --options docs/typedoc.json",
+    "docs:dev": "npm run docs:api && vitepress dev docs --port 5274 --strictPort",
+    "docs:build": "npm run docs:api && vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "prepare": "husky install; npm run build",
-    "document": "npx typedoc src/index.ts",
     "test": "vitest run",
     "check": "tsc --noEmit -p tsconfig.json && npm test && npm run build",
     "changeset": "changeset",
@@ -64,15 +64,16 @@
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
-    "@types/markdown-it": "~14.1.1",
     "@types/node": "^25.7.0",
-    "@types/pug": "^2.0.10",
     "husky": "^9.0.11",
-    "pug": "^3.0.4",
     "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.14.1",
+    "typedoc-vitepress-theme": "^1.1.4",
     "vite": "^8.0.13",
     "vite-plugin-dts": "^5.0.0",
-    "vitest": "^5.0.4"
+    "vitepress": "1.6.4",
+    "vitest": "^5.0.4",
+    "vue": "^3.5.46"
   },
   "dependencies": {
     "typescript": "^6.0.3"

@@ -16,6 +16,9 @@ node_modules
 
 build/
 dist/
-dist-site/
-documentation/
 .vscode/
+
+# The docs site's generated API pages and build
+docs/api/
+docs/.vitepress/dist/
+docs/.vitepress/cache/

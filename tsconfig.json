@@ -9,17 +9,6 @@
     "declaration": true,
     "declarationDir": "./dist"
   },
-  "include": ["src", "test", "vite.config.ts", "vite.site.config.ts"],
-  "exclude": ["dist", "dist-site", "node_modules", "demos"],
-  "typedocOptions": {
-    "out": "documentation",
-    "entryPoints": "src/index.ts",
-    "exclude": ["dist/*+.ts*"],
-    "intentionallyNotExported": [
-      "V4Q",
-      "Mat3DeterminantFunction",
-      "Mat4DeterminantFunction",
-      "src/Mat3.ts:Mat4"
-    ]
-  }
+  "include": ["src", "test", "vite.config.ts"],
+  "exclude": ["dist", "node_modules", "docs"]
 }

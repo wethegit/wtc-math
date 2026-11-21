@@ -93,34 +93,33 @@ interface V4Q {
 }
 
 /**
- * A basic 3D Vector class that provides simple algebraic functionality in the form
- * of 3D Vectors.
+ * A four-component vector with x, y, z and w components.
  *
- * We use Getters/setters for both principle properties (x & y) as well as virtual
- * properties (rotation, length etc.).
+ * Most operations come in two forms: one that changes the vector in place and
+ * returns it for chaining (`add`), and a `…New` variant that returns a new
+ * vector and leaves the original unchanged (`addNew`). Components are exposed
+ * through getters and setters, along with derived values such as `length` and
+ * swizzles such as `xyz`.
  *
- * @class Vec4
  * @author Liam Egan <liam@wethecollective.com>
  * @version 1.0.0
  * @created Jan 07, 2020
  */
 class Vec4 implements V4Q {
   /**
-   * The Vector Class constructor
+   * Create a new vector. Missing or `NaN` components default to 0.
    *
-   * @constructor
-   * @param args The x, y, z and w coordinates
+   * @param args The x, y, z and w components, in that order.
    */
   constructor(...args: number[]) {
     this.reset(...args);
   }
 
   /**
-   * Resets the vector coordinates
+   * Set the components in place. Missing or `NaN` components are set to 0.
    *
-   * @public
-   * @chainable
-   * @param args The x, y, z and w coordinates
+   * @param args The x, y, z and w components, in that order.
+   * @returns This vector, for chaining.
    */
   reset(...args: number[]): V4Q {
     let [x, y, z, w] = args;
@@ -136,11 +135,11 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Resets the vector coordinates to another vector object
+   * Copy the components of another vector into this one, in place. Does
+   * nothing if `v` is not a Vec4 instance (a Quat counts, as it extends Vec4).
    *
-   * @public
-   * @chainable
-   * @param {Vec4} v 				The vector object to use to reset the coordinates
+   * @param v The vector to copy from.
+   * @returns This vector, for chaining.
    */
   resetToVector(v: V4Q): V4Q {
     if (v instanceof Vec4) {
@@ -153,22 +152,19 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Clones the vector
+   * Create a copy of this vector.
    *
-   * @public
-   * @return {Vec4}					The cloned vector
+   * @returns A new Vec4 with the same components.
    */
   clone(): V4Q {
     return new Vec4(this.x, this.y, this.z, this.w);
   }
 
   /**
-   * Adds one vector to another.
+   * Add another vector to this one, component by component, in place.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to add to this one
-   * @return {Vec4}					Returns itself, modified
+   * @param vector The vector to add.
+   * @returns This vector, for chaining.
    */
   add(vector: V4Q): V4Q {
     this.x += vector.x;
@@ -178,47 +174,39 @@ class Vec4 implements V4Q {
     return this;
   }
   /**
-   * Clones the vector and adds the vector to it instead
+   * Like `add`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to add to this one
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param vector The vector to add.
+   * @returns A new vector holding the sum.
    */
   addNew(vector: V4Q): V4Q {
     return this.clone().add(vector);
   }
 
   /**
-   * Adds a scalar to the vector, modifying both the x and y
+   * Add a scalar to every component, in place.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to add to the vector
-   * @return {Vec4}					Returns itself, modified
+   * @param scalar The value to add to x, y, z and w.
+   * @returns This vector, for chaining.
    */
   addScalar(scalar: number): V4Q {
     return this.add(new Vec4(scalar, scalar, scalar, scalar));
   }
   /**
-   * Clones the vector and adds the scalar to it instead
+   * Like `addScalar`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to add to the vector
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param scalar The value to add to x, y, z and w.
+   * @returns A new vector holding the result.
    */
   addScalarNew(scalar: number): V4Q {
     return this.clone().addScalar(scalar);
   }
 
   /**
-   * Subtracts one vector from another.
+   * Subtract another vector from this one, component by component, in place.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to subtract from this one
-   * @return {Vec4}					Returns itself, modified
+   * @param vector The vector to subtract.
+   * @returns This vector, for chaining.
    */
   subtract(vector: V4Q): V4Q {
     this.x -= vector.x;
@@ -228,47 +216,41 @@ class Vec4 implements V4Q {
     return this;
   }
   /**
-   * Clones the vector and subtracts the vector from it instead
+   * Like `subtract`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to subtract from this one
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param vector The vector to subtract.
+   * @returns A new vector holding the difference.
    */
   subtractNew(vector: V4Q): V4Q {
     return this.clone().subtract(vector);
   }
 
   /**
-   * Subtracts a scalar from the vector, modifying both the x and y
+   * Subtract a scalar from every component, in place.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to subtract from the vector
-   * @return {Vec4}					Returns itself, modified
+   * @param scalar The value to subtract from x, y, z and w.
+   * @returns This vector, for chaining.
    */
   subtractScalar(scalar: number): V4Q {
     return this.subtract(new Vec4(scalar, scalar, scalar, scalar));
   }
   /**
-   * Clones the vector and subtracts the scalar from it instead
+   * Like `subtractScalar`, but returns a new vector and leaves this one
+   * unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to add to the vector
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param scalar The value to subtract from x, y, z and w.
+   * @returns A new vector holding the result.
    */
   subtractScalarNew(scalar: number): V4Q {
     return this.clone().subtractScalar(scalar);
   }
 
   /**
-   * Divides one vector by another.
+   * Divide this vector by another, component by component, in place. Any
+   * component divided by 0 is set to 0 rather than `Infinity`.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to divide this by
-   * @return {Vec4}					Returns itself, modified
+   * @param vector The vector to divide by.
+   * @returns This vector, for chaining.
    */
   divide(vector: V4Q): V4Q {
     if (vector.x !== 0) {
@@ -294,48 +276,42 @@ class Vec4 implements V4Q {
     return this;
   }
   /**
-   * Clones the vector and divides it by the vector instead
+   * Like `divide`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to divide the clone by
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param vector The vector to divide by.
+   * @returns A new vector holding the quotient.
    */
   divideNew(vector: V4Q): V4Q {
     return this.clone().divide(vector);
   }
 
   /**
-   * Divides the vector by a scalar.
+   * Divide every component by a scalar, in place. Dividing by 0 sets every
+   * component to 0.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to divide both x and y by
-   * @return {Vec4}					Returns itself, modified
+   * @param scalar The value to divide x, y, z and w by.
+   * @returns This vector, for chaining.
    */
   divideScalar(scalar: number): V4Q {
     var v = new Vec4(scalar, scalar, scalar, scalar);
     return this.divide(v);
   }
   /**
-   * Clones the vector and divides it by the provided scalar.
+   * Like `divideScalar`, but returns a new vector and leaves this one
+   * unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to divide both x and y by
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param scalar The value to divide x, y, z and w by.
+   * @returns A new vector holding the result.
    */
   divideScalarNew(scalar: number): V4Q {
     return this.clone().divideScalar(scalar);
   }
 
   /**
-   * Multiplies one vector by another.
+   * Multiply this vector by another, component by component, in place.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  vector The vector to multiply this by
-   * @return {Vec4}					Returns itself, modified
+   * @param vector The vector to multiply by.
+   * @returns This vector, for chaining.
    */
   multiply(vector: V4Q): V4Q {
     this.x *= vector.x;
@@ -345,54 +321,64 @@ class Vec4 implements V4Q {
     return this;
   }
   /**
-   * Clones the vector and multiplies it by the vector instead
+   * Like `multiply`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {Vec4}  q The vector to multiply the clone by
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param q The vector to multiply by.
+   * @returns A new vector holding the product.
    */
   multiplyNew(q: V4Q): V4Q {
     return this.clone().multiply(q);
   }
 
   /**
-   * Multiplies the vector by a scalar.
+   * Multiply every component by a scalar, in place.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to multiply both x and y by
-   * @return {Vec4}					Returns itself, modified
+   * @param scalar The value to multiply x, y, z and w by.
+   * @returns This vector, for chaining.
    */
   multiplyScalar(scalar: number): V4Q {
     var v: Vec4 = new Vec4(scalar, scalar, scalar, scalar);
     return this.multiply(v);
   }
   /**
-   * Clones the vector and multiplies it by the provided scalar.
+   * Like `multiplyScalar`, but returns a new vector and leaves this one
+   * unchanged.
    *
-   * @public
-   * @chainable
-   * @param  {number}  scalar The scalar to multiply both x and y by
-   * @return {Vec4}					Returns the clone of itself, modified
+   * @param scalar The value to multiply x, y, z and w by.
+   * @returns A new vector holding the result.
    */
   multiplyScalarNew(scalar: number): V4Q {
     return this.clone().multiplyScalar(scalar);
   }
 
   /**
-   * Alias of {@link multiplyScalar}
+   * Alias of `multiplyScalar`: multiply every component by a scalar, in place.
+   *
+   * @param scalar The value to multiply x, y, z and w by.
+   * @returns This vector, for chaining.
    */
   scale(scalar: number): V4Q {
     return this.multiplyScalar(scalar);
   }
   /**
-   * Alias of {@link multiplyScalarNew}
+   * Alias of `multiplyScalarNew`: like `scale`, but returns a new vector and
+   * leaves this one unchanged.
+   *
+   * @param scalar The value to multiply x, y, z and w by.
+   * @returns A new vector holding the result.
    */
   scaleNew(scalar: number): V4Q {
     return this.multiplyScalarNew(scalar);
   }
 
+  /**
+   * Rotate the vector around the X axis through a point, in place. Only y and
+   * z change; x and w are left as they are.
+   *
+   * @param origin The point to rotate around. Only its y and z are used.
+   * @param radian The angle in radians.
+   * @returns This vector, for chaining.
+   */
   rotateX(origin: V4Q, radian: number): V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -406,10 +392,25 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `rotateX`, but returns a new vector and leaves this one unchanged.
+   *
+   * @param origin The point to rotate around.
+   * @param radian The angle in radians.
+   * @returns A new, rotated copy.
+   */
   rotateXNew(origin: V4Q, radian: number): V4Q {
     return this.clone().rotateX(origin, radian);
   }
 
+  /**
+   * Rotate the vector around the Y axis through a point, in place. Only x and
+   * z change; y and w are left as they are.
+   *
+   * @param origin The point to rotate around. Only its x and z are used.
+   * @param radian The angle in radians.
+   * @returns This vector, for chaining.
+   */
   rotateY(origin: V4Q, radian: number): V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -423,10 +424,25 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `rotateY`, but returns a new vector and leaves this one unchanged.
+   *
+   * @param origin The point to rotate around.
+   * @param radian The angle in radians.
+   * @returns A new, rotated copy.
+   */
   rotateYNew(origin: V4Q, radian: number): V4Q {
     return this.clone().rotateY(origin, radian);
   }
 
+  /**
+   * Rotate the vector around the Z axis through a point, in place. Only x and
+   * y change; z and w are left as they are.
+   *
+   * @param origin The point to rotate around. Only its x and y are used.
+   * @param radian The angle in radians.
+   * @returns This vector, for chaining.
+   */
   rotateZ(origin: V4Q, radian: number): V4Q {
     const s = Math.sin(radian);
     const c = Math.cos(radian);
@@ -440,10 +456,24 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `rotateZ`, but returns a new vector and leaves this one unchanged.
+   *
+   * @param origin The point to rotate around.
+   * @param radian The angle in radians.
+   * @returns A new, rotated copy.
+   */
   rotateZNew(origin: V4Q, radian: number): V4Q {
     return this.clone().rotateZ(origin, radian);
   }
 
+  /**
+   * Multiply the vector by a 4×4 matrix (`m × v`), in place. The matrix is
+   * read in column-major order, as WebGL uses.
+   *
+   * @param m The matrix, as a Mat4 or a 16-element array.
+   * @returns This vector, for chaining.
+   */
   transformByMat4(m: Mat4Like): V4Q {
     const ma = Array.isArray(m) ? m : m.array;
     const o = this.clone();
@@ -454,10 +484,24 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `transformByMat4`, but returns a new vector and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix, as a Mat4 or a 16-element array.
+   * @returns A new, transformed vector.
+   */
   transformByMat4New(m: Mat4Like): V4Q {
     return this.clone().transformByMat4(m);
   }
 
+  /**
+   * Rotate the x, y and z components by a quaternion, in place. w is left as
+   * it is. The quaternion should be normalised.
+   *
+   * @param q The quaternion, as a Quat or an `[x, y, z, w]` array.
+   * @returns This vector, for chaining.
+   */
   transformByQuat(q: QuatLike): V4Q {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
     const uv = new Vec4(
@@ -472,38 +516,40 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `transformByQuat`, but returns a new vector and leaves this one
+   * unchanged.
+   *
+   * @param q The quaternion, as a Quat or an `[x, y, z, w]` array.
+   * @returns A new, rotated vector.
+   */
   transformByQuatNew(q: QuatLike): V4Q {
     return this.clone().transformByQuat(q);
   }
 
   /**
-   * Negates the vector.
+   * Negate every component, in place.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns itself, modified
+   * @returns This vector, for chaining.
    */
   negate(): V4Q {
     return this.multiplyScalar(-1);
   }
 
   /**
-   * Clones the vector and negates it.
+   * Like `negate`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns itself, modified
+   * @returns A new, negated vector.
    */
   negateNew(): V4Q {
     return this.multiplyScalarNew(-1);
   }
 
   /**
-   * Inverses the vector.
+   * Replace every component with its reciprocal (`1 / n`), in place. A 0
+   * component becomes `Infinity`.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns itself, modified
+   * @returns This vector, for chaining.
    */
   inverse(): V4Q {
     this.x = 1 / this.x;
@@ -514,11 +560,9 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Clones the vector and then inverses it.
+   * Like `inverse`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns itself, modified
+   * @returns A new vector holding the reciprocals.
    */
   inverseNew(): V4Q {
     const c: V4Q = this.clone();
@@ -530,11 +574,10 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Normalises the vector down to a length of 1 unit
+   * Scale the vector to a length of 1, in place. A zero-length vector becomes
+   * `(0, 0, 0, 1)`.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns itself, modified
+   * @returns This vector, for chaining.
    */
   normalise(): V4Q {
     const l: number = this.length;
@@ -549,77 +592,74 @@ class Vec4 implements V4Q {
     return this;
   }
   /**
-   * Clones the vector and normalises it
+   * Like `normalise`, but returns a new vector and leaves this one unchanged.
    *
-   * @public
-   * @chainable
-   * @return {Vec4}					Returns a clone of itself, modified
+   * @returns A new, normalised vector.
    */
   normaliseNew(): V4Q {
     return this.clone().normalise();
   }
 
   /**
-   * Calculates the distance between this and the supplied vector
+   * The distance between this vector and another.
    *
-   * @param  {Vec4} vector The vector to calculate the distance from
-   * @return {number}        The distance between this and the supplied vector
+   * @param vector The other vector.
+   * @returns The length of the difference between the two vectors.
    */
   distance(vector: V4Q): number {
     return this.subtractNew(vector).length;
   }
 
   /**
-   * Calculates the distance on the X axis between this and the supplied vector
+   * The signed difference between the x components of this vector and another.
    *
-   * @param  {Vec4} vector The vector to calculate the distance from
-   * @return {number}        The distance, along the x axis, between this and the supplied vector
+   * @param vector The other vector.
+   * @returns `this.x - vector.x`. Can be negative.
    */
   distanceX(vector: V4Q): number {
     return this.x - vector.x;
   }
 
   /**
-   * Calculated the distance on the Y axis between this and the supplied vector
+   * The signed difference between the y components of this vector and another.
    *
-   * @param  {Vec4} vector The vector to calculate the distance from
-   * @return {number}        The distance, along the y axis, between this and the supplied vector
+   * @param vector The other vector.
+   * @returns `this.y - vector.y`. Can be negative.
    */
   distanceY(vector: V4Q): number {
     return this.y - vector.y;
   }
 
   /**
-   * Calculated the distance on the Z axis between this and the supplied vector
+   * The signed difference between the z components of this vector and another.
    *
-   * @param  {Vec4} vector The vector to calculate the distance from
-   * @return {number}        The distance, along the y axis, between this and the supplied vector
+   * @param vector The other vector.
+   * @returns `this.z - vector.z`. Can be negative.
    */
   distanceZ(vector: V4Q): number {
     return this.z - vector.z;
   }
 
   /**
-   * Calculated the distance on the W axis between this and the supplied vector
+   * The signed difference between the w components of this vector and another.
    *
-   * @param  {Vec4} vector The vector to calculate the distance from
-   * @return {number}        The distance, along the y axis, between this and the supplied vector
+   * @param vector The other vector.
+   * @returns `this.w - vector.w`. Can be negative.
    */
   distanceW(vector: V4Q): number {
     return this.w - vector.w;
   }
 
   /**
-   * Calculates the dot product between this and a supplied vector
+   * The dot product of this vector and another.
    *
    * @example
-   * // returns -14
-   * new Vector(2, -3).dot(new Vector(-4, 2))
-   * new Vector(-4, 2).dot(new Vector(2, -3))
-   * new Vector(2, -4).dot(new Vector(-3, 2))
+   * ```ts
+   * new Vec4(1, 2, 3, 4).dot(new Vec4(5, 6, 7, 8)); // 70
+   * ```
    *
-   * @param  {Vec4} vector The vector object against which to calculate the dot product
-   * @return {number}        The dot product of the two vectors
+   * @param vector The other vector.
+   * @returns The sum of the products of the matching components.
    */
   dot(vector: V4Q): number {
     return (
@@ -631,18 +671,12 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Calculates the cross product between this and two other supplied vectors
+   * The four-dimensional cross product of this vector and two others: a
+   * vector perpendicular to all three. Does not change this vector.
    *
-   * @example
-   * // returns -2
-   * new Vector(2, -3).cross(new Vector(-4, 2))
-   * new Vector(-4, 2).cross(new Vector(2, -3))
-   * // returns 2
-   * new Vector(2, -4).cross(new Vector(-3, 2))
-   *
-   * @param  {Vec4} v The first other vector
-   * @param  {Vec4} w The second other vector
-   * @return {Vec4}        The cross product of the two vectors
+   * @param v The second vector.
+   * @param w The third vector.
+   * @returns A new Vec4 holding the result.
    */
   cross(v: V4Q, w: V4Q): V4Q {
     const u = this.clone();
@@ -666,10 +700,22 @@ class Vec4 implements V4Q {
     );
   }
 
+  /**
+   * Same as `cross`: returns a new vector and leaves this one unchanged.
+   *
+   * @param v The second vector.
+   * @param w The third vector.
+   * @returns A new Vec4 holding the result.
+   */
   crossNew(v: V4Q, w: V4Q): V4Q {
     return this.clone().cross(v, w);
   }
 
+  /**
+   * Round every component up to the nearest integer, in place.
+   *
+   * @returns This vector, for chaining.
+   */
   ceil(): V4Q {
     this.x = Math.ceil(this.x);
     this.y = Math.ceil(this.y);
@@ -678,10 +724,20 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `ceil`, but returns a new vector and leaves this one unchanged.
+   *
+   * @returns A new, rounded vector.
+   */
   ceilNew(): V4Q {
     return this.clone().ceil();
   }
 
+  /**
+   * Round every component down to the nearest integer, in place.
+   *
+   * @returns This vector, for chaining.
+   */
   floor(): V4Q {
     this.x = Math.floor(this.x);
     this.y = Math.floor(this.y);
@@ -690,10 +746,21 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `floor`, but returns a new vector and leaves this one unchanged.
+   *
+   * @returns A new, rounded vector.
+   */
   floorNew(): V4Q {
     return this.clone().floor();
   }
 
+  /**
+   * Round every component to the nearest integer, in place, using
+   * `Math.round` (halves round up).
+   *
+   * @returns This vector, for chaining.
+   */
   round(): V4Q {
     this.x = Math.round(this.x);
     this.y = Math.round(this.y);
@@ -702,10 +769,22 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `round`, but returns a new vector and leaves this one unchanged.
+   *
+   * @returns A new, rounded vector.
+   */
   roundNew(): V4Q {
     return this.clone().round();
   }
 
+  /**
+   * Replace every component with its fractional part (`n - floor(n)`), in
+   * place. Results are always in the range [0, 1), including for negative
+   * values.
+   *
+   * @returns This vector, for chaining.
+   */
   fract(): V4Q {
     this.x -= Math.floor(this.x);
     this.y -= Math.floor(this.y);
@@ -714,21 +793,21 @@ class Vec4 implements V4Q {
     return this;
   }
 
+  /**
+   * Like `fract`, but returns a new vector and leaves this one unchanged.
+   *
+   * @returns A new vector holding the fractional parts.
+   */
   fractNew(): V4Q {
     return this.clone().fract();
   }
 
-  /**
-   * Getters and setters
-   */
+  // Getters and setters
 
-  /**
-   * (getter/setter) The x value of the vector.
-   *
-   * @type {number}
-   * @default 0
-   */
   private _x: number = 0;
+  /**
+   * Set the x component. Throws a `TypeError` if the value is not a number.
+   */
   set x(x) {
     if (typeof x == "number") {
       this._x = x;
@@ -736,17 +815,19 @@ class Vec4 implements V4Q {
       throw new TypeError("X should be a number");
     }
   }
+  /**
+   * The x component of the vector.
+   *
+   * @default 0
+   */
   get x() {
     return this._x || 0;
   }
 
-  /**
-   * (getter/setter) The y value of the vector.
-   *
-   * @type {number}
-   * @default 0
-   */
   private _y: number = 0;
+  /**
+   * Set the y component. Throws a `TypeError` if the value is not a number.
+   */
   set y(y) {
     if (typeof y == "number") {
       this._y = y;
@@ -754,17 +835,19 @@ class Vec4 implements V4Q {
       throw new TypeError("Y should be a number");
     }
   }
+  /**
+   * The y component of the vector.
+   *
+   * @default 0
+   */
   get y() {
     return this._y || 0;
   }
 
-  /**
-   * (getter/setter) The y value of the vector.
-   *
-   * @type {number}
-   * @default 0
-   */
   private _z: number = 0;
+  /**
+   * Set the z component. Throws a `TypeError` if the value is not a number.
+   */
   set z(z) {
     if (typeof z == "number") {
       this._z = z;
@@ -772,17 +855,19 @@ class Vec4 implements V4Q {
       throw new TypeError("Z should be a number");
     }
   }
+  /**
+   * The z component of the vector.
+   *
+   * @default 0
+   */
   get z() {
     return this._z || 0;
   }
 
-  /**
-   * (getter/setter) The y value of the vector.
-   *
-   * @type {number}
-   * @default 0
-   */
   private _w: number = 0;
+  /**
+   * Set the w component. Throws a `TypeError` if the value is not a number.
+   */
   set w(w) {
     if (typeof w == "number") {
       this._w = w;
@@ -790,16 +875,21 @@ class Vec4 implements V4Q {
       throw new TypeError("W should be a number");
     }
   }
+  /**
+   * The w component of the vector.
+   *
+   * @default 0
+   */
   get w() {
     return this._w || 0;
   }
 
   /**
-   * (getter/setter) The length of the vector presented as a square. If you're using
-   * length for comparison, this is quicker.
+   * Scale the vector by `value / lengthSquared`. Throws a `TypeError` if the
+   * value is not a number.
    *
-   * @type {number}
-   * @default 0
+   * Note that this does not leave `lengthSquared` equal to the value set: the
+   * squared length ends up as `value² / lengthSquared`.
    */
   set lengthSquared(length: number) {
     var factor;
@@ -810,6 +900,10 @@ class Vec4 implements V4Q {
       throw new TypeError("length should be a number");
     }
   }
+  /**
+   * The squared length of the vector. Quicker than `length` when you only
+   * need to compare lengths.
+   */
   get lengthSquared(): number {
     return (
       this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w
@@ -817,10 +911,9 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * (getter/setter) The length of the vector
-   *
-   * @type {number}
-   * @default 0
+   * Set the length of the vector, scaling it while keeping its direction.
+   * A zero-length vector cannot be scaled and its components become `NaN`.
+   * Throws a `TypeError` if the value is not a number.
    */
   set length(length: number) {
     var factor;
@@ -831,77 +924,53 @@ class Vec4 implements V4Q {
       throw new TypeError("length should be a number");
     }
   }
+  /** The length of the vector. */
   get length(): number {
     return Math.sqrt(this.lengthSquared);
   }
 
-  /**
-   * (getter/setter) Vector width.
-   * Alias of {@link x}
-   *
-   * @type {number}
-   */
+  /** Set the x component. Alias of `x`. */
   set width(w: number) {
     this.x = w;
   }
+  /** The x component. Alias of `x`, for vectors used as sizes. */
   get width(): number {
     return this.x;
   }
 
-  /**
-   * (getter/setter) Vector height.
-   * Alias of {@link y}
-   *
-   * @type {number}
-   */
+  /** Set the y component. Alias of `y`. */
   set height(h: number) {
     this.y = h;
   }
+  /** The y component. Alias of `y`, for vectors used as sizes. */
   get height(): number {
     return this.y;
   }
 
-  /**
-   * (getter/setter) Vector depth.
-   * Alias of {@link z}
-   *
-   * @type {number}
-   */
+  /** Set the z component. Alias of `z`. */
   set depth(h: number) {
     this.z = h;
   }
+  /** The z component. Alias of `z`, for vectors used as sizes. */
   get depth(): number {
     return this.z;
   }
 
-  /**
-   * (getter) Vector area.
-   * @readonly
-   *
-   * @type {number}
-   */
+  /** The product of all four components (`x * y * z * w`). Read-only. */
   get area(): number {
     return this.x * this.y * this.z * this.w;
   }
 
-  /**
-   * (getter) Returns the basic array representation of this vector.
-   * @readonly
-   *
-   * @type {number}
-   */
+  /** The components as a new `[x, y, z, w]` array. Read-only. */
   get array(): number[] {
     return [this.x, this.y, this.z, this.w];
   }
 
-  /**
-   * (getter/sette) Swizzle XYZW
-   *
-   * @type {Vec4}
-   */
+  /** The x, y, z and w components as a new Vec4. */
   get xyzw(): Vec4 {
     return new Vec4(this.x, this.y, this.z, this.w);
   }
+  /** Set x, y, z and w from a Vec4 or array, in that order. */
   set xyzw(v: Vec4Like) {
     if (Array.isArray(v)) {
       this.x = v[0]; this.y = v[1]; this.z = v[2]; this.w = v[3];
@@ -910,14 +979,11 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle YZWX
-   *
-   * @type {Vec4}
-   */
+  /** The y, z, w and x components as a new Vec4. */
   get yzwx(): Vec4 {
     return new Vec4(this.y, this.z, this.w, this.x);
   }
+  /** Set y, z, w and x from a Vec4 or array, in that order. */
   set yzwx(v: Vec4Like) {
     if (Array.isArray(v)) {
       this.y = v[0]; this.z = v[1]; this.w = v[2]; this.x = v[3];
@@ -926,14 +992,11 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle ZWXY
-   *
-   * @type {Vec4}
-   */
+  /** The z, w, x and y components as a new Vec4. */
   get zwxy(): Vec4 {
     return new Vec4(this.z, this.w, this.x, this.y);
   }
+  /** Set z, w, x and y from a Vec4 or array, in that order. */
   set zwxy(v: Vec4Like) {
     if (Array.isArray(v)) {
       this.z = v[0]; this.w = v[1]; this.x = v[2]; this.y = v[3];
@@ -942,14 +1005,11 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle WXYZ
-   *
-   * @type {Vec4}
-   */
+  /** The w, x, y and z components as a new Vec4. */
   get wxyz(): Vec4 {
     return new Vec4(this.w, this.x, this.y, this.z);
   }
+  /** Set w, x, y and z from a Vec4 or array, in that order. */
   set wxyz(v: Vec4Like) {
     if (Array.isArray(v)) {
       this.w = v[0]; this.x = v[1]; this.y = v[2]; this.z = v[3];
@@ -960,14 +1020,11 @@ class Vec4 implements V4Q {
 
   // I'm skipping all the silly combinations of 4 here because they're largely useless
 
-  /**
-   * (getter/sette) Swizzle YZX
-   *
-   * @type {Vec3}
-   */
+  /** The x, y and z components as a new Vec3. */
   get xyz(): Vec3 {
     return new Vec3(this.x, this.y, this.z);
   }
+  /** Set x, y and z from a Vec3 or array, in that order. w is unchanged. */
   set xyz(v: Vec3Like) {
     if (Array.isArray(v)) {
       this.x = v[0];
@@ -980,14 +1037,14 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle YZX
-   *
-   * @type {Vec3}
-   */
+  /** The y, z and x components as a new Vec3. */
   get yzx(): Vec3 {
     return new Vec3(this.y, this.z, this.x);
   }
+  /**
+   * Set x, y and z from a Vec3 or array: x from the second component, y from
+   * the third and z from the first. w is unchanged.
+   */
   set yzx(v: Vec3Like) {
     if (Array.isArray(v)) {
       this.x = v[1];
@@ -1000,14 +1057,14 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle ZXY
-   *
-   * @type {Vec3}
-   */
+  /** The z, x and y components as a new Vec3. */
   get zxy(): Vec3 {
     return new Vec3(this.z, this.x, this.y);
   }
+  /**
+   * Set x, y and z from a Vec3 or array: x from the third component, y from
+   * the first and z from the second. w is unchanged.
+   */
   set zxy(v: Vec3Like) {
     if (Array.isArray(v)) {
       this.x = v[2];
@@ -1020,235 +1077,208 @@ class Vec4 implements V4Q {
     }
   }
 
-  /**
-   * (getter/sette) Swizzle XX
-   *
-   * @type {number}
-   */
+  /** The x component twice, as a new Vec2. */
   get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
+  /**
+   * Set x from the second component of a Vec2 or array. The first component
+   * is ignored.
+   */
   set xx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle XY
-   *
-   * @type {Vec2}
-   */
+  /** The x and y components as a new Vec2. */
   get xy(): Vec2 {
     return new Vec2(this.x, this.y);
   }
+  /** Set x and y from a Vec2 or array, in that order. */
   set xy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.y = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle XY
-   *
-   * @type {Vec2}
-   */
+  /** The x and z components as a new Vec2. */
   get xz(): Vec2 {
     return new Vec2(this.x, this.z);
   }
+  /** Set x and z from a Vec2 or array, in that order. */
   set xz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.z = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle XY
-   *
-   * @type {Vec2}
-   */
+  /** The x and w components as a new Vec2. */
   get xw(): Vec2 {
     return new Vec2(this.x, this.w);
   }
+  /** Set x and w from a Vec2 or array, in that order. */
   set xw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.x;
     this.w = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle YX
-   *
-   * @type {number}
-   */
+  /** The y and x components as a new Vec2. */
   get yx(): Vec2 {
     return new Vec2(this.y, this.x);
   }
+  /** Set y and x from a Vec2 or array, in that order. */
   set yx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.x = v.y;
     this.y = v.x;
   }
 
-  /**
-   * (getter/sette) Swizzle YY
-   *
-   * @type {number}
-   */
+  /** The y component twice, as a new Vec2. */
   get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
+  /**
+   * Set y from the second component of a Vec2 or array. The first component
+   * is ignored.
+   */
   set yy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle YZ
-   *
-   * @type {Vec2}
-   */
+  /** The y and z components as a new Vec2. */
   get yz(): Vec2 {
     return new Vec2(this.y, this.z);
   }
+  /** Set y and z from a Vec2 or array, in that order. */
   set yz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.z = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle YZ
-   *
-   * @type {Vec2}
-   */
+  /** The y and w components as a new Vec2. */
   get yw(): Vec2 {
     return new Vec2(this.y, this.w);
   }
+  /** Set y and w from a Vec2 or array, in that order. */
   set yw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.y = v.x;
     this.w = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle zx
-   *
-   * @type {Vec2}
-   */
+  /** The z and x components as a new Vec2. */
   get zx(): Vec2 {
     return new Vec2(this.z, this.x);
   }
+  /** Set z and x from a Vec2 or array, in that order. */
   set zx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.x = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle ZY
-   *
-   * @type {number}
-   */
+  /** The z and y components as a new Vec2. */
   get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
+  /**
+   * Set z and y from a Vec2 or array. Note that z is taken from the second
+   * component and y from the first, the reverse of the getter's order.
+   */
   set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
     this.y = v.x;
   }
 
-  /**
-   * (getter/sette) Swizzle ZZ
-   *
-   * @type {number}
-   */
+  /** The z component twice, as a new Vec2. */
   get zz(): Vec2 {
     return new Vec2(this.z, this.z);
   }
+  /**
+   * Set z from the second component of a Vec2 or array. The first component
+   * is ignored.
+   */
   set zz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle XY
-   *
-   * @type {Vec2}
-   */
+  /** The z and w components as a new Vec2. */
   get zw(): Vec2 {
     return new Vec2(this.z, this.w);
   }
+  /** Set z and w from a Vec2 or array, in that order. */
   set zw(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.z = v.x;
     this.w = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle wx
-   *
-   * @type {Vec2}
-   */
+  /** The w and x components as a new Vec2. */
   get wx(): Vec2 {
     return new Vec2(this.w, this.x);
   }
+  /** Set w and x from a Vec2 or array, in that order. */
   set wx(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.x = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle WY
-   *
-   * @type {number}
-   */
+  /** The w and y components as a new Vec2. */
   get wy(): Vec2 {
     return new Vec2(this.w, this.y);
   }
+  /** Set w and y from a Vec2 or array, in that order. */
   set wy(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.y = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle WZ
-   *
-   * @type {number}
-   */
+  /** The w and z components as a new Vec2. */
   get wz(): Vec2 {
     return new Vec2(this.w, this.z);
   }
+  /** Set w and z from a Vec2 or array, in that order. */
   set wz(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.x;
     this.z = v.y;
   }
 
-  /**
-   * (getter/sette) Swizzle WW
-   *
-   * @type {Vec2}
-   */
+  /** The w component twice, as a new Vec2. */
   get ww(): Vec2 {
     return new Vec2(this.w, this.w);
   }
+  /**
+   * Set w from the second component of a Vec2 or array. The first component
+   * is ignored.
+   */
   set ww(v: Vec2Like) {
     v = Vec2.interpolate(v);
     this.w = v.y;
   }
 
-  /**
-   * Static methods
-   */
+  // Static methods
 
   /**
-   * Iterpolates a provided anonymous value into a vew Vec4
+   * Convert a loosely typed value into a new Vec4.
    *
-   * @param {Vec4|array|string|number} v The value to interpolate
-   * @returns {Vec4} out
+   * - A number is used for all four components.
+   * - A string is read as comma-separated `"x, y, z, w"`.
+   * - An array is read as `[x, y, z, w]`.
+   * - Any other object is read from its x, y, z and w properties.
+   *
+   * Throws an `Error` for `NaN`, or for a string with fewer than four numeric
+   * values.
+   *
+   * @param v The value to convert.
+   * @returns A new Vec4.
    */
   static interpolate(v: Vec4Like | number | string): Vec4 {
     if (typeof v === "number") {
@@ -1273,12 +1303,13 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Performs a linear interpolation between two Vec4's
+   * Linearly interpolate between two vectors. `d` is not clamped, so values
+   * outside 0–1 extrapolate.
    *
-   * @param {Vec4} v1 the first operand
-   * @param {Vec4} v2 the second operand
-   * @param {Number} d interpolation amount in the range of 0 - 1
-   * @returns {Vec4}
+   * @param v1 The start vector, returned when `d` is 0.
+   * @param v2 The end vector, returned when `d` is 1.
+   * @param d The interpolation amount, usually from 0 to 1.
+   * @returns A new Vec4 (also when called as `Quat.lerp`).
    */
   static lerp(v1: Vec4, v2: Vec4, d: number) {
     return new Vec4(
@@ -1289,29 +1320,24 @@ class Vec4 implements V4Q {
     );
   }
 
+  /**
+   * The rotation angle between two unit quaternions, in radians, computed as
+   * `acos(2 * dot(a, b)² - 1)`. This is not the angle between two general
+   * 4D vectors: the inputs must be normalised for the result to be meaningful.
+   *
+   * @param a The first unit quaternion.
+   * @param b The second unit quaternion.
+   * @returns The angle in radians, from 0 to π.
+   */
   static getAngle(a: Vec4, b: Vec4) {
     let dotproduct = a.dot(b);
 
     return Math.acos(2 * dotproduct * dotproduct - 1);
   }
-  
-  /**
-   * Adds iteration to the object, allowing it 
-   * to be destructured and iterated upon in 
-   * various useful ways.
-  */
-  [Symbol.iterator]() {
-    let values = this.array;
-    let index = 0;
-    return {
-      next() {
-        if (index < values.length) {
-          let value = values[index];
-          index++;
-          return { value, done: false };
-        } else return { done: true }
-      }
-    }
+
+  /** Iterate over the components, so the vector can be spread or destructured: `const [x, y, z, w] = v`. */
+  [Symbol.iterator](): Iterator<number> {
+    return this.array[Symbol.iterator]();
   }
 }
 

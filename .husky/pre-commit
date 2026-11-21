@@ -1,2 +1,2 @@
-npm run document
-git add ./
+# Fails on an undocumented export or a broken {@link}, as the docs build does
+npm run docs:api

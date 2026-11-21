@@ -3,9 +3,7 @@ import type { Vec2Like, QuatLike } from "./types.js";
 
 const identity = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
-/** TO DO
- * Move these functions to a types file
- */
+// TO DO: Move these types to a types file
 type Mat3DeterminantFunction = {
   f: {
     b01: number;
@@ -73,11 +71,39 @@ const orDefault = function (v: any, ident: string): number {
   return isNaN(v) ? identity[identToIndex(ident)] : Number(v);
 };
 
+/**
+ * A 3×3 matrix, stored column-major as WebGL expects. Used for 2D affine
+ * transforms (rotation, scale and translation) and for normal matrices.
+ *
+ * Elements are named `aCR`, column first: `a11`, `a12`, `a13` are rows 1 to 3
+ * of the first column, `a21`, `a22`, `a23` the second column, and `a31`,
+ * `a32`, `a33` the third. In a 2D transform the translation sits in `a31` and
+ * `a32`. The constructor, {@link Mat3.reset} and {@link Mat3.array} all use
+ * this order, so `array` can be passed straight to `uniformMatrix3fv`.
+ *
+ * Most operations come in two forms: `multiply` changes this matrix in place
+ * and returns it, while `multiplyNew` returns a new matrix and leaves this one
+ * unchanged.
+ */
 class Mat3 {
+  /**
+   * Create a matrix from up to nine elements in column-major order
+   * (`a11`, `a12`, `a13`, `a21`, …, `a33`). Missing or non-numeric elements
+   * take their identity value, so `new Mat3()` is the identity matrix.
+   *
+   * @param args The elements, in column-major order.
+   */
   constructor(...args: number[]) {
     this.reset(...args);
   }
 
+  /**
+   * Set every element from up to nine values in column-major order, in place.
+   * Any element that is missing or not a number takes its identity value.
+   * Returns this matrix, for chaining.
+   *
+   * @param args The elements, in column-major order.
+   */
   reset(...args: number[]): Mat3 {
     const [a11, a12, a13, a21, a22, a23, a31, a32, a33] = args;
     this.a11 = orDefault(a11, "a11");
@@ -94,6 +120,12 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Copy every element of `m` into this matrix, in place. Returns this matrix,
+   * for chaining.
+   *
+   * @param m The matrix to copy from.
+   */
   resetToMat3(m: Mat3): Mat3 {
     this.a11 = m.a11;
     this.a12 = m.a12;
@@ -107,6 +139,7 @@ class Mat3 {
     return this;
   }
 
+  /** Returns a new matrix with the same elements as this one. */
   clone(): Mat3 {
     return new Mat3(
       this.a11,
@@ -121,6 +154,10 @@ class Mat3 {
     );
   }
 
+  /**
+   * Transpose this matrix (swap rows and columns), in place. Returns this
+   * matrix, for chaining.
+   */
   transpose(): Mat3 {
     const a12 = this.a12,
       a13 = this.a13,
@@ -136,10 +173,18 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.transpose}, but returns a new matrix and leaves this one
+   * unchanged.
+   */
   transposeNew(): Mat3 {
     return this.clone().transpose();
   }
 
+  /**
+   * Replace this matrix with its adjugate, in place. Returns this matrix, for
+   * chaining.
+   */
   adjoint(): Mat3 {
     const o = this.clone();
 
@@ -158,10 +203,20 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.adjoint}, but returns a new matrix and leaves this one
+   * unchanged.
+   */
   adjointNew(): Mat3 {
     return this.clone().adjoint();
   }
 
+  /**
+   * Add `m` to this matrix element by element, in place. Returns this matrix,
+   * for chaining.
+   *
+   * @param m The matrix to add.
+   */
   add(m: Mat3): Mat3 {
     this.a11 += m.a11;
     this.a12 += m.a12;
@@ -175,12 +230,24 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.add}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to add.
+   */
   addNew(m: Mat3): Mat3 {
     return this.clone().add(m);
   }
 
   // @TODO: We might want to generalise this and allow any sort of matrix on these operations
 
+  /**
+   * Subtract `m` from this matrix element by element, in place. Returns this
+   * matrix, for chaining.
+   *
+   * @param m The matrix to subtract.
+   */
   subtract(m: Mat3): Mat3 {
     this.a11 -= m.a11;
     this.a12 -= m.a12;
@@ -194,10 +261,22 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.subtract}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to subtract.
+   */
   subtractNew(m: Mat3): Mat3 {
     return this.clone().subtract(m);
   }
 
+  /**
+   * Multiply this matrix by `m` (this × m), in place, so `m` is applied to a
+   * vector first. Returns this matrix, for chaining.
+   *
+   * @param m The matrix to multiply by, on the right.
+   */
   multiply(m: Mat3): Mat3 {
     const o = this.clone();
     this.a11 = m.a11 * o.a11 + m.a12 * o.a21 + m.a13 * o.a31;
@@ -214,10 +293,22 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.multiply}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param m The matrix to multiply by, on the right.
+   */
   multiplyNew(m: Mat3): Mat3 {
     return this.clone().multiply(m);
   }
 
+  /**
+   * Multiply every element by `s`, in place. Returns this matrix, for
+   * chaining.
+   *
+   * @param s The scalar to multiply by.
+   */
   multiplyScalar(s: number): Mat3 {
     this.a11 *= s;
     this.a12 *= s;
@@ -231,18 +322,45 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.multiplyScalar}, but returns a new matrix and leaves this
+   * one unchanged.
+   *
+   * @param s The scalar to multiply by.
+   */
   multiplyScalarNew(s: number): Mat3 {
     return this.clone().multiplyScalar(s);
   }
 
+  /**
+   * Multiply every element by `s`, in place. The same as
+   * {@link Mat3.multiplyScalar}, so it also scales the translation and the
+   * bottom-right element; use {@link Mat3.scaleByVec2} for a 2D scale.
+   * Returns this matrix, for chaining.
+   *
+   * @param s The scalar to multiply by.
+   */
   scale(s: number): Mat3 {
     return this.multiplyScalar(s);
   }
 
+  /**
+   * Like {@link Mat3.scale}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param s The scalar to multiply by.
+   */
   scaleNew(s: number): Mat3 {
     return this.multiplyScalarNew(s);
   }
 
+  /**
+   * Apply a 2D scale, in place: the first column is multiplied by `v.x` and
+   * the second by `v.y`. This is this × a scaling matrix, so the scale is
+   * applied to a vector before this matrix. Returns this matrix, for chaining.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   scaleByVec2(v: Vec2Like): Mat3 {
     const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
     this.a11 *= arr[0];
@@ -254,10 +372,23 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.scaleByVec2}, but returns a new matrix and leaves this
+   * one unchanged.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   scaleByVec2New(v: Vec2Like): Mat3 {
     return this.clone().scaleByVec2(v);
   }
 
+  /**
+   * Apply a 2D translation, in place. This is this × a translation matrix, so
+   * the translation is applied to a vector before this matrix. Returns this
+   * matrix, for chaining.
+   *
+   * @param v The x and y offsets.
+   */
   translate(v: Vec2): Mat3 {
     this.a31 += v.x * this.a11 + v.y * this.a21;
     this.a32 += v.x * this.a12 + v.y * this.a22;
@@ -265,6 +396,14 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Apply a 2D rotation of `r` radians anticlockwise (about the z axis), in
+   * place. This is this × a rotation matrix, so the rotation is applied to a
+   * vector before this matrix. The third column is unchanged. Returns this
+   * matrix, for chaining.
+   *
+   * @param r The angle, in radians.
+   */
   rotate(r: number): Mat3 {
     const o = this.clone();
     const s = Math.sin(r);
@@ -281,10 +420,21 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.rotate}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param r The angle, in radians.
+   */
   rotateNew(r: number): Mat3 {
     return this.clone().rotate(r);
   }
 
+  /**
+   * Invert this matrix, in place. If the matrix is singular (its determinant
+   * is 0) it is left unchanged; this method never returns null. Returns this
+   * matrix, for chaining.
+   */
   invert(): Mat3 {
     const o = this.clone();
 
@@ -313,10 +463,15 @@ class Mat3 {
     return this;
   }
 
+  /**
+   * Like {@link Mat3.invert}, but returns a new matrix and leaves this one
+   * unchanged. A singular matrix gives an unchanged copy.
+   */
   invertNew(): Mat3 {
     return this.clone().invert();
   }
 
+  /** Returns the elements as a string, one column per line. */
   toString(): string {
     return `
       ${this.a11}, ${this.a12}, ${this.a13},
@@ -325,17 +480,13 @@ class Mat3 {
     `;
   }
 
-  /**
-   * Getters and setters
-   */
+  // Getters and setters
 
-  /**
-   * (getter/setter) The a11 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a11: number = 0;
+  /**
+   * Set the element at column 1, row 1. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a11(v) {
     if (typeof v == "number") {
       this.#a11 = v;
@@ -343,17 +494,20 @@ class Mat3 {
       throw new TypeError("a11 should be a number");
     }
   }
+  /**
+   * The element at column 1, row 1. A stored `NaN` reads as 0.
+   *
+   * @default 1
+   */
   get a11() {
     return this.#a11 || 0;
   }
 
-  /**
-   * (getter/setter) The a12 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a12: number = 0;
+  /**
+   * Set the element at column 1, row 2. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a12(v) {
     if (typeof v == "number") {
       this.#a12 = v;
@@ -361,17 +515,20 @@ class Mat3 {
       throw new TypeError("a12 should be a number");
     }
   }
+  /**
+   * The element at column 1, row 2. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a12() {
     return this.#a12 || 0;
   }
 
-  /**
-   * (getter/setter) The a13 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a13: number = 0;
+  /**
+   * Set the element at column 1, row 3. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a13(v) {
     if (typeof v == "number") {
       this.#a13 = v;
@@ -379,17 +536,20 @@ class Mat3 {
       throw new TypeError("a13 should be a number");
     }
   }
+  /**
+   * The element at column 1, row 3. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a13() {
     return this.#a13 || 0;
   }
 
-  /**
-   * (getter/setter) The a21 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a21: number = 0;
+  /**
+   * Set the element at column 2, row 1. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a21(v) {
     if (typeof v == "number") {
       this.#a21 = v;
@@ -397,17 +557,20 @@ class Mat3 {
       throw new TypeError("a21 should be a number");
     }
   }
+  /**
+   * The element at column 2, row 1. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a21() {
     return this.#a21 || 0;
   }
 
-  /**
-   * (getter/setter) The a22 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a22: number = 0;
+  /**
+   * Set the element at column 2, row 2. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a22(v) {
     if (typeof v == "number") {
       this.#a22 = v;
@@ -415,17 +578,20 @@ class Mat3 {
       throw new TypeError("a22 should be a number");
     }
   }
+  /**
+   * The element at column 2, row 2. A stored `NaN` reads as 0.
+   *
+   * @default 1
+   */
   get a22() {
     return this.#a22 || 0;
   }
 
-  /**
-   * (getter/setter) The a23 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a23: number = 0;
+  /**
+   * Set the element at column 2, row 3. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a23(v) {
     if (typeof v == "number") {
       this.#a23 = v;
@@ -433,17 +599,20 @@ class Mat3 {
       throw new TypeError("a23 should be a number");
     }
   }
+  /**
+   * The element at column 2, row 3. A stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a23() {
     return this.#a23 || 0;
   }
 
-  /**
-   * (getter/setter) The a31 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a31: number = 0;
+  /**
+   * Set the element at column 3, row 1 (the x translation in a 2D transform).
+   * Throws a `TypeError` if `v` is not a number.
+   */
   set a31(v) {
     if (typeof v == "number") {
       this.#a31 = v;
@@ -451,17 +620,21 @@ class Mat3 {
       throw new TypeError("a31 should be a number");
     }
   }
+  /**
+   * The element at column 3, row 1 (the x translation in a 2D transform). A
+   * stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a31() {
     return this.#a31 || 0;
   }
 
-  /**
-   * (getter/setter) The a32 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a32: number = 0;
+  /**
+   * Set the element at column 3, row 2 (the y translation in a 2D transform).
+   * Throws a `TypeError` if `v` is not a number.
+   */
   set a32(v) {
     if (typeof v == "number") {
       this.#a32 = v;
@@ -469,17 +642,21 @@ class Mat3 {
       throw new TypeError("a32 should be a number");
     }
   }
+  /**
+   * The element at column 3, row 2 (the y translation in a 2D transform). A
+   * stored `NaN` reads as 0.
+   *
+   * @default 0
+   */
   get a32() {
     return this.#a32 || 0;
   }
 
-  /**
-   * (getter/setter) The a33 value of the matrix.
-   *
-   * @type {number}
-   * @default 0
-   */
   #a33: number = 0;
+  /**
+   * Set the element at column 3, row 3. Throws a `TypeError` if `v` is not a
+   * number.
+   */
   set a33(v) {
     if (typeof v == "number") {
       this.#a33 = v;
@@ -487,19 +664,26 @@ class Mat3 {
       throw new TypeError("a33 should be a number");
     }
   }
+  /**
+   * The element at column 3, row 3. A stored `NaN` reads as 0.
+   *
+   * @default 1
+   */
   get a33() {
     return this.#a33 || 0;
   }
 
+  /**
+   * The Frobenius norm of the matrix: the square root of the sum of the
+   * squares of all nine elements.
+   */
   get frobeniusnorm(): number {
     return Math.hypot(...this.array);
   }
 
   /**
-   * (getter) Returns the basic array representation of this matrix.
-   * @readonly
-   *
-   * @type {array}
+   * A new array of the elements in column-major order
+   * (`[a11, a12, a13, a21, …, a33]`), ready for `uniformMatrix3fv`.
    */
   get array(): number[] {
     return [
@@ -516,11 +700,10 @@ class Mat3 {
   }
 
   /**
-   * (getter) Returns the basic array representation of this matrix.
-   * this returns the array in column-major form.
-   * @readonly
-   *
-   * @type {array}
+   * A new array of the elements in row-major order
+   * (`[a11, a21, a31, a12, …, a33]`), which is the transpose of
+   * {@link Mat3.array}. Despite the name, this is not the column-major order
+   * WebGL expects; use `array` for that.
    */
   get columnArray(): number[] {
     return [
@@ -536,6 +719,12 @@ class Mat3 {
     ];
   }
 
+  /**
+   * The determinant of the matrix, along with the three cofactors
+   * (`f.b01`, `f.b11`, `f.b21`) that {@link Mat3.invert} reuses. Computed
+   * afresh on each read. Use {@link Mat3.determinant} if you only need the
+   * number.
+   */
   get determinantFunction(): Mat3DeterminantFunction {
     let b01 = this.a33 * this.a22 - this.a23 * this.a32;
     let b11 = -this.a33 * this.a21 + this.a23 * this.a31;
@@ -547,15 +736,21 @@ class Mat3 {
     };
   }
 
-  /**
-   * Calculates the determinant of the mat3
-   *
-   * @returns {Number} determinant of a
-   */
+  /** The determinant of the matrix. */
   get determinant(): number {
     return this.determinantFunction.determinant;
   }
 
+  /**
+   * Create a 2D rotation matrix from an angle in radians.
+   *
+   * Note: the upper-left 2×2 is `[cos r, -sin r, sin r, cos r]` in
+   * column-major order, which rotates clockwise by `r`. This is the opposite
+   * direction to {@link Mat3.rotate}, so `Mat3.fromAngle(r)` equals
+   * `Mat3.identity().rotate(-r)`.
+   *
+   * @param r The angle, in radians.
+   */
   static fromAngle(r: number): Mat3 {
     let s = Math.sin(r);
     let c = Math.cos(r);
@@ -563,11 +758,26 @@ class Mat3 {
     return new Mat3(c, -s, 0, s, c, 0, 0, 0, 1);
   }
 
+  /**
+   * Create a 2D scaling matrix, with `v.x`, `v.y` and 1 on the diagonal.
+   *
+   * @param v The x and y scale factors, as a vector or `[x, y]` array.
+   */
   static fromScalingVec2(v: Vec2Like): Mat3 {
     const arr: [number, number] = Array.isArray(v) ? v : [v.x, v.y];
     return new Mat3(arr[0], 0, 0, 0, arr[1], 0, 0, 0, 1);
   }
 
+  /**
+   * Create a rotation matrix from a quaternion. The quaternion is assumed to
+   * be normalised.
+   *
+   * Note: the result is the transpose of the usual column-major rotation
+   * matrix (the one `Mat4.fromQuat` builds), so it rotates by the inverse of
+   * `q`.
+   *
+   * @param q The quaternion, as an object or `[x, y, z, w]` array.
+   */
   static fromQuat(q: QuatLike): Mat3 {
     const qa = Array.isArray(q) ? q : [q.x, q.y, q.z, q.w];
     const [x, y, z, w] = qa;
@@ -597,11 +807,12 @@ class Mat3 {
   }
 
   /**
-   * Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
+   * Create a normal matrix from a 4×4 matrix: the inverse transpose of its
+   * upper-left 3×3. Use it to transform normals by a model or model-view
+   * matrix.
    *
-   * @param {mat4} a Mat4 to derive the normal matrix from
-   *
-   * @returns {mat3}
+   * @param a The 4×4 matrix, such as a `Mat4`.
+   * @returns A new matrix, or null if `a` can't be inverted.
    */
   static fromMat4(a: Mat4): Mat3 | null {
     const {
@@ -628,37 +839,25 @@ class Mat3 {
   }
 
   /**
-   * Generates a 2D projection matrix with the given bounds
+   * Create a 2D projection matrix that maps pixel coordinates to clip space:
+   * (0, 0) at the top left becomes (-1, 1) and (width, height) at the bottom
+   * right becomes (1, -1), so y points down.
    *
-   * @param {number} width Width of your gl context
-   * @param {number} height Height of gl context
-   * @returns {mat3} out
+   * @param width The width of the canvas or viewport, in pixels.
+   * @param height The height of the canvas or viewport, in pixels.
    */
   static fromProjection(width: number, height: number): Mat3 {
     return new Mat3(2 / width, 0, 0, 0, -2 / height, 0, -1, 1, 1);
   }
 
+  /** Returns a new identity matrix. */
   static identity(): Mat3 {
     return new Mat3(...identity);
   }
-  
-  /**
-   * Adds iteration to the object, allowing it 
-   * to be destructured and iterated upon in 
-   * various useful ways.
-  */
-  [Symbol.iterator]() {
-    let values = this.array;
-    let index = 0;
-    return {
-      next() {
-        if (index < values.length) {
-          let value = values[index];
-          index++;
-          return { value, done: false };
-        } else return { done: true }
-      }
-    }
+
+  /** Iterate over the elements in column-major order, so the matrix can be spread: `[...m]`. */
+  [Symbol.iterator](): Iterator<number> {
+    return this.array[Symbol.iterator]();
   }
 }
 

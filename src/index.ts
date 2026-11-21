@@ -1,3 +1,15 @@
+/**
+ * Vectors, matrices, quaternions and scalar functions:
+ *
+ * ```ts
+ * import { Vec2, Vec3, Mat4, Quat, clamp } from 'wtc-math'
+ * ```
+ *
+ * `Color`, `Plane` and `Ray` have entry points of their own:
+ * `wtc-math/color`, `wtc-math/plane` and `wtc-math/ray`.
+ *
+ * @module wtc-math
+ */
 import { Vec2 } from "./Vec2.js";
 export type {
   Vec2Like,
