@@ -54,7 +54,7 @@ Much of wtc-math has a GLSL counterpart, so maths you prototype on the CPU carri
 | wtc-math                                  | GLSL                                     |
 | ----------------------------------------- | ---------------------------------------- |
 | `a.dot(b)`                                | `dot(a, b)`                              |
-| `a.cross(b)` on `Vec3`                    | `cross(a, b)`                            |
+| `a.crossNew(b)` on `Vec3`                 | `cross(a, b)`                            |
 | `v.length`, `v.normaliseNew()`            | `length(v)`, `normalize(v)`              |
 | `v.floorNew()`, `v.fractNew()`            | `floor(v)`, `fract(v)`                   |
 | `clamp`, `smoothstep`, `smootherstep`     | `clamp`, `smoothstep`, and Perlin's curve |

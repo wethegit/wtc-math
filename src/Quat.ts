@@ -314,6 +314,21 @@ class Quat extends Vec4 implements V4Q {
   }
 
   /**
+   * The angle of the rotation that takes one unit quaternion to another, in
+   * radians, from 0 to π. Computed as `acos(2 * dot(a, b)² - 1)`, so `q` and
+   * `-q`, which are the same rotation, give the same result. Unlike
+   * {@link Vec4.getAngle}, this is not the angle between two 4D vectors.
+   *
+   * @param a The first unit quaternion.
+   * @param b The second unit quaternion.
+   * @returns The angle in radians.
+   */
+  static getAngle(a: V4Q, b: V4Q): number {
+    const dot = a.dot(b);
+    return Math.acos(Math.min(1, Math.max(-1, 2 * dot * dot - 1)));
+  }
+
+  /**
    * Create a quaternion that rotates by an angle around an axis. The result
    * is `(axis * sin(rad / 2), cos(rad / 2))` in x, y, z, w order. The axis is
    * not normalised for you: pass a unit vector to get a unit quaternion.

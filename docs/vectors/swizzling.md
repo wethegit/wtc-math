@@ -45,7 +45,7 @@ const p = new Vec4(1, 2, 3, 4)
 p.xyz = [7, 8, 9] // Vec4(7, 8, 9, 4)
 ```
 
-Stick to the pairs in order (`xy`, `yz`, `zw` and so on), `yx`, `zx`, and the in-order `xyz` and `xyzw`, whose setters write the components in the order the name gives.
+Every setter writes the components in the order the name gives, so `v.zy = [1, 2]` sets z to 1 and y to 2, and `v.yzx = [a, b, c]` undoes reading `v.yzx`. A repeated swizzle such as `xx` takes the first value.
 
 ## Where it's useful
 

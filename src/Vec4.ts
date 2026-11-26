@@ -547,15 +547,15 @@ class Vec4 implements V4Q {
 
   /**
    * Replace every component with its reciprocal (`1 / n`), in place. A 0
-   * component becomes `Infinity`.
+   * component stays 0, as in `divide`.
    *
    * @returns This vector, for chaining.
    */
   inverse(): V4Q {
-    this.x = 1 / this.x;
-    this.y = 1 / this.y;
-    this.z = 1 / this.z;
-    this.w = 1 / this.w;
+    this.x = this.x === 0 ? 0 : 1 / this.x;
+    this.y = this.y === 0 ? 0 : 1 / this.y;
+    this.z = this.z === 0 ? 0 : 1 / this.z;
+    this.w = this.w === 0 ? 0 : 1 / this.w;
     return this;
   }
 
@@ -565,12 +565,7 @@ class Vec4 implements V4Q {
    * @returns A new vector holding the reciprocals.
    */
   inverseNew(): V4Q {
-    const c: V4Q = this.clone();
-    c.x = 1 / c.x;
-    c.y = 1 / c.y;
-    c.z = 1 / c.z;
-    c.w = 1 / c.w;
-    return c;
+    return this.clone().inverse();
   }
 
   /**
@@ -671,28 +666,26 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * The four-dimensional cross product of this vector and two others: a
-   * vector perpendicular to all three. Does not change this vector.
+   * Replace this vector with the four-dimensional cross product of itself
+   * and two others: a vector perpendicular to all three. In place.
    *
    * @param v The second vector.
    * @param w The third vector.
-   * @returns A new Vec4 holding the result.
+   * @returns This vector, for chaining.
    */
   cross(v: V4Q, w: V4Q): V4Q {
-    const u = this.clone();
-
     const A = v.x * w.y - v.y * w.x,
       B = v.x * w.z - v.z * w.x,
       C = v.x * w.w - v.w * w.x,
       D = v.y * w.z - v.z * w.y,
       E = v.y * w.w - v.w * w.y,
       F = v.z * w.w - v.w * w.z,
-      G = u.x,
-      H = u.y,
-      I = u.z,
-      J = u.w;
+      G = this.x,
+      H = this.y,
+      I = this.z,
+      J = this.w;
 
-    return new Vec4(
+    return this.reset(
       H * F - I * E + J * D,
       -(G * F) + I * C - J * B,
       G * E - H * C + J * A,
@@ -701,7 +694,7 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Same as `cross`: returns a new vector and leaves this one unchanged.
+   * Like `cross`, but returns a new vector and leaves this one unchanged.
    *
    * @param v The second vector.
    * @param w The third vector.
@@ -807,10 +800,11 @@ class Vec4 implements V4Q {
   private _x: number = 0;
   /**
    * Set the x component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set x(x) {
     if (typeof x == "number") {
-      this._x = x;
+      this._x = x || 0;
     } else {
       throw new TypeError("X should be a number");
     }
@@ -827,10 +821,11 @@ class Vec4 implements V4Q {
   private _y: number = 0;
   /**
    * Set the y component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set y(y) {
     if (typeof y == "number") {
-      this._y = y;
+      this._y = y || 0;
     } else {
       throw new TypeError("Y should be a number");
     }
@@ -847,10 +842,11 @@ class Vec4 implements V4Q {
   private _z: number = 0;
   /**
    * Set the z component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set z(z) {
     if (typeof z == "number") {
-      this._z = z;
+      this._z = z || 0;
     } else {
       throw new TypeError("Z should be a number");
     }
@@ -867,10 +863,11 @@ class Vec4 implements V4Q {
   private _w: number = 0;
   /**
    * Set the w component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set w(w) {
     if (typeof w == "number") {
-      this._w = w;
+      this._w = w || 0;
     } else {
       throw new TypeError("W should be a number");
     }
@@ -885,17 +882,14 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * Scale the vector by `value / lengthSquared`. Throws a `TypeError` if the
-   * value is not a number.
-   *
-   * Note that this does not leave `lengthSquared` equal to the value set: the
-   * squared length ends up as `value² / lengthSquared`.
+   * Set the squared length of the vector, scaling it while keeping its
+   * direction. A zero-length vector cannot be scaled and stays zero. Throws a
+   * `TypeError` if the value is not a number.
    */
-  set lengthSquared(length: number) {
-    var factor;
-    if (typeof length == "number") {
-      factor = length / this.lengthSquared;
-      this.multiplyScalar(factor);
+  set lengthSquared(lengthSquared: number) {
+    if (typeof lengthSquared == "number") {
+      const current = this.lengthSquared;
+      if (current > 0) this.multiplyScalar(Math.sqrt(lengthSquared / current));
     } else {
       throw new TypeError("length should be a number");
     }
@@ -912,14 +906,13 @@ class Vec4 implements V4Q {
 
   /**
    * Set the length of the vector, scaling it while keeping its direction.
-   * A zero-length vector cannot be scaled and its components become `NaN`.
-   * Throws a `TypeError` if the value is not a number.
+   * A zero-length vector cannot be scaled and stays zero. Throws a
+   * `TypeError` if the value is not a number.
    */
   set length(length: number) {
-    var factor;
     if (typeof length == "number") {
-      factor = length / this.length;
-      this.multiplyScalar(factor);
+      const current = this.length;
+      if (current > 0) this.multiplyScalar(length / current);
     } else {
       throw new TypeError("length should be a number");
     }
@@ -1042,19 +1035,14 @@ class Vec4 implements V4Q {
     return new Vec3(this.y, this.z, this.x);
   }
   /**
-   * Set x, y and z from a Vec3 or array: x from the second component, y from
-   * the third and z from the first. w is unchanged.
+   * Set y, z and x, in that order, from a Vec3 or array. So
+   * `v.yzx = [a, b, c]` gives `y = a, z = b, x = c`. w is unchanged.
    */
   set yzx(v: Vec3Like) {
-    if (Array.isArray(v)) {
-      this.x = v[1];
-      this.y = v[2];
-      this.z = v[0];
-    } else {
-      this.x = v.y;
-      this.y = v.z;
-      this.z = v.x;
-    }
+    const r = Vec3.interpolate(v);
+    this.y = r.x;
+    this.z = r.y;
+    this.x = r.z;
   }
 
   /** The z, x and y components as a new Vec3. */
@@ -1062,19 +1050,14 @@ class Vec4 implements V4Q {
     return new Vec3(this.z, this.x, this.y);
   }
   /**
-   * Set x, y and z from a Vec3 or array: x from the third component, y from
-   * the first and z from the second. w is unchanged.
+   * Set z, x and y, in that order, from a Vec3 or array. So
+   * `v.zxy = [a, b, c]` gives `z = a, x = b, y = c`. w is unchanged.
    */
   set zxy(v: Vec3Like) {
-    if (Array.isArray(v)) {
-      this.x = v[2];
-      this.y = v[0];
-      this.z = v[1];
-    } else {
-      this.x = v.z;
-      this.y = v.x;
-      this.z = v.y;
-    }
+    const r = Vec3.interpolate(v);
+    this.z = r.x;
+    this.x = r.y;
+    this.y = r.z;
   }
 
   /** The x component twice, as a new Vec2. */
@@ -1082,12 +1065,11 @@ class Vec4 implements V4Q {
     return new Vec2(this.x, this.x);
   }
   /**
-   * Set x from the second component of a Vec2 or array. The first component
+   * Set x from the first component of a Vec2 or array. The second component
    * is ignored.
    */
   set xx(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.x = v.y;
+    this.x = Vec2.interpolate(v).x;
   }
 
   /** The x and y components as a new Vec2. */
@@ -1139,12 +1121,11 @@ class Vec4 implements V4Q {
     return new Vec2(this.y, this.y);
   }
   /**
-   * Set y from the second component of a Vec2 or array. The first component
+   * Set y from the first component of a Vec2 or array. The second component
    * is ignored.
    */
   set yy(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.y = v.y;
+    this.y = Vec2.interpolate(v).x;
   }
 
   /** The y and z components as a new Vec2. */
@@ -1184,14 +1165,11 @@ class Vec4 implements V4Q {
   get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
-  /**
-   * Set z and y from a Vec2 or array. Note that z is taken from the second
-   * component and y from the first, the reverse of the getter's order.
-   */
+  /** Set z and y from a Vec2 or array, in that order. */
   set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
-    this.z = v.y;
-    this.y = v.x;
+    this.z = v.x;
+    this.y = v.y;
   }
 
   /** The z component twice, as a new Vec2. */
@@ -1199,12 +1177,11 @@ class Vec4 implements V4Q {
     return new Vec2(this.z, this.z);
   }
   /**
-   * Set z from the second component of a Vec2 or array. The first component
+   * Set z from the first component of a Vec2 or array. The second component
    * is ignored.
    */
   set zz(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.z = v.y;
+    this.z = Vec2.interpolate(v).x;
   }
 
   /** The z and w components as a new Vec2. */
@@ -1256,12 +1233,11 @@ class Vec4 implements V4Q {
     return new Vec2(this.w, this.w);
   }
   /**
-   * Set w from the second component of a Vec2 or array. The first component
+   * Set w from the first component of a Vec2 or array. The second component
    * is ignored.
    */
   set ww(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.w = v.y;
+    this.w = Vec2.interpolate(v).x;
   }
 
   // Static methods
@@ -1321,18 +1297,19 @@ class Vec4 implements V4Q {
   }
 
   /**
-   * The rotation angle between two unit quaternions, in radians, computed as
-   * `acos(2 * dot(a, b)² - 1)`. This is not the angle between two general
-   * 4D vectors: the inputs must be normalised for the result to be meaningful.
+   * The angle between two vectors, in radians, from 0 to π, whatever their
+   * lengths. If either vector has zero length the result is π / 2. For the
+   * rotation between two quaternions, use `Quat.getAngle`.
    *
-   * @param a The first unit quaternion.
-   * @param b The second unit quaternion.
-   * @returns The angle in radians, from 0 to π.
+   * @param a The first vector.
+   * @param b The second vector.
+   * @returns The angle in radians.
    */
-  static getAngle(a: Vec4, b: Vec4) {
-    let dotproduct = a.dot(b);
-
-    return Math.acos(2 * dotproduct * dotproduct - 1);
+  static getAngle(a: V4Q, b: V4Q): number {
+    const lengths = a.length * b.length;
+    if (lengths === 0) return Math.PI / 2;
+    const cosine = a.dot(b) / lengths;
+    return Math.acos(Math.min(1, Math.max(-1, cosine)));
   }
 
   /** Iterate over the components, so the vector can be spread or destructured: `const [x, y, z, w] = v`. */

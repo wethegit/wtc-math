@@ -326,11 +326,11 @@ class Vec2 {
   /**
    * Alias of {@link Vec2.rotateDegNew}. Returns a new vector rotated by an angle in degrees.
    *
-   * @param radian The angle to rotate by, in degrees (despite the parameter name)
+   * @param degrees The angle to rotate by, in degrees
    * @returns A new vector
    */
-  rotateDegByNew(radian: number): Vec2 {
-    return this.rotateDegNew(radian);
+  rotateDegByNew(degrees: number): Vec2 {
+    return this.rotateDegNew(degrees);
   }
 
   /**
@@ -393,13 +393,13 @@ class Vec2 {
 
   /**
    * Replace each component with its reciprocal (`1 / x`, `1 / y`), in place.
-   * A zero component becomes `Infinity`.
+   * A zero component stays 0, as in {@link Vec2.divide}.
    *
    * @returns This vector, for chaining
    */
   inverse(): Vec2 {
-    this.x = 1 / this.x;
-    this.y = 1 / this.y;
+    this.x = this.x === 0 ? 0 : 1 / this.x;
+    this.y = this.y === 0 ? 0 : 1 / this.y;
     return this;
   }
 
@@ -409,10 +409,7 @@ class Vec2 {
    * @returns A new vector
    */
   inverseNew(): Vec2 {
-    const c = this.clone();
-    c.x = 1 / c.x;
-    c.y = 1 / c.y;
-    return c;
+    return this.clone().inverse();
   }
 
   /**
@@ -683,16 +680,17 @@ class Vec2 {
   #x: number = 0;
   /**
    * Set the x component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set x(x: number) {
     if (typeof x == "number") {
-      this.#x = x;
+      this.#x = x || 0;
     } else {
       throw new TypeError("X should be a number");
     }
   }
   /**
-   * The x component. Reads as 0 if the stored value is `NaN`.
+   * The x component.
    *
    * @default 0
    */
@@ -703,16 +701,17 @@ class Vec2 {
   #y: number = 0;
   /**
    * Set the y component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    */
   set y(y: number) {
     if (typeof y == "number") {
-      this.#y = y;
+      this.#y = y || 0;
     } else {
       throw new TypeError("Y should be a number");
     }
   }
   /**
-   * The y component. Reads as 0 if the stored value is `NaN`.
+   * The y component.
    *
    * @default 0
    */
@@ -721,15 +720,14 @@ class Vec2 {
   }
 
   /**
-   * Scale the vector by `value / lengthSquared`, keeping its direction.
-   * Note this multiplies the length (not the squared length) by that ratio.
-   * Throws a `TypeError` if the value is not a number.
+   * Set the squared length of the vector, scaling it while keeping its
+   * direction. Has no effect on a zero-length vector. Throws a `TypeError` if
+   * the value is not a number.
    */
-  set lengthSquared(length: number) {
-    var factor;
-    if (typeof length == "number") {
-      factor = length / this.lengthSquared;
-      this.multiplyScalar(factor);
+  set lengthSquared(lengthSquared: number) {
+    if (typeof lengthSquared == "number") {
+      const current = this.lengthSquared;
+      if (current > 0) this.multiplyScalar(Math.sqrt(lengthSquared / current));
     } else {
       throw new TypeError("length should be a number");
     }
@@ -748,10 +746,9 @@ class Vec2 {
    * is not a number.
    */
   set length(length: number) {
-    var factor;
     if (typeof length == "number") {
-      factor = length / this.length;
-      this.multiplyScalar(factor);
+      const current = this.length;
+      if (current > 0) this.multiplyScalar(length / current);
     } else {
       throw new TypeError("length should be a number");
     }
@@ -823,14 +820,14 @@ class Vec2 {
   }
 
   /**
-   * Rotate the vector to match this slope, keeping its length. The new angle
-   * is `atan(value)`, so the result always points into the positive-x half
-   * (a vector pointing left is flipped). `NaN` is ignored.
+   * Rotate the vector to match this slope, keeping its length and which side
+   * of the y axis it points to: a vector pointing left stays pointing left.
+   * `NaN` is ignored.
    */
   set slope(value: number) {
     if (!isNaN(value)) {
-      let angle = Math.atan(value);
-      this.angle = angle;
+      const angle = Math.atan(value);
+      this.angle = this.x < 0 ? angle + Math.PI : angle;
     }
   }
   /** The slope of the vector, `y / x`. Returns `±Infinity` or `NaN` when x is 0. */
@@ -875,12 +872,11 @@ class Vec2 {
     return new Vec2(this.x, this.x);
   }
   /**
-   * Set x from the second component of a Vec2-like value or array. y is left
+   * Set x from the first component of a Vec2-like value or array. y is left
    * unchanged.
    */
   set xx(v: Vec2Like) {
-    const resolved = Vec2.interpolate(v);
-    this.x = resolved.y;
+    this.x = Vec2.interpolate(v).x;
   }
 
   /** The y component repeated, as a new Vec2. */
@@ -888,12 +884,11 @@ class Vec2 {
     return new Vec2(this.y, this.y);
   }
   /**
-   * Set y from the second component of a Vec2-like value or array. x is left
+   * Set y from the first component of a Vec2-like value or array. x is left
    * unchanged.
    */
   set yy(v: Vec2Like) {
-    const resolved = Vec2.interpolate(v);
-    this.y = resolved.y;
+    this.y = Vec2.interpolate(v).x;
   }
 
   /**

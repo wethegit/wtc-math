@@ -473,15 +473,15 @@ class Vec3 {
   }
 
   /**
-   * Replace each component with its reciprocal (1 / value), in place. Unlike
-   * {@link Vec3.divide}, a zero component becomes `Infinity`.
+   * Replace each component with its reciprocal (1 / value), in place. A
+   * zero component stays 0, as in {@link Vec3.divide}.
    *
    * @returns This vector, for chaining.
    */
   inverse(): Vec3 {
-    this.x = 1 / this.x;
-    this.y = 1 / this.y;
-    this.z = 1 / this.z;
+    this.x = this.x === 0 ? 0 : 1 / this.x;
+    this.y = this.y === 0 ? 0 : 1 / this.y;
+    this.z = this.z === 0 ? 0 : 1 / this.z;
     return this;
   }
 
@@ -491,11 +491,7 @@ class Vec3 {
    * @returns A new vector.
    */
   inverseNew(): Vec3 {
-    const c = this.clone();
-    c.x = 1 / c.x;
-    c.y = 1 / c.y;
-    c.z = 1 / c.z;
-    return c;
+    return this.clone().inverse();
   }
 
   /**
@@ -575,8 +571,8 @@ class Vec3 {
   }
 
   /**
-   * The cross product of this vector and another (`this × vector`). This
-   * vector is not changed; the result is always a new vector.
+   * Replace this vector with the cross product of itself and another
+   * (`this × vector`), in place.
    *
    * @example
    * ```ts
@@ -584,18 +580,19 @@ class Vec3 {
    * ```
    *
    * @param vector The other vector.
-   * @returns A new vector perpendicular to both.
+   * @returns This vector, for chaining.
    */
   cross(vector: Vec3): Vec3 {
-    return new Vec3(
-      this.y * vector.z - this.z * vector.y,
-      this.z * vector.x - this.x * vector.z,
-      this.x * vector.y - this.y * vector.x,
+    const x = this.x, y = this.y, z = this.z;
+    return this.reset(
+      y * vector.z - z * vector.y,
+      z * vector.x - x * vector.z,
+      x * vector.y - y * vector.x,
     );
   }
 
   /**
-   * Same as {@link Vec3.cross}: returns the cross product as a new vector and
+   * Like {@link Vec3.cross}, but returns the cross product as a new vector and
    * leaves this one unchanged.
    *
    * @param vector The other vector.
@@ -697,18 +694,19 @@ class Vec3 {
   #x: number = 0;
   /**
    * Set the x component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    *
    * @default 0
    */
   set x(x: number) {
     if (typeof x == "number") {
-      this.#x = x;
+      this.#x = x || 0;
     } else {
       throw new TypeError("X should be a number");
     }
   }
   /**
-   * The x component. `NaN` reads as 0.
+   * The x component.
    *
    * @default 0
    */
@@ -719,18 +717,19 @@ class Vec3 {
   #y: number = 0;
   /**
    * Set the y component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    *
    * @default 0
    */
   set y(y: number) {
     if (typeof y == "number") {
-      this.#y = y;
+      this.#y = y || 0;
     } else {
       throw new TypeError("Y should be a number");
     }
   }
   /**
-   * The y component. `NaN` reads as 0.
+   * The y component.
    *
    * @default 0
    */
@@ -741,18 +740,19 @@ class Vec3 {
   #z: number = 0;
   /**
    * Set the z component. Throws a `TypeError` if the value is not a number.
+   * `NaN` is stored as 0.
    *
    * @default 0
    */
   set z(z: number) {
     if (typeof z == "number") {
-      this.#z = z;
+      this.#z = z || 0;
     } else {
       throw new TypeError("Z should be a number");
     }
   }
   /**
-   * The z component. `NaN` reads as 0.
+   * The z component.
    *
    * @default 0
    */
@@ -761,16 +761,14 @@ class Vec3 {
   }
 
   /**
-   * Scale the vector in place by `value / lengthSquared`. Note this scales by
-   * the ratio of squared lengths, so the resulting squared length is not
-   * `value` unless the current squared length is 1. Throws a `TypeError` if
-   * the value is not a number.
+   * Set the squared length of the vector, scaling it while keeping its
+   * direction. Throws a `TypeError` if the value is not a number. A zero
+   * vector cannot be scaled and stays zero.
    */
-  set lengthSquared(length: number) {
-    var factor;
-    if (typeof length == "number") {
-      factor = length / this.lengthSquared;
-      this.multiplyScalar(factor);
+  set lengthSquared(lengthSquared: number) {
+    if (typeof lengthSquared == "number") {
+      const current = this.lengthSquared;
+      if (current > 0) this.multiplyScalar(Math.sqrt(lengthSquared / current));
     } else {
       throw new TypeError("length should be a number");
     }
@@ -789,10 +787,9 @@ class Vec3 {
    * scaled and stays zero.
    */
   set length(length: number) {
-    var factor;
     if (typeof length == "number") {
-      factor = length / this.length;
-      this.multiplyScalar(factor);
+      const current = this.length;
+      if (current > 0) this.multiplyScalar(length / current);
     } else {
       throw new TypeError("length should be a number");
     }
@@ -910,12 +907,12 @@ class Vec3 {
     return new Vec3(this.y, this.z, this.x);
   }
   /**
-   * Set the components from a Vec3 or array by reading the value's own y, z
-   * and x components into x, y and z. So `v.yzx = [a, b, c]` gives
-   * `x = b, y = c, z = a`, which is not the inverse of the getter.
+   * Set y, z and x, in that order, from a Vec3 or array. So
+   * `v.yzx = [a, b, c]` gives `y = a, z = b, x = c`.
    */
   set yzx(v: Vec3Like) {
-    this.xyz = Vec3.interpolate(v).yzx;
+    const r = Vec3.interpolate(v);
+    this.reset(r.z, r.x, r.y);
   }
 
   /** The z, x and y components as a new Vec3. */
@@ -923,12 +920,12 @@ class Vec3 {
     return new Vec3(this.z, this.x, this.y);
   }
   /**
-   * Set the components from a Vec3 or array by reading the value's own z, x
-   * and y components into x, y and z. So `v.zxy = [a, b, c]` gives
-   * `x = c, y = a, z = b`, which is not the inverse of the getter.
+   * Set z, x and y, in that order, from a Vec3 or array. So
+   * `v.zxy = [a, b, c]` gives `z = a, x = b, y = c`.
    */
   set zxy(v: Vec3Like) {
-    this.xyz = Vec3.interpolate(v).zxy;
+    const r = Vec3.interpolate(v);
+    this.reset(r.y, r.z, r.x);
   }
 
   /** The x and y components as a new Vec2. */
@@ -979,45 +976,38 @@ class Vec3 {
   get zy(): Vec2 {
     return new Vec2(this.z, this.y);
   }
-  /**
-   * Set z and y from a Vec2 or array. x is unchanged. Note that the current
-   * code assigns the first value to y and the second to z, the same as
-   * {@link Vec3.yz}.
-   */
+  /** Set z and y from a Vec2 or array. x is unchanged. */
   set zy(v: Vec2Like) {
     v = Vec2.interpolate(v);
-    this.z = v.y;
-    this.y = v.x;
+    this.z = v.x;
+    this.y = v.y;
   }
 
   /** The x component twice, as a new Vec2. */
   get xx(): Vec2 {
     return new Vec2(this.x, this.x);
   }
-  /** Set x from the second value of a Vec2 or array. y and z are unchanged. */
+  /** Set x from the first value of a Vec2 or array. y and z are unchanged. */
   set xx(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.x = v.y;
+    this.x = Vec2.interpolate(v).x;
   }
 
   /** The y component twice, as a new Vec2. */
   get yy(): Vec2 {
     return new Vec2(this.y, this.y);
   }
-  /** Set y from the second value of a Vec2 or array. x and z are unchanged. */
+  /** Set y from the first value of a Vec2 or array. x and z are unchanged. */
   set yy(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.y = v.y;
+    this.y = Vec2.interpolate(v).x;
   }
 
   /** The z component twice, as a new Vec2. */
   get zz(): Vec2 {
     return new Vec2(this.z, this.z);
   }
-  /** Set z from the second value of a Vec2 or array. x and y are unchanged. */
+  /** Set z from the first value of a Vec2 or array. x and y are unchanged. */
   set zz(v: Vec2Like) {
-    v = Vec2.interpolate(v);
-    this.z = v.y;
+    this.z = Vec2.interpolate(v).x;
   }
 
   // Static methods
