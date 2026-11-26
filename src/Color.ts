@@ -12,8 +12,9 @@
 /**
  * Anything {@link Color.interpolate} can turn into a {@link Color}: an object
  * with 0–1 `r`, `g`, `b` and optional `a`, an `[r, g, b, a?]` array in 0–1,
- * or a hex string (`"#rgb"` or `"#rrggbb"`, `#` optional). Alpha defaults
- * to 1.
+ * or a string {@link Color.fromCSS} can read: hex (`"#rgb"`, `"#rgba"`,
+ * `"#rrggbb"` or `"#rrggbbaa"`, `#` optional), `rgb()`/`rgba()` or
+ * `hsl()`/`hsla()`. Alpha defaults to 1.
  */
 export type ColorLike =
   | {
@@ -221,26 +222,28 @@ class Color {
 
   /**
    * Formats the colour as a CSS colour string, with red, green and blue
-   * rounded to 0–255.
+   * clamped to 0–1 and rounded to 0–255, and alpha clamped to 0–1.
    *
    * @returns `"rgb(r, g, b)"` when alpha is exactly 1, otherwise
    * `"rgba(r, g, b, a)"`.
    */
   toCSS(): string {
-    const r = Math.round(this.r * 255);
-    const g = Math.round(this.g * 255);
-    const b = Math.round(this.b * 255);
-    if (this.a === 1) return `rgb(${r}, ${g}, ${b})`;
-    return `rgba(${r}, ${g}, ${b}, ${this.a})`;
+    const r = Math.round(clamp01(this.r) * 255);
+    const g = Math.round(clamp01(this.g) * 255);
+    const b = Math.round(clamp01(this.b) * 255);
+    const a = clamp01(this.a);
+    if (a === 1) return `rgb(${r}, ${g}, ${b})`;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
 
   /**
-   * Formats the colour as a 6-digit lowercase hex string. Alpha is dropped.
+   * Formats the colour as a 6-digit lowercase hex string, with each channel
+   * clamped to 0–1 first. Alpha is dropped.
    *
    * @returns A string such as `"#ff8000"`.
    */
   toHex(): string {
-    const ch = (v: number) => Math.round(v * 255).toString(16).padStart(2, "0");
+    const ch = (v: number) => Math.round(clamp01(v) * 255).toString(16).padStart(2, "0");
     return `#${ch(this.r)}${ch(this.g)}${ch(this.b)}`;
   }
 
@@ -327,27 +330,68 @@ class Color {
   }
 
   /**
-   * Creates a colour from a 3- or 6-digit hex string, with or without a
-   * leading `#` (`"#f80"`, `"ff8800"`). Alpha is always 1.
+   * Creates a colour from a hex string, with or without a leading `#`: 3 or
+   * 6 digits (`"#f80"`, `"ff8800"`), or 4 or 8 digits with alpha last
+   * (`"#f808"`, `"#ff880080"`). Alpha is 1 when it isn't given. Throws an
+   * `Error` for anything else.
    *
    * @param hex The hex string.
    * @returns A new colour.
    */
   static fromHex(hex: string): Color {
-    const clean = hex.replace("#", "");
+    const clean = hex.trim().replace(/^#/, "");
+    if (!/^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(clean)) {
+      throw new Error(`"${hex}" is not a 3, 4, 6 or 8-digit hex colour`);
+    }
     const full =
-      clean.length === 3
+      clean.length <= 4
         ? clean
             .split("")
             .map((c) => c + c)
             .join("")
         : clean;
-    const n = parseInt(full, 16);
-    return new Color(
-      ((n >> 16) & 255) / 255,
-      ((n >> 8) & 255) / 255,
-      (n & 255) / 255
-    );
+    const channel = (i: number) => parseInt(full.slice(i * 2, i * 2 + 2), 16) / 255;
+    return new Color(channel(0), channel(1), channel(2), full.length === 8 ? channel(3) : 1);
+  }
+
+  /**
+   * Creates a colour from a CSS colour string: hex (see {@link Color.fromHex}),
+   * `rgb()`/`rgba()` or `hsl()`/`hsla()`. Both the comma syntax
+   * (`"rgba(255, 136, 0, 0.5)"`) and the space syntax
+   * (`"rgb(255 136 0 / 50%)"`) work, and channels can be percentages. Values
+   * are clamped to 0–1, as CSS does. Named colours, `none` and other colour
+   * functions aren't supported and throw an `Error`.
+   *
+   * @param css The CSS colour string.
+   * @returns A new colour.
+   */
+  static fromCSS(css: string): Color {
+    const match = /^\s*(rgba?|hsla?)\(\s*([^)]*)\)\s*$/i.exec(css);
+    if (!match) return Color.fromHex(css);
+
+    const fn = match[1].toLowerCase();
+    const parts = match[2].split(/\s*[,/]\s*|\s+/).filter(Boolean);
+    const fail = () => new Error(`"${css}" is not a colour Color.fromCSS can read`);
+    if (parts.length < 3 || parts.length > 4) throw fail();
+
+    // A number, or a percentage of `percentOf`
+    const num = (part: string, scale: number, percentOf = 1): number => {
+      const isPercent = part.endsWith("%");
+      const n = Number(isPercent ? part.slice(0, -1) : part);
+      if (part === "" || Number.isNaN(n)) throw fail();
+      return isPercent ? (n / 100) * percentOf : n / scale;
+    };
+    const alpha = parts.length === 4 ? clamp01(num(parts[3], 1)) : 1;
+
+    if (fn.startsWith("rgb")) {
+      const [r, g, b] = parts.slice(0, 3).map((p) => clamp01(num(p, 255)));
+      return new Color(r, g, b, alpha);
+    }
+
+    const hue = parts[0].toLowerCase().endsWith("deg") ? parts[0].slice(0, -3) : parts[0];
+    const h = num(hue, 1);
+    const [sat, light] = parts.slice(1, 3).map((p) => clamp01(num(p, 100)));
+    return Color.fromHSL(((h % 360) + 360) % 360, sat, light, alpha);
   }
 
   /**
@@ -396,15 +440,16 @@ class Color {
   /**
    * Creates a colour from HSV (HSB) values.
    *
-   * @param h Hue in degrees, 0 or more (0–360).
+   * @param h Hue in degrees (0–360). Other values wrap around.
    * @param s Saturation, 0–1.
    * @param v Value (brightness), 0–1.
    * @param a Alpha, 0–1. Defaults to 1.
    * @returns A new colour.
    */
   static fromHSV(h: number, s: number, v: number, a = 1): Color {
-    const i = Math.floor((h / 360) * 6);
-    const f = (h / 360) * 6 - i;
+    const sector = ((((h % 360) + 360) % 360) / 360) * 6;
+    const i = Math.floor(sector);
+    const f = sector - i;
     const p = v * (1 - s);
     const q = v * (1 - f * s);
     const t = v * (1 - (1 - f) * s);
@@ -508,15 +553,16 @@ class Color {
   }
 
   /**
-   * Creates a colour from any {@link ColorLike}: a hex string (see
-   * {@link Color.fromHex}), an `[r, g, b, a?]` array or an `{ r, g, b, a? }`
-   * object, both in 0–1. Missing alpha defaults to 1.
+   * Creates a colour from any {@link ColorLike}: a CSS colour string (see
+   * {@link Color.fromCSS}), an `[r, g, b, a?]` array or an `{ r, g, b, a? }`
+   * object, both in 0–1. Missing alpha defaults to 1. Throws an `Error` for
+   * a string it can't read.
    *
    * @param v The value to convert.
    * @returns A new colour.
    */
   static interpolate(v: ColorLike): Color {
-    if (typeof v === "string") return Color.fromHex(v);
+    if (typeof v === "string") return Color.fromCSS(v);
     if (Array.isArray(v)) return new Color(v[0], v[1], v[2], v[3] ?? 1);
     return new Color(v.r, v.g, v.b, v.a ?? 1);
   }

@@ -17,19 +17,20 @@ From the formats you're most likely to have:
 
 ```js
 Color.fromHex('#ff8800') // or '#f80', or 'ff8800'
+Color.fromCSS('rgb(255 136 0 / 50%)') // hex, rgb(), rgba(), hsl() or hsla()
 Color.fromRGB255(255, 136, 0)
 Color.fromHSL(32, 1, 0.5) // hue in degrees, saturation and lightness 0–1
 Color.fromHSV(32, 1, 1) // hue in degrees, saturation and value 0–1
 Color.fromOklch(0.74, 0.18, 56) // see Colour spaces
 ```
 
-`fromHex` reads 3- and 6-digit hex. It doesn't read alpha from 4- or 8-digit hex, and anything that isn't hex comes out black.
+`fromHex` reads 3- and 6-digit hex, and 4- and 8-digit hex with alpha last (`'#ff880080'`). `fromCSS` reads hex too, plus `rgb()`, `rgba()`, `hsl()` and `hsla()` in either the comma or the space syntax. Both throw an error for a string they can't read, including named colours such as `'red'`.
 
-`Color.interpolate(value)` accepts any of a `Color`, a hex string, an `[r, g, b, a?]` array or an `{ r, g, b, a? }` object, which is handy for options that take a colour in whatever form is to hand:
+`Color.interpolate(value)` accepts any of a `Color`, a string `fromCSS` can read, an `[r, g, b, a?]` array or an `{ r, g, b, a? }` object, which is handy for options that take a colour in whatever form is to hand:
 
 ```js
 function setTint(tint) {
-  const colour = Color.interpolate(tint) // '#f80', [1, 0.5, 0], { r: 1, g: 0.5, b: 0 }
+  const colour = Color.interpolate(tint) // '#f80', 'rgb(255, 136, 0)', [1, 0.5, 0], { r: 1, g: 0.5, b: 0 }
 }
 ```
 
@@ -52,7 +53,7 @@ uniform.value = orange.array // [1, 0.533, 0, 1]
 orange.toHSL() // [32, 1, 0.5]
 ```
 
-`toHex` and `toCSS` don't clamp, so keep channels within 0–1 before formatting a colour you've done arithmetic on.
+`toHex` and `toCSS` clamp each channel to 0–1 before formatting, so a colour you've done arithmetic on still gives a valid string. The colour itself isn't changed.
 
 ## Arithmetic
 
