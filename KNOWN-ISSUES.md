@@ -10,12 +10,6 @@ Bugs and allocation problems found while documenting the library, to fix in late
 
 - `Quat.rotateX`, `rotateY` and `rotateZ` ignore their `origin` argument, which is there only to match Vec4.
 
-## Color
-
-- **`Color.fromHSV` throws on a negative hue**: `i % 6` is negative, so the lookup is undefined.
-- **`Color.fromHex` misreads 4- and 8-digit hex** rather than reading the alpha or rejecting it (`'#ff000080'` comes out bluish with alpha 1). Strings that aren't hex give black, and since `ColorLike` strings go through `fromHex`, CSS strings such as `'rgb(…)'` aren't supported.
-- **`toHex` and `toCSS` don't clamp**, so a channel outside 0–1 gives a broken hex string or an out-of-range `rgb()` value.
-
 ## Plane and Ray
 
 - **`Ray.intersectBox` returns null when the ray starts inside the box**, where `intersectSphere` returns the exit point. A ray with a zero component whose origin lies exactly on a slab plane gives 0/0 = NaN.
