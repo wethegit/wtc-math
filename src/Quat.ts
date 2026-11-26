@@ -1,7 +1,7 @@
 import { Mat3 } from "./Mat3.js";
 import { Vec3 } from "./Vec3.js";
 import { Vec4, V4Q } from "./Vec4.js";
-import type { Vec3Like } from "./types.js";
+import type { Vec3Like, Vec4Like } from "./types.js";
 
 const identity: number[] = [0, 0, 0, 1];
 
@@ -20,8 +20,8 @@ const orDefault = function (v: any, ident: string): number {
  * Quat extends {@link Vec4}, so it inherits the component-wise vector methods
  * (`add`, `scale`, `normalise`, swizzles and so on). Multiplication, the axis
  * rotations, `dot`, `clone` and `reset` are overridden with quaternion
- * behaviour. Note that the inherited `inverse` is the component-wise
- * reciprocal; use {@link Quat.invert} for the quaternion inverse.
+ * behaviour. `inverse` is the quaternion inverse, the same as
+ * {@link Quat.invert}, not the component-wise reciprocal it is on Vec4.
  */
 class Quat extends Vec4 implements V4Q {
   /**
@@ -246,6 +246,26 @@ class Quat extends Vec4 implements V4Q {
     return (this.clone() as Quat).invert();
   }
 
+  /**
+   * Alias of {@link Quat.invert}: the quaternion inverse, in place. Unlike
+   * `Vec4.inverse`, this is not the reciprocal of each component.
+   *
+   * @returns This quaternion, for chaining.
+   */
+  inverse(): Quat {
+    return this.invert();
+  }
+
+  /**
+   * Alias of {@link Quat.invertNew}: returns the quaternion inverse as a new
+   * quaternion and leaves this one unchanged.
+   *
+   * @returns A new, inverted Quat.
+   */
+  inverseNew(): Quat {
+    return this.invertNew();
+  }
+
   // Getters and setters
 
   /**
@@ -310,6 +330,38 @@ class Quat extends Vec4 implements V4Q {
       scale0 * q1.y + scale1 * y2,
       scale0 * q1.z + scale1 * z2,
       scale0 * q1.w + scale1 * w2
+    );
+  }
+
+  /**
+   * Create a new Quat from a loosely typed value, as {@link Vec4.interpolate}
+   * does: a number for all four components, a comma-separated string, an
+   * `[x, y, z, w]` array, or any object with x, y, z and w.
+   *
+   * @param v The value to convert.
+   * @returns A new Quat.
+   */
+  static interpolate(v: Vec4Like | number | string): Quat {
+    const r = Vec4.interpolate(v);
+    return new Quat(r.x, r.y, r.z, r.w);
+  }
+
+  /**
+   * Linearly interpolate between two quaternions, component by component.
+   * The result isn't normalised; use {@link Quat.slerp} for an even rotation,
+   * or normalise the result.
+   *
+   * @param q1 The start quaternion, returned when `t` is 0.
+   * @param q2 The end quaternion, returned when `t` is 1.
+   * @param t The interpolation amount, usually from 0 to 1.
+   * @returns A new Quat.
+   */
+  static lerp(q1: V4Q, q2: V4Q, t: number): Quat {
+    return new Quat(
+      q1.x + t * (q2.x - q1.x),
+      q1.y + t * (q2.y - q1.y),
+      q1.z + t * (q2.z - q1.z),
+      q1.w + t * (q2.w - q1.w)
     );
   }
 

@@ -482,15 +482,14 @@ class Mat4 {
     return this;
   }
   /**
-   * Meant to be like {@link Mat4.transformTo}, returning a new matrix and
-   * leaving this one unchanged. It currently calls {@link Mat4.transform}, so
-   * it adds `v` to the translation rather than setting it.
+   * Like {@link Mat4.transformTo}, but returns a new matrix and leaves this
+   * one unchanged.
    *
-   * @param v The translation.
+   * @param v The new translation.
    * @returns A new matrix.
    */
   transformToNew(v: Vec3Like): Mat4 {
-    return this.clone().transform(v);
+    return this.clone().transformTo(v);
   }
 
   /**
@@ -925,23 +924,24 @@ class Mat4 {
   }
 
   /**
-   * The rotation, as a new {@link Quat}, found by removing {@link Mat4.scaling}
-   * from the upper 3×3 part. Only reliable when the scale is uniform.
+   * The rotation, as a new {@link Quat}, found by dividing each of the first
+   * three columns by its length ({@link Mat4.scaling}). Works for any
+   * positive scale, uniform or not, as long as there is no shear.
    */
   get rotation(): Quat {
     const scale = this.scaling.inverse();
 
-    let sm11 = this.a11 * scale.x;
-    let sm12 = this.a12 * scale.y;
-    let sm13 = this.a13 * scale.z;
+    const sm11 = this.a11 * scale.x;
+    const sm12 = this.a12 * scale.x;
+    const sm13 = this.a13 * scale.x;
 
-    let sm21 = this.a21 * scale.x;
-    let sm22 = this.a22 * scale.y;
-    let sm23 = this.a23 * scale.z;
+    const sm21 = this.a21 * scale.y;
+    const sm22 = this.a22 * scale.y;
+    const sm23 = this.a23 * scale.y;
 
-    let sm31 = this.a31 * scale.x;
-    let sm32 = this.a32 * scale.y;
-    let sm33 = this.a33 * scale.z;
+    const sm31 = this.a31 * scale.z;
+    const sm32 = this.a32 * scale.z;
+    const sm33 = this.a33 * scale.z;
 
     const trace = sm11 + sm22 + sm33;
     let S = 0;
@@ -1038,10 +1038,10 @@ class Mat4 {
    * Create a rotation matrix around an axis. See {@link Mat4.rotate}.
    *
    * @param r The angle, in radians.
-   * @param axis The axis to rotate around, as a {@link Vec3Like}. It is normalised for you; if its length is close to zero you get the identity matrix.
+   * @param axis The axis to rotate around, as a Vec3 or `[x, y, z]` array. It is normalised for you; if its length is close to zero you get the identity matrix.
    * @returns A new matrix.
    */
-  static fromRotation(r: number, axis: any) {
+  static fromRotation(r: number, axis: Vec3Like): Mat4 {
     return new Mat4().rotate(r, axis);
   }
 
