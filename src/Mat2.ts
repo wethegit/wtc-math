@@ -424,29 +424,36 @@ class Mat2 {
   }
 
   /**
-   * A new array of the elements in row-major order (`[a11, a21, a12, a22]`),
-   * which is the transpose of {@link Mat2.array}. Despite the name, this is
-   * not the column-major order WebGL expects; use `array` for that.
+   * A new array of the elements in column-major order, the same as
+   * {@link Mat2.array}.
+   *
+   * @deprecated Use {@link Mat2.array}, or {@link Mat2.rowArray} for
+   * row-major order. Older versions of this getter returned the row-major order that `rowArray` now gives.
    */
   get columnArray(): number[] {
+    return this.array;
+  }
+
+  /**
+   * A new array of the elements in row-major order (`[a11, a21, a12, a22]`),
+   * the transpose of {@link Mat2.array}.
+   */
+  get rowArray(): number[] {
     return [this.a11, this.a21, this.a12, this.a22];
   }
 
   /**
-   * Create a rotation matrix from an angle in radians.
-   *
-   * Note: the result is `[cos r, -sin r, sin r, cos r]` in column-major
-   * order, which rotates clockwise by `r`. This is the opposite direction to
-   * {@link Mat2.rotate}, so `Mat2.fromAngle(r)` equals
-   * `Mat2.identity().rotate(-r)`.
+   * Create a matrix that rotates counter-clockwise by an angle in radians,
+   * the same direction as {@link Mat2.rotate}: `Mat2.fromAngle(r)` equals
+   * `Mat2.identity().rotate(r)`.
    *
    * @param r The angle, in radians.
    */
   static fromAngle(r: number): Mat2 {
-    let s = Math.sin(r);
-    let c = Math.cos(r);
+    const s = Math.sin(r);
+    const c = Math.cos(r);
 
-    return new Mat2(c, -s, s, c);
+    return new Mat2(c, s, -s, c);
   }
 
   /**

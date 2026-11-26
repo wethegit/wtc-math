@@ -387,13 +387,24 @@ class Mat3 {
    * the translation is applied to a vector before this matrix. Returns this
    * matrix, for chaining.
    *
-   * @param v The x and y offsets.
+   * @param v The x and y offsets, as a vector or `[x, y]` array.
    */
-  translate(v: Vec2): Mat3 {
-    this.a31 += v.x * this.a11 + v.y * this.a21;
-    this.a32 += v.x * this.a12 + v.y * this.a22;
-    this.a33 += v.x * this.a13 + v.y * this.a23;
+  translate(v: Vec2Like): Mat3 {
+    const [x, y] = Array.isArray(v) ? v : [v.x, v.y];
+    this.a31 += x * this.a11 + y * this.a21;
+    this.a32 += x * this.a12 + y * this.a22;
+    this.a33 += x * this.a13 + y * this.a23;
     return this;
+  }
+
+  /**
+   * Like {@link Mat3.translate}, but returns a new matrix and leaves this one
+   * unchanged.
+   *
+   * @param v The x and y offsets, as a vector or `[x, y]` array.
+   */
+  translateNew(v: Vec2Like): Mat3 {
+    return this.clone().translate(v);
   }
 
   /**
@@ -700,12 +711,21 @@ class Mat3 {
   }
 
   /**
-   * A new array of the elements in row-major order
-   * (`[a11, a21, a31, a12, …, a33]`), which is the transpose of
-   * {@link Mat3.array}. Despite the name, this is not the column-major order
-   * WebGL expects; use `array` for that.
+   * A new array of the elements in column-major order, the same as
+   * {@link Mat3.array}.
+   *
+   * @deprecated Use {@link Mat3.array}, or {@link Mat3.rowArray} for
+   * row-major order. Older versions of this getter returned the row-major order that `rowArray` now gives.
    */
   get columnArray(): number[] {
+    return this.array;
+  }
+
+  /**
+   * A new array of the elements in row-major order
+   * (`[a11, a21, a31, a12, …, a33]`), the transpose of {@link Mat3.array}.
+   */
+  get rowArray(): number[] {
     return [
       this.a11,
       this.a21,
@@ -742,20 +762,17 @@ class Mat3 {
   }
 
   /**
-   * Create a 2D rotation matrix from an angle in radians.
-   *
-   * Note: the upper-left 2×2 is `[cos r, -sin r, sin r, cos r]` in
-   * column-major order, which rotates clockwise by `r`. This is the opposite
-   * direction to {@link Mat3.rotate}, so `Mat3.fromAngle(r)` equals
-   * `Mat3.identity().rotate(-r)`.
+   * Create a 2D matrix that rotates counter-clockwise by an angle in
+   * radians, the same direction as {@link Mat3.rotate}: `Mat3.fromAngle(r)`
+   * equals `Mat3.identity().rotate(r)`.
    *
    * @param r The angle, in radians.
    */
   static fromAngle(r: number): Mat3 {
-    let s = Math.sin(r);
-    let c = Math.cos(r);
+    const s = Math.sin(r);
+    const c = Math.cos(r);
 
-    return new Mat3(c, -s, 0, s, c, 0, 0, 0, 1);
+    return new Mat3(c, s, 0, -s, c, 0, 0, 0, 1);
   }
 
   /**
@@ -770,11 +787,9 @@ class Mat3 {
 
   /**
    * Create a rotation matrix from a quaternion. The quaternion is assumed to
-   * be normalised.
-   *
-   * Note: the result is the transpose of the usual column-major rotation
-   * matrix (the one `Mat4.fromQuat` builds), so it rotates by the inverse of
-   * `q`.
+   * be normalised. The result is the upper-left 3×3 of
+   * {@link Mat4.fromQuat}, and rotates a vector the same way as
+   * `transformByQuat`.
    *
    * @param q The quaternion, as an object or `[x, y, z, w]` array.
    */
@@ -795,13 +810,13 @@ class Mat3 {
 
     return new Mat3(
       1 - yy - zz,
-      yx - wz,
-      zx + wy,
       yx + wz,
-      1 - xx - zz,
-      zy - wx,
       zx - wy,
+      yx - wz,
+      1 - xx - zz,
       zy + wx,
+      zx + wy,
+      zy - wx,
       1 - xx - yy
     );
   }

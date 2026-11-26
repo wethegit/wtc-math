@@ -1285,7 +1285,7 @@ class Vec4 implements V4Q {
    * @param v1 The start vector, returned when `d` is 0.
    * @param v2 The end vector, returned when `d` is 1.
    * @param d The interpolation amount, usually from 0 to 1.
-   * @returns A new Vec4 (also when called as `Quat.lerp`).
+   * @returns A new Vec4.
    */
   static lerp(v1: Vec4, v2: Vec4, d: number) {
     return new Vec4(

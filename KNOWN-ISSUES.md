@@ -2,22 +2,12 @@
 
 Bugs and allocation problems found while documenting the library, to fix in later releases. The TSDoc comments describe what the code does today, and the guides avoid the broken parts. Fixing one is a behaviour change, so each needs a changeset, a test, and an update to the comment that describes the current behaviour.
 
-## Rotation direction
-
-- **`Mat2.fromAngle` and `Mat3.fromAngle` turn the wrong way.** They build the transpose of a rotation, so `fromAngle(r)` equals `identity().rotate(-r)`: clockwise, where `Vec2.rotate` and `Mat2`/`Mat3.rotate` turn counter-clockwise.
-- **`Mat3.fromQuat` rotates by the inverse of the quaternion.** It returns the transpose of `Mat4.fromQuat`'s upper 3×3. `new Vec3(1, 0, 0).transformByMat3(Mat3.fromQuat(q))` disagrees with `transformByQuat(q)`.
-
 ## Matrices
 
-- **`Mat4.transformToNew` adds to the translation instead of setting it.** It calls `transform` rather than `transformTo`.
-- **`Mat4.rotation` is only right for a uniform scale.** It divides each row by a scale factor where it should divide each column by its own. The same bug is in gl-matrix.
-- **`Mat2.columnArray` and `Mat3.columnArray` are row-major.** `array` is already column-major; `columnArray` returns the transpose.
 - **`invert` leaves a singular matrix unchanged without saying so** (Mat2, Mat3, Mat4), where `Mat3.fromMat4` returns null for the same case.
-- `Mat4.fromRotation` types its `axis` as `any` rather than `Vec3Like`, and `Mat3.translate` takes a `Vec2` rather than a `Vec2Like` and has no `translateNew`.
 
 ## Quaternions
 
-- **`Quat.inverse()`, inherited from Vec4, takes the reciprocal of each component**, which is easy to confuse with `invert()`. `Quat.lerp` and `Quat.interpolate` return a `Vec4` rather than a `Quat`.
 - `Quat.rotateX`, `rotateY` and `rotateZ` ignore their `origin` argument, which is there only to match Vec4.
 
 ## Color

@@ -74,9 +74,7 @@ orientation.multiply(step).normalise()
 const difference = to.multiplyNew(from.invertNew())
 ```
 
-::: warning
-`inverse()`, inherited from `Vec4`, takes `1 / x` of each component. It isn't the inverse rotation; that's `invert()`.
-:::
+`inverse()` and `inverseNew()` are other names for `invert()` and `invertNew()`. On a `Vec4` they take `1 / x` of each component instead.
 
 ## Interpolating
 
@@ -86,7 +84,7 @@ const difference = to.multiplyNew(from.invertNew())
 const halfway = Quat.slerp(from, to, 0.5)
 ```
 
-Don't interpolate quaternions with `Vec4.lerp`; it doesn't keep a steady speed or a unit length.
+Don't interpolate rotations with `Quat.lerp`; it doesn't keep a steady speed or a unit length.
 
 ## Related
 
