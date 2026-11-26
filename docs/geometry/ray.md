@@ -29,7 +29,7 @@ ray.at(2) // Vec3(0, 1, 3)
 Each intersection method returns the point where the ray first meets the shape, as a new `Vec3`, or null if it misses:
 
 - `intersectSphere(centre, radius)` hits a sphere. From inside the sphere it returns the point where the ray leaves.
-- `intersectBox(min, max)` hits an axis-aligned box given by its opposite corners. It returns null when the ray starts inside the box.
+- `intersectBox(min, max)` hits an axis-aligned box given by its opposite corners. From inside the box it returns the point where the ray leaves.
 - `intersectPlane(plane)` hits a [`Plane`](/geometry/plane). It returns null when the ray runs parallel to the plane or points away from it.
 
 ```js

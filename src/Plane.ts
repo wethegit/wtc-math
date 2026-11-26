@@ -15,10 +15,8 @@ import type { Vec3Like } from "./types.js";
 /**
  * An infinite plane defined by `normal · p + constant = 0`.
  *
- * Distances are only true distances when `normal` is unit length. The
- * constructor does not normalise it; {@link Plane.fromNormalAndPoint} and
- * {@link Plane.fromPoints} do, and {@link Plane.normalize} fixes an existing
- * plane.
+ * The constructor normalises the normal, so distances are true distances.
+ * If you assign a non-unit `normal` afterwards, call {@link Plane.normalize}.
  */
 class Plane {
   /** The plane's normal. Points on its side have a positive signed distance. */
@@ -27,7 +25,11 @@ class Plane {
   constant: number;
 
   /**
-   * Creates a plane from a normal and constant. Neither is normalised.
+   * Creates a plane from a normal and constant, so that points on it satisfy
+   * `normal · p + constant = 0`. The normal is scaled to unit length and the
+   * constant by the same factor, which keeps the plane in place:
+   * `new Plane([0, 2, 0], -4)` is the plane y = 2, stored as `(0, 1, 0)` and
+   * `-2`.
    *
    * @param normal The plane normal. Defaults to `(0, 1, 0)`.
    * @param constant The plane constant. Defaults to `0`, a plane through the origin.
@@ -35,6 +37,7 @@ class Plane {
   constructor(normal: Vec3Like = new Vec3(0, 1, 0), constant = 0) {
     this.normal = Vec3.interpolate(normal);
     this.constant = constant;
+    this.normalize();
   }
 
   /**
@@ -48,12 +51,15 @@ class Plane {
 
   /**
    * Scales the normal to unit length and the constant by the same factor, so
-   * the plane stays in place. Modifies this plane.
+   * the plane stays in place. Modifies this plane. A zero normal is left
+   * unchanged.
    *
    * @returns This plane.
    */
   normalize(): Plane {
-    const inv = 1 / this.normal.length;
+    const length = this.normal.length;
+    if (length === 0) return this;
+    const inv = 1 / length;
     this.normal.multiplyScalar(inv);
     this.constant *= inv;
     return this;
@@ -73,8 +79,7 @@ class Plane {
 
   /**
    * Signed distance from the plane to a point: positive on the normal side,
-   * negative on the other, zero on the plane. Scaled by the normal's length if
-   * it is not unit length.
+   * negative on the other, zero on the plane.
    *
    * @param point The point to measure.
    * @returns `normal · point + constant`.
@@ -85,8 +90,7 @@ class Plane {
   }
 
   /**
-   * Projects a point onto the plane surface along the normal. Assumes a unit
-   * normal.
+   * Projects a point onto the plane surface along the normal.
    *
    * @param point The point to project.
    * @returns A new {@link Vec3} on the plane.

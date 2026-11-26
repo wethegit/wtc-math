@@ -44,7 +44,7 @@ map(5, 0, 10, 100, 200) // 150
 const progress = clamp(map(scrollY, start, end, 0, 1), 0, 1)
 ```
 
-Make sure `inMin` and `inMax` differ, or it divides by zero.
+If `inMin` and `inMax` are the same, there's no range to map from, and it returns `outMin`.
 
 ## smoothstep and smootherstep
 

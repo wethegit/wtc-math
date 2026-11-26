@@ -121,41 +121,44 @@ class Ray {
   }
 
   /**
-   * Intersects the ray with an axis-aligned box using the slab method.
-   * Rays parallel to an axis are handled through `Infinity` arithmetic.
+   * Intersects the ray with an axis-aligned box using the slab method. If the
+   * origin is inside the box, returns the exit point, as
+   * {@link Ray.intersectSphere} does.
    *
    * @param min The box corner with the smallest x, y and z.
    * @param max The box corner with the largest x, y and z.
-   * @returns A new {@link Vec3} where the ray enters the box, or `null` if it
-   * misses, the box is behind it, or the origin is inside the box.
+   * @returns A new {@link Vec3} where the ray enters the box (or leaves it,
+   * from inside), or `null` if it misses or the box is behind it.
    */
   intersectBox(min: Vec3Like, max: Vec3Like): Vec3 | null {
     const lo = Vec3.interpolate(min);
     const hi = Vec3.interpolate(max);
-    const { x: ox, y: oy, z: oz } = this.origin;
-    const { x: dx, y: dy, z: dz } = this.direction;
+    const origin = this.origin.array;
+    const direction = this.direction.array;
+    const los = lo.array;
+    const his = hi.array;
 
-    let tmin = (lo.x - ox) / dx;
-    let tmax = (hi.x - ox) / dx;
-    if (tmin > tmax) [tmin, tmax] = [tmax, tmin];
+    let tmin = -Infinity;
+    let tmax = Infinity;
 
-    let tymin = (lo.y - oy) / dy;
-    let tymax = (hi.y - oy) / dy;
-    if (tymin > tymax) [tymin, tymax] = [tymax, tymin];
+    for (let i = 0; i < 3; i++) {
+      const o = origin[i];
+      const d = direction[i];
+      if (d === 0) {
+        // Parallel to this slab: it either always lies within it or never does
+        if (o < los[i] || o > his[i]) return null;
+        continue;
+      }
+      let t0 = (los[i] - o) / d;
+      let t1 = (his[i] - o) / d;
+      if (t0 > t1) [t0, t1] = [t1, t0];
+      tmin = Math.max(tmin, t0);
+      tmax = Math.min(tmax, t1);
+      if (tmin > tmax) return null;
+    }
 
-    if (tmin > tymax || tymin > tmax) return null;
-    tmin = Math.max(tmin, tymin);
-    tmax = Math.min(tmax, tymax);
-
-    let tzmin = (lo.z - oz) / dz;
-    let tzmax = (hi.z - oz) / dz;
-    if (tzmin > tzmax) [tzmin, tzmax] = [tzmax, tzmin];
-
-    if (tmin > tzmax || tzmin > tmax) return null;
-    tmin = Math.max(tmin, tzmin);
-
-    if (tmin < 0) return null;
-    return this.at(tmin);
+    if (tmax < 0) return null;
+    return this.at(tmin >= 0 ? tmin : tmax);
   }
 }
 

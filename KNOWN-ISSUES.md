@@ -10,11 +10,6 @@ Bugs and allocation problems found while documenting the library, to fix in late
 
 - `Quat.rotateX`, `rotateY` and `rotateZ` ignore their `origin` argument, which is there only to match Vec4.
 
-## Plane and Ray
-
-- **`Ray.intersectBox` returns null when the ray starts inside the box**, where `intersectSphere` returns the exit point. A ray with a zero component whose origin lies exactly on a slab plane gives 0/0 = NaN.
-- `Plane`'s constructor doesn't normalise the normal, so `distanceTo` and `projectPoint` are wrong for a non-unit normal unless you call `normalize()`.
-
 ## Allocation in per-frame methods
 
 Many methods documented as "in place" still allocate temporary objects, which adds garbage-collection pressure in render loops. wtc-gl works around this with its own allocation-free copies in `packages/wtc-gl/src/core/matrix.ts`; once these are fixed it can drop that file. Benchmark before and after (Vitest's `bench`) so the gains are measured, not assumed.
@@ -47,8 +42,3 @@ The common per-frame operations need forms that write into an object you already
 ### Field access (measure first)
 
 Every component read goes through a getter that does `this.#x || 0`, and every write through a setter that type-checks and can throw. That isn't allocation, but it is the cost on every operation. Plain public fields, or a `Float32Array`/`Float64Array` backing store (which would also make `toArray` a single `set`), would be faster. This changes behaviour, though: NaN would be visible, bad values wouldn't throw, and a typed array changes precision or what `.array` returns. It needs a benchmark and probably a major version.
-
-## Scalar functions
-
-- `pingpong` returns negative values for a negative `t`, because `%` keeps the sign.
-- `map` divides by zero when `inMin === inMax`, and `smoothstep` and `smootherstep` return NaN when `edge0 === edge1`.

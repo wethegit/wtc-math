@@ -26,7 +26,7 @@ const floor = Plane.fromNormalAndPoint([0, 1, 0], [0, 2, 0]) // constant -2
 const face = Plane.fromPoints(a, b, c)
 ```
 
-Both normalise the normal for you. The constructor doesn't, so pass it a unit normal, or call `normalize()` afterwards, which scales the normal and the constant together. `negate()` flips the plane to face the other way.
+The constructor and both of these normalise the normal for you. The constructor scales the constant by the same amount, so `new Plane([0, 2, 0], -4)` is still the plane y = 2. If you assign a new `normal` later, call `normalize()`, which scales the normal and the constant together. `negate()` flips the plane to face the other way.
 
 ## Distance and projection
 
