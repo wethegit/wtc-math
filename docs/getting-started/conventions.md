@@ -30,7 +30,7 @@ const next = position.clone().add(velocity.scaleNew(delta))
 The in-place methods change the object everywhere it's referenced. If two things share one vector, changing it through one changes it for both. Clone a vector before keeping it if its owner might change it later.
 :::
 
-Methods that compute a number, such as `dot`, `distance` or `length`, don't change anything. A few others return a new object without the `New` suffix too, notably `Vec3.cross` and the static helpers such as `Vec2.lerp`.
+Methods that compute a number, such as `dot`, `distance` or `length`, don't change anything. The static helpers, such as `Vec2.lerp`, return a new object without the `New` suffix.
 
 ## Static helpers
 

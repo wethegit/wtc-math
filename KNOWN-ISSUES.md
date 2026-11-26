@@ -7,25 +7,6 @@ Bugs and allocation problems found while documenting the library, to fix in late
 - **`Mat2.fromAngle` and `Mat3.fromAngle` turn the wrong way.** They build the transpose of a rotation, so `fromAngle(r)` equals `identity().rotate(-r)`: clockwise, where `Vec2.rotate` and `Mat2`/`Mat3.rotate` turn counter-clockwise.
 - **`Mat3.fromQuat` rotates by the inverse of the quaternion.** It returns the transpose of `Mat4.fromQuat`'s upper 3×3. `new Vec3(1, 0, 0).transformByMat3(Mat3.fromQuat(q))` disagrees with `transformByQuat(q)`.
 
-## Swizzle setters
-
-The getters are right; these setters write the wrong components.
-
-- **`Vec3.yzx` and `Vec3.zxy` are swapped**, and so are `Vec4.yzx` and `Vec4.zxy`. `v.yzx = [a, b, c]` sets x = b, y = c, z = a, where it should set y = a, z = b, x = c.
-- **`Vec3.zy` and `Vec4.zy` write in reverse**: z = v.y and y = v.x, where it should be z = v.x and y = v.y.
-- **`xx`, `yy` and `zz` (Vec2, Vec3) take their value from the second component** (`v.y`). Using the first would match the other setters.
-
-## Vectors
-
-- **The `lengthSquared` setter sets the wrong length** (Vec2, Vec3, Vec4). It scales by `value / lengthSquared`, so the new squared length is `value² / old`. It should scale by `Math.sqrt(value / lengthSquared)`.
-- **Setting `length` or `lengthSquared` on a zero vector stores NaN**, which the getters then hide by reading it as 0.
-- **`Vec3.cross` and `Vec4.cross` don't change the vector in place**, unlike every other method without the `New` suffix, so `cross` and `crossNew` do the same thing.
-- **`Vec4.getAngle` returns the angle between two rotations**, `acos(2·dot² − 1)`, not the angle between two 4D vectors. It can also return NaN when rounding pushes the dot product just past 1.
-- **`inverse` has no divide-by-zero guard** (Vec2, Vec3, Vec4): a zero component becomes `Infinity`, where `divide` gives 0.
-- **`Vec2.slope`'s setter flips vectors that point left**, because it sets the angle to `Math.atan(value)`, which is always between -90° and 90°.
-- **The x, y, z and w setters accept NaN** and store it; the getters hide it as 0.
-- `Vec2.rotateDegByNew` names its parameter `radian`, though it takes degrees.
-
 ## Matrices
 
 - **`Mat4.transformToNew` adds to the translation instead of setting it.** It calls `transform` rather than `transformTo`.
@@ -36,7 +17,7 @@ The getters are right; these setters write the wrong components.
 
 ## Quaternions
 
-- **`Quat.inverse()`, inherited from Vec4, takes the reciprocal of each component**, which is easy to confuse with `invert()`. `Quat.lerp`, `Quat.interpolate` and `cross` return a `Vec4` rather than a `Quat`.
+- **`Quat.inverse()`, inherited from Vec4, takes the reciprocal of each component**, which is easy to confuse with `invert()`. `Quat.lerp` and `Quat.interpolate` return a `Vec4` rather than a `Quat`.
 - `Quat.rotateX`, `rotateY` and `rotateZ` ignore their `origin` argument, which is there only to match Vec4.
 
 ## Color
@@ -65,7 +46,7 @@ These can use local numbers instead of temporary objects, with identical results
 - **Matrix `multiply`, `rotate`, `invert` and `adjoint`** (Mat2, Mat3, Mat4) clone the matrix first. `Mat4.rotate` also builds a second Mat4. A clone runs the constructor and all 16 type-checked setters.
 - **`Quat.multiply` and `Quat.rotateX`, `rotateY`, `rotateZ`** clone the quaternion.
 - **`Plane` and `Ray`** run every point through `Vec3.interpolate`, which allocates a Vec3 even when given one, then use `subtractNew`, `addNew` and `multiplyScalarNew` along the way. They could read x, y and z from the `Vec3Like` directly.
-- **`Vec2.getAngle`, `Vec3.getAngle` and `Vec4.getAngle`** clone both vectors to normalise them, where they could divide the dot product by the two lengths.
+- **`Vec2.getAngle`** clones both vectors to normalise them, where it could divide the dot product by the two lengths, as `Vec3.getAngle` and `Vec4.getAngle` do.
 
 ### New allocation-free API (additive)
 

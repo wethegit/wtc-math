@@ -15,15 +15,14 @@ const up = new Vec3(0, 1, 0)
 
 ## Cross product
 
-`cross(v)` returns a new vector at right angles to both, with a length equal to the area of the parallelogram they make. Its direction follows the right-hand rule: `x` cross `y` is `z`.
+`cross(v)` gives a vector at right angles to both, with a length equal to the area of the parallelogram they make. Its direction follows the right-hand rule: `x` cross `y` is `z`. Like other methods, `cross` changes the vector in place, and `crossNew` returns a new one:
 
 ```js
 new Vec3(1, 0, 0).cross(new Vec3(0, 1, 0)) // (0, 0, 1)
-```
 
-::: warning
-Unlike most methods, `cross` doesn't change the vector it's called on. It returns a new vector, as `crossNew` does.
-:::
+const a = new Vec3(1, 0, 0)
+const n = a.crossNew(new Vec3(0, 1, 0)) // n is (0, 0, 1), a is unchanged
+```
 
 Crossing two edges of a triangle gives its normal, the direction the face points. The dot product of the normal with the direction to the camera tells you which side of the face you're looking at:
 
